@@ -1,0 +1,4133 @@
+{
+  "metadata": {
+    "description": "Seed atualizado para o schema atual do DonkeyCode Back-end.",
+    "notes": [
+      "PlantaForrageira não possui institution_id no schema atual, então esse campo foi removido das plantas.",
+      "Institution usa id e name; timestamps podem ser gerados pelo Prisma.",
+      "PlantTemplate atual possui plant_id, field_name e unit; as medições foram achatadas para esse formato.",
+      "Os itens de checklist foram preservados em checklist_templates_pendentes_schema porque o schema atual não possui ChecklistTemplate e Checklist depende de form_id."
+    ]
+  },
+  "institution": {
+    "id": "uuid-instituicao-001",
+    "name": "UFRPE - Departamento de Zootecnia"
+  },
+  "academic_periods": [
+    {
+      "id": "period-2026-1",
+      "name": "2026.1",
+      "semester": "PRIMEIRO",
+      "start_date": "2026-02-01T00:00:00.000Z",
+      "end_date": "2026-07-15T23:59:59.000Z"
+    },
+    {
+      "id": "period-2026-2",
+      "name": "2026.2",
+      "semester": "SEGUNDO",
+      "start_date": "2026-08-01T00:00:00.000Z",
+      "end_date": "2026-12-15T23:59:59.000Z"
+    }
+  ],
+  "plantas_forrageiras": [
+    {
+      "id": "pf-001",
+      "name": "Gliricídia",
+      "category": "LEGUMINOSA_ARBUSTIVA",
+      "description": "Leguminosa arbórea de múltiplo uso, fixadora de nitrogênio, tolerante à seca. Amplamente utilizada em sistemas silvipastoris no Nordeste.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-002",
+      "name": "Leucena",
+      "category": "LEGUMINOSA_ARBUSTIVA",
+      "description": "Leguminosa arbustiva de alto valor proteico, fixadora de nitrogênio. Indicada para consórcio com gramíneas e produção de feno.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-003",
+      "name": "Cunhã",
+      "category": "LEGUMINOSA_HERBACEA",
+      "description": "Leguminosa herbácea trepadeira, de boa palatabilidade e valor nutritivo. Usada como forrageira e cobertura do solo.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-004",
+      "name": "Orelha de onça",
+      "category": "LEGUMINOSA_HERBACEA",
+      "description": "Leguminosa herbácea rasteira, tolerante à seca e solos pobres. Boa cobertura do solo e fixação de nitrogênio.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-005",
+      "name": "Palma Gigante",
+      "category": "CACTACEA",
+      "description": "Opuntia ficus-indica. Cactácea de grande porte, alta produção de biomassa. Sensível à cochonilha-do-carmim.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-006",
+      "name": "Palma Miúda",
+      "category": "CACTACEA",
+      "description": "Nopalea cochenillifera. Cactácea de porte médio, resistente à cochonilha-do-carmim. Muito utilizada no semiárido nordestino.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-007",
+      "name": "Palma IPA Sertânia",
+      "category": "CACTACEA",
+      "description": "Nopalea sp. Clone selecionado pelo IPA, resistente à cochonilha-do-carmim, hábito de crescimento semiaberto.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-008",
+      "name": "Cactáceas nativas",
+      "category": "CACTACEA",
+      "description": "Conjunto de cactáceas nativas da Caatinga com potencial forrageiro. Adaptadas ao semiárido.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-009",
+      "name": "Palma Orelha Mexicana",
+      "category": "CACTACEA",
+      "description": "Opuntia stricta. Resistente à cochonilha-do-carmim, cladódios de formato alongado.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-010",
+      "name": "Palma Orelha Africana",
+      "category": "CACTACEA",
+      "description": "Opuntia sp. de origem africana, resistente à cochonilha-do-carmim, boa produtividade em condições de sequeiro.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-011",
+      "name": "Pornunça",
+      "category": "LEGUMINOSA_ARBUSTIVA",
+      "description": "Híbrido de mandioca brava com mandioca mansa. Tolerante à seca, muito utilizado no semiárido como forrageira arbustiva.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-012",
+      "name": "Calopogônio",
+      "category": "LEGUMINOSA_HERBACEA",
+      "description": "Leguminosa rasteira e trepadeira, excelente cobertura do solo e fixadora de nitrogênio. Boa tolerância à sombra.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-013",
+      "name": "Jureminha",
+      "category": "LEGUMINOSA_ARBUSTIVA",
+      "description": "Leguminosa nativa da Caatinga, arbustiva, boa palatabilidade para caprinos e ovinos. Tolerante à seca.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-014",
+      "name": "Kudzu",
+      "category": "LEGUMINOSA_HERBACEA",
+      "description": "Pueraria phaseoloides. Leguminosa trepadeira tropical, boa produção de massa verde e valor nutritivo.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-015",
+      "name": "Centrosema",
+      "category": "LEGUMINOSA_HERBACEA",
+      "description": "Leguminosa herbácea perene, tolerante à seca e solos ácidos. Boa associação com gramíneas tropicais.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-016",
+      "name": "Tifton",
+      "category": "GRAMINEA_PORTE_BAIXO",
+      "description": "Cynodon spp. cv. Tifton 85. Gramínea rasteira de alto rendimento, indicada para feno e pastejo intensivo.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-017",
+      "name": "Estilosantes cv. Campo Grande",
+      "category": "LEGUMINOSA_HERBACEA",
+      "description": "Leguminosa herbácea perene, resistente à antracnose, indicada para consorciação com gramíneas.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-018",
+      "name": "Guandu",
+      "category": "LEGUMINOSA_ARBUSTIVA",
+      "description": "Cajanus cajan. Leguminosa arbustiva anual ou perene, alto valor proteico, resistente à seca.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-019",
+      "name": "Mucuna",
+      "category": "LEGUMINOSA_HERBACEA",
+      "description": "Mucuna pruriens. Leguminosa anual trepadeira, excelente adubação verde e cobertura do solo.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-020",
+      "name": "Milho São José",
+      "category": "CULTURA_ANUAL",
+      "description": "Cultivar de milho para silagem e forragem verde. Alta produção de biomassa.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-021",
+      "name": "Capim gordura",
+      "category": "GRAMINEA_PORTE_MEDIO",
+      "description": "Melinis minutiflora. Gramínea perene, boa adaptação ao cerrado, porém invasora em algumas regiões.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-022",
+      "name": "Capim corrente",
+      "category": "GRAMINEA_PORTE_BAIXO",
+      "description": "Gramínea nativa de porte baixo, boa cobertura do solo em regiões semiáridas.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-023",
+      "name": "Capim buffel",
+      "category": "GRAMINEA_PORTE_MEDIO",
+      "description": "Cenchrus ciliaris. Gramínea altamente tolerante à seca, muito utilizada no semiárido nordestino.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-024",
+      "name": "Brachiaria ruziziensis",
+      "category": "GRAMINEA_PORTE_MEDIO",
+      "description": "Urochloa ruziziensis. Gramínea de porte médio, indicada para integração lavoura-pecuária, boa produção de palhada.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-025",
+      "name": "Camelo",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Cultivar de capim-elefante adaptado a regiões semiáridas, porte elevado e boa resistência ao déficit hídrico.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-026",
+      "name": "Soja",
+      "category": "OLEAGINOSA_FORRAGEIRA",
+      "description": "Glycine max. Leguminosa anual de alto valor proteico, usada como forrageira e para produção de grãos.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-027",
+      "name": "Cana-de-açúcar",
+      "category": "CULTURA_ANUAL",
+      "description": "Saccharum officinarum. Cultura perene de alta produção de biomassa, muito utilizada na alimentação animal no período seco.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-028",
+      "name": "Massai",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Panicum maximum cv. Massai. Gramínea de porte médio-alto, tolerante à seca e solos ácidos, boa rebrota.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-029",
+      "name": "Girassol",
+      "category": "OLEAGINOSA_FORRAGEIRA",
+      "description": "Helianthus annuus. Cultura anual usada para forragem, silagem e produção de grãos. Alta resposta à adubação.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-030",
+      "name": "BRS Piatã",
+      "category": "GRAMINEA_PORTE_MEDIO",
+      "description": "Urochloa brizantha cv. BRS Piatã. Gramínea de porte médio, tolerante ao estresse hídrico e solos bem drenados.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-031",
+      "name": "Sudão",
+      "category": "CULTURA_ANUAL",
+      "description": "Sorghum sudanense. Gramínea anual de rápido crescimento, usada para pastejo e produção de feno.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-032",
+      "name": "Sorgo SF 15",
+      "category": "CULTURA_ANUAL",
+      "description": "Sorghum bicolor cultivar forrageiro. Alta produção de biomassa, indicado para silagem.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-033",
+      "name": "Andropogon",
+      "category": "GRAMINEA_PORTE_BAIXO",
+      "description": "Andropogon gayanus cv. Planaltina. Gramínea perene, adaptada ao cerrado e semiárido, boa produção de feno.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-034",
+      "name": "BRS Capiaçu",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Pennisetum purpureum cv. BRS Capiaçu. Capim-elefante de altíssima produção de biomassa, indicado para corte e silagem.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-035",
+      "name": "Guandu",
+      "category": "LEGUMINOSA_ARBUSTIVA",
+      "description": "Cajanus cajan. Segunda ocorrência no croqui (canteiro 31-40). Leguminosa arbustiva de alto valor proteico.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-036",
+      "name": "Feijão de rola",
+      "category": "LEGUMINOSA_HERBACEA",
+      "description": "Vigna unguiculata. Leguminosa anual de ciclo curto, tolerante à seca, usada como forragem e alimentação humana.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-037",
+      "name": "Amendoim Forrageiro",
+      "category": "LEGUMINOSA_HERBACEA",
+      "description": "Arachis pintoi. Leguminosa rasteira perene, alta tolerância ao pisoteio, excelente para consorciação.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-038",
+      "name": "Milho CMS-36",
+      "category": "CULTURA_ANUAL",
+      "description": "Cultivar de milho composto melhorado, indicado para regiões semiáridas, produção de silagem e forragem.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-039",
+      "name": "Milheto",
+      "category": "CULTURA_ANUAL",
+      "description": "Pennisetum glaucum. Gramínea anual de rápido crescimento, tolerante à seca, usada para pastejo e cobertura do solo.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-040",
+      "name": "Capim Tanzânia",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Panicum maximum cv. Tanzânia. Gramínea de porte alto, alta produção de folhas, indicada para pastejo rotativo.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-041",
+      "name": "Capim Mombaça",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Panicum maximum cv. Mombaça. Gramínea de porte muito alto, alta produção de forragem, exige solos férteis.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-042",
+      "name": "Capim-elefante cv. Mott",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Pennisetum purpureum cv. Mott. Capim-elefante anão, alta relação folha/colmo, indicado para pastejo direto.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-043",
+      "name": "Capim-elefante cv. Merker",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Pennisetum purpureum cv. Merker. Cultivar clássico de capim-elefante, porte alto, boa produção de biomassa.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-044",
+      "name": "Capim-elefante cv. IRI-381",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Pennisetum purpureum cv. IRI-381. Cultivar de capim-elefante com boa adaptação ao clima tropical úmido.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-045",
+      "name": "Capim-elefante cv. Roxo",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Pennisetum purpureum cv. Roxo. Cultivar de capim-elefante com coloração arroxeada, porte alto.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-046",
+      "name": "Híbrido HV-241",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Híbrido de capim-elefante com milheto, alta produção de biomassa e boa qualidade nutricional.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-047",
+      "name": "Xaraés c/ adubação orgânica",
+      "category": "GRAMINEA_PORTE_MEDIO",
+      "description": "Urochloa brizantha cv. Xaraés com tratamento de adubação orgânica. Avaliação comparativa de manejo.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-048",
+      "name": "Xaraés s/ adubação",
+      "category": "GRAMINEA_PORTE_MEDIO",
+      "description": "Urochloa brizantha cv. Xaraés sem adubação. Controle para avaliação comparativa de manejo.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-049",
+      "name": "Capim de planta",
+      "category": "GRAMINEA_PORTE_BAIXO",
+      "description": "Gramínea nativa de ocorrência natural, usada como forrageira extensiva em regiões semiáridas.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-050",
+      "name": "Aruana",
+      "category": "GRAMINEA_PORTE_BAIXO",
+      "description": "Panicum maximum cv. Aruana. Gramínea de porte baixo-médio, indicada para pastejo com pequenos ruminantes.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-051",
+      "name": "Brachiaria decumbens",
+      "category": "GRAMINEA_PORTE_MEDIO",
+      "description": "Urochloa decumbens. Gramínea perene de porte médio, muito difundida no Brasil, boa cobertura do solo.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-052",
+      "name": "Xaraés c/ adubação química",
+      "category": "GRAMINEA_PORTE_MEDIO",
+      "description": "Urochloa brizantha cv. Xaraés com tratamento de adubação química. Avaliação comparativa de manejo.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-053",
+      "name": "Pangolão",
+      "category": "GRAMINEA_PORTE_BAIXO",
+      "description": "Digitaria eriantha. Gramínea perene de porte médio, boa produção de feno e tolerância à seca.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-054",
+      "name": "Swazi",
+      "category": "GRAMINEA_PORTE_BAIXO",
+      "description": "Digitaria swazilandensis. Gramínea perene de porte baixo, boa tolerância ao pastejo intensivo.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-055",
+      "name": "BRS Kurumi",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Pennisetum purpureum cv. BRS Kurumi. Capim-elefante anão de alta qualidade nutricional e relação folha/colmo.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-056",
+      "name": "BRS Quênia",
+      "category": "GRAMINEA_PORTE_BAIXO",
+      "description": "Panicum maximum cv. BRS Quênia. Gramínea de porte médio-baixo, alta densidade de perfilhos, boa para pastejo.",
+      "semester_focus": "AMBOS"
+    },
+    {
+      "id": "pf-057",
+      "name": "Capim Guatemala",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Tripsacum laxum. Gramínea perene de porte alto, boa adaptação a solos úmidos e sombreados.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-058",
+      "name": "Taiwan A-146 2.37",
+      "category": "GRAMINEA_PORTE_ALTO",
+      "description": "Híbrido de capim-elefante com alta produção de biomassa, colmos grossos e folhas largas.",
+      "semester_focus": "PRIMEIRO"
+    },
+    {
+      "id": "pf-059",
+      "name": "Xaraés + Amendoim forrageiro",
+      "category": "GRAMINEA_PORTE_MEDIO",
+      "description": "Consórcio de Urochloa brizantha cv. Xaraés com Arachis pintoi. Avaliação de sistema consorciado.",
+      "semester_focus": "SEGUNDO"
+    },
+    {
+      "id": "pf-060",
+      "name": "Sorgo 2502",
+      "category": "CULTURA_ANUAL",
+      "description": "Sorghum bicolor cultivar 2502. Sorgo forrageiro de alta produção, indicado para silagem e corte.",
+      "semester_focus": "PRIMEIRO"
+    }
+  ],
+  "plant_templates": [
+    {
+      "plant_id": "pf-025",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-025",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-025",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-025",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-025",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-025",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-028",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-028",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-028",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-028",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-028",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-028",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-034",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-034",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-034",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-034",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-034",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-034",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-040",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-040",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-040",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-040",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-040",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-040",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-041",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-041",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-041",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-041",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-041",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-041",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-042",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-042",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-042",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-042",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-042",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-042",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-043",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-043",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-043",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-043",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-043",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-043",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-044",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-044",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-044",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-044",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-044",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-044",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-045",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-045",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-045",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-045",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-045",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-045",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-046",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-046",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-046",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-046",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-046",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-046",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-055",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-055",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-055",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-055",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-055",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-055",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-057",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-057",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-057",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-057",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-057",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-057",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-058",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-058",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-058",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-058",
+      "field_name": "Comprimento da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-058",
+      "field_name": "Largura da folha bandeira",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-058",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-021",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-021",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-021",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-021",
+      "field_name": "Comprimento do entrenó",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-021",
+      "field_name": "Largura da folha",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-021",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-023",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-023",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-023",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-023",
+      "field_name": "Comprimento do entrenó",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-023",
+      "field_name": "Largura da folha",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-023",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-024",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-024",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-024",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-024",
+      "field_name": "Comprimento do entrenó",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-024",
+      "field_name": "Largura da folha",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-024",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-030",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-030",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-030",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-030",
+      "field_name": "Comprimento do entrenó",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-030",
+      "field_name": "Largura da folha",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-030",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-047",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-047",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-047",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-047",
+      "field_name": "Comprimento do entrenó",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-047",
+      "field_name": "Largura da folha",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-047",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-048",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-048",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-048",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-048",
+      "field_name": "Comprimento do entrenó",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-048",
+      "field_name": "Largura da folha",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-048",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-051",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-051",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-051",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-051",
+      "field_name": "Comprimento do entrenó",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-051",
+      "field_name": "Largura da folha",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-051",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-052",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-052",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-052",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-052",
+      "field_name": "Comprimento do entrenó",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-052",
+      "field_name": "Largura da folha",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-052",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-059",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-059",
+      "field_name": "Número de perfilhos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-059",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-059",
+      "field_name": "Comprimento do entrenó",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-059",
+      "field_name": "Largura da folha",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-059",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-016",
+      "field_name": "Altura do dossel",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-016",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-016",
+      "field_name": "Densidade de perfilhos",
+      "unit": "perfilhos/m²"
+    },
+    {
+      "plant_id": "pf-016",
+      "field_name": "Comprimento do estolão/rizoma",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-016",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-022",
+      "field_name": "Altura do dossel",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-022",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-022",
+      "field_name": "Densidade de perfilhos",
+      "unit": "perfilhos/m²"
+    },
+    {
+      "plant_id": "pf-022",
+      "field_name": "Comprimento do estolão/rizoma",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-022",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-033",
+      "field_name": "Altura do dossel",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-033",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-033",
+      "field_name": "Densidade de perfilhos",
+      "unit": "perfilhos/m²"
+    },
+    {
+      "plant_id": "pf-033",
+      "field_name": "Comprimento do estolão/rizoma",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-033",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-049",
+      "field_name": "Altura do dossel",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-049",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-049",
+      "field_name": "Densidade de perfilhos",
+      "unit": "perfilhos/m²"
+    },
+    {
+      "plant_id": "pf-049",
+      "field_name": "Comprimento do estolão/rizoma",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-049",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-050",
+      "field_name": "Altura do dossel",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-050",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-050",
+      "field_name": "Densidade de perfilhos",
+      "unit": "perfilhos/m²"
+    },
+    {
+      "plant_id": "pf-050",
+      "field_name": "Comprimento do estolão/rizoma",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-050",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-053",
+      "field_name": "Altura do dossel",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-053",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-053",
+      "field_name": "Densidade de perfilhos",
+      "unit": "perfilhos/m²"
+    },
+    {
+      "plant_id": "pf-053",
+      "field_name": "Comprimento do estolão/rizoma",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-053",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-054",
+      "field_name": "Altura do dossel",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-054",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-054",
+      "field_name": "Densidade de perfilhos",
+      "unit": "perfilhos/m²"
+    },
+    {
+      "plant_id": "pf-054",
+      "field_name": "Comprimento do estolão/rizoma",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-054",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-056",
+      "field_name": "Altura do dossel",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-056",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-056",
+      "field_name": "Densidade de perfilhos",
+      "unit": "perfilhos/m²"
+    },
+    {
+      "plant_id": "pf-056",
+      "field_name": "Comprimento do estolão/rizoma",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-056",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/elongação/florescimento"
+    },
+    {
+      "plant_id": "pf-020",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-020",
+      "field_name": "Diâmetro do colmo",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-020",
+      "field_name": "Número de folhas expandidas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-020",
+      "field_name": "Número de colmos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-020",
+      "field_name": "Estádio fenológico",
+      "unit": "V1/V2/VT/R1/R2/R3"
+    },
+    {
+      "plant_id": "pf-027",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-027",
+      "field_name": "Diâmetro do colmo",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-027",
+      "field_name": "Número de folhas expandidas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-027",
+      "field_name": "Número de colmos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-027",
+      "field_name": "Estádio fenológico",
+      "unit": "V1/V2/VT/R1/R2/R3"
+    },
+    {
+      "plant_id": "pf-031",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-031",
+      "field_name": "Diâmetro do colmo",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-031",
+      "field_name": "Número de folhas expandidas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-031",
+      "field_name": "Número de colmos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-031",
+      "field_name": "Estádio fenológico",
+      "unit": "V1/V2/VT/R1/R2/R3"
+    },
+    {
+      "plant_id": "pf-032",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-032",
+      "field_name": "Diâmetro do colmo",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-032",
+      "field_name": "Número de folhas expandidas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-032",
+      "field_name": "Número de colmos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-032",
+      "field_name": "Estádio fenológico",
+      "unit": "V1/V2/VT/R1/R2/R3"
+    },
+    {
+      "plant_id": "pf-038",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-038",
+      "field_name": "Diâmetro do colmo",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-038",
+      "field_name": "Número de folhas expandidas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-038",
+      "field_name": "Número de colmos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-038",
+      "field_name": "Estádio fenológico",
+      "unit": "V1/V2/VT/R1/R2/R3"
+    },
+    {
+      "plant_id": "pf-039",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-039",
+      "field_name": "Diâmetro do colmo",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-039",
+      "field_name": "Número de folhas expandidas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-039",
+      "field_name": "Número de colmos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-039",
+      "field_name": "Estádio fenológico",
+      "unit": "V1/V2/VT/R1/R2/R3"
+    },
+    {
+      "plant_id": "pf-060",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-060",
+      "field_name": "Diâmetro do colmo",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-060",
+      "field_name": "Número de folhas expandidas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-060",
+      "field_name": "Número de colmos por touceira",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-060",
+      "field_name": "Estádio fenológico",
+      "unit": "V1/V2/VT/R1/R2/R3"
+    },
+    {
+      "plant_id": "pf-026",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-026",
+      "field_name": "Número de folhas expandidas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-026",
+      "field_name": "Diâmetro do caule",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-026",
+      "field_name": "Número de ramos laterais",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-026",
+      "field_name": "Estádio fenológico",
+      "unit": "VE/V1/V2/R1/R2/R3/R4"
+    },
+    {
+      "plant_id": "pf-029",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-029",
+      "field_name": "Número de folhas expandidas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-029",
+      "field_name": "Diâmetro do caule",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-029",
+      "field_name": "Número de ramos laterais",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-029",
+      "field_name": "Estádio fenológico",
+      "unit": "VE/V1/V2/R1/R2/R3/R4"
+    },
+    {
+      "plant_id": "pf-001",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-001",
+      "field_name": "Diâmetro do caule na base",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-001",
+      "field_name": "Número de ramos primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-001",
+      "field_name": "Comprimento do ramo principal",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-001",
+      "field_name": "Número de folhas compostas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-002",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-002",
+      "field_name": "Diâmetro do caule na base",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-002",
+      "field_name": "Número de ramos primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-002",
+      "field_name": "Comprimento do ramo principal",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-002",
+      "field_name": "Número de folhas compostas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-011",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-011",
+      "field_name": "Diâmetro do caule na base",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-011",
+      "field_name": "Número de ramos primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-011",
+      "field_name": "Comprimento do ramo principal",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-011",
+      "field_name": "Número de folhas compostas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-013",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-013",
+      "field_name": "Diâmetro do caule na base",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-013",
+      "field_name": "Número de ramos primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-013",
+      "field_name": "Comprimento do ramo principal",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-013",
+      "field_name": "Número de folhas compostas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-018",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-018",
+      "field_name": "Diâmetro do caule na base",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-018",
+      "field_name": "Número de ramos primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-018",
+      "field_name": "Comprimento do ramo principal",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-018",
+      "field_name": "Número de folhas compostas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-035",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-035",
+      "field_name": "Diâmetro do caule na base",
+      "unit": "mm"
+    },
+    {
+      "plant_id": "pf-035",
+      "field_name": "Número de ramos primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-035",
+      "field_name": "Comprimento do ramo principal",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-035",
+      "field_name": "Número de folhas compostas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-003",
+      "field_name": "Comprimento dos ramos/hastes",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-003",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-003",
+      "field_name": "Número de nós com folhas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-003",
+      "field_name": "Número de ramos laterais",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-003",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/florescimento/frutificação"
+    },
+    {
+      "plant_id": "pf-004",
+      "field_name": "Comprimento dos ramos/hastes",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-004",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-004",
+      "field_name": "Número de nós com folhas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-004",
+      "field_name": "Número de ramos laterais",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-004",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/florescimento/frutificação"
+    },
+    {
+      "plant_id": "pf-012",
+      "field_name": "Comprimento dos ramos/hastes",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-012",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-012",
+      "field_name": "Número de nós com folhas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-012",
+      "field_name": "Número de ramos laterais",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-012",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/florescimento/frutificação"
+    },
+    {
+      "plant_id": "pf-014",
+      "field_name": "Comprimento dos ramos/hastes",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-014",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-014",
+      "field_name": "Número de nós com folhas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-014",
+      "field_name": "Número de ramos laterais",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-014",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/florescimento/frutificação"
+    },
+    {
+      "plant_id": "pf-015",
+      "field_name": "Comprimento dos ramos/hastes",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-015",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-015",
+      "field_name": "Número de nós com folhas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-015",
+      "field_name": "Número de ramos laterais",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-015",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/florescimento/frutificação"
+    },
+    {
+      "plant_id": "pf-017",
+      "field_name": "Comprimento dos ramos/hastes",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-017",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-017",
+      "field_name": "Número de nós com folhas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-017",
+      "field_name": "Número de ramos laterais",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-017",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/florescimento/frutificação"
+    },
+    {
+      "plant_id": "pf-019",
+      "field_name": "Comprimento dos ramos/hastes",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-019",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-019",
+      "field_name": "Número de nós com folhas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-019",
+      "field_name": "Número de ramos laterais",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-019",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/florescimento/frutificação"
+    },
+    {
+      "plant_id": "pf-036",
+      "field_name": "Comprimento dos ramos/hastes",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-036",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-036",
+      "field_name": "Número de nós com folhas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-036",
+      "field_name": "Número de ramos laterais",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-036",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/florescimento/frutificação"
+    },
+    {
+      "plant_id": "pf-037",
+      "field_name": "Comprimento dos ramos/hastes",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-037",
+      "field_name": "Cobertura do solo",
+      "unit": "%"
+    },
+    {
+      "plant_id": "pf-037",
+      "field_name": "Número de nós com folhas",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-037",
+      "field_name": "Número de ramos laterais",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-037",
+      "field_name": "Estádio fenológico",
+      "unit": "vegetativo/florescimento/frutificação"
+    },
+    {
+      "plant_id": "pf-005",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-005",
+      "field_name": "Largura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-005",
+      "field_name": "Número total de cladódios",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-005",
+      "field_name": "Número de cladódios primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-005",
+      "field_name": "Número de cladódios secundários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-005",
+      "field_name": "Comprimento do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-005",
+      "field_name": "Largura do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-005",
+      "field_name": "Espessura do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-006",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-006",
+      "field_name": "Largura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-006",
+      "field_name": "Número total de cladódios",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-006",
+      "field_name": "Número de cladódios primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-006",
+      "field_name": "Número de cladódios secundários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-006",
+      "field_name": "Comprimento do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-006",
+      "field_name": "Largura do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-006",
+      "field_name": "Espessura do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-007",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-007",
+      "field_name": "Largura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-007",
+      "field_name": "Número total de cladódios",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-007",
+      "field_name": "Número de cladódios primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-007",
+      "field_name": "Número de cladódios secundários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-007",
+      "field_name": "Comprimento do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-007",
+      "field_name": "Largura do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-007",
+      "field_name": "Espessura do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-008",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-008",
+      "field_name": "Largura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-008",
+      "field_name": "Número total de cladódios",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-008",
+      "field_name": "Número de cladódios primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-008",
+      "field_name": "Número de cladódios secundários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-008",
+      "field_name": "Comprimento do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-008",
+      "field_name": "Largura do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-008",
+      "field_name": "Espessura do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-009",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-009",
+      "field_name": "Largura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-009",
+      "field_name": "Número total de cladódios",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-009",
+      "field_name": "Número de cladódios primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-009",
+      "field_name": "Número de cladódios secundários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-009",
+      "field_name": "Comprimento do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-009",
+      "field_name": "Largura do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-009",
+      "field_name": "Espessura do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-010",
+      "field_name": "Altura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-010",
+      "field_name": "Largura da planta",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-010",
+      "field_name": "Número total de cladódios",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-010",
+      "field_name": "Número de cladódios primários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-010",
+      "field_name": "Número de cladódios secundários",
+      "unit": "unidade"
+    },
+    {
+      "plant_id": "pf-010",
+      "field_name": "Comprimento do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-010",
+      "field_name": "Largura do cladódio",
+      "unit": "cm"
+    },
+    {
+      "plant_id": "pf-010",
+      "field_name": "Espessura do cladódio",
+      "unit": "cm"
+    }
+  ],
+  "checklist_templates_pendentes_schema": [
+    {
+      "plant_id": "pf-025",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-025",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-025",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-025",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-025",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-025",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-025",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-025",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-025",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-028",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-028",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-028",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-028",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-028",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-028",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-028",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-028",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-028",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-034",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-034",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-034",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-034",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-034",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-034",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-034",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-034",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-034",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-040",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-040",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-040",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-040",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-040",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-040",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-040",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-040",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-040",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-041",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-041",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-041",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-041",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-041",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-041",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-041",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-041",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-041",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-042",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-042",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-042",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-042",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-042",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-042",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-042",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-042",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-042",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-043",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-043",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-043",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-043",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-043",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-043",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-043",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-043",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-043",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-044",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-044",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-044",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-044",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-044",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-044",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-044",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-044",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-044",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-045",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-045",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-045",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-045",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-045",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-045",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-045",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-045",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-045",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-046",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-046",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-046",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-046",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-046",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-046",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-046",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-046",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-046",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-055",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-055",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-055",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-055",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-055",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-055",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-055",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-055",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-055",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-057",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-057",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-057",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-057",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-057",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-057",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-057",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-057",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-057",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-058",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-058",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-058",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-058",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-058",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-058",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-058",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-058",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-058",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-021",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-021",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-021",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-021",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-021",
+      "item_name": "Controle de cigarrinha-das-pastagens"
+    },
+    {
+      "plant_id": "pf-021",
+      "item_name": "Controle de outros pragas realizado"
+    },
+    {
+      "plant_id": "pf-021",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-021",
+      "item_name": "Senescência foliar observada"
+    },
+    {
+      "plant_id": "pf-021",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-023",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-023",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-023",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-023",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-023",
+      "item_name": "Controle de cigarrinha-das-pastagens"
+    },
+    {
+      "plant_id": "pf-023",
+      "item_name": "Controle de outros pragas realizado"
+    },
+    {
+      "plant_id": "pf-023",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-023",
+      "item_name": "Senescência foliar observada"
+    },
+    {
+      "plant_id": "pf-023",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-024",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-024",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-024",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-024",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-024",
+      "item_name": "Controle de cigarrinha-das-pastagens"
+    },
+    {
+      "plant_id": "pf-024",
+      "item_name": "Controle de outros pragas realizado"
+    },
+    {
+      "plant_id": "pf-024",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-024",
+      "item_name": "Senescência foliar observada"
+    },
+    {
+      "plant_id": "pf-024",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-030",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-030",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-030",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-030",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-030",
+      "item_name": "Controle de cigarrinha-das-pastagens"
+    },
+    {
+      "plant_id": "pf-030",
+      "item_name": "Controle de outros pragas realizado"
+    },
+    {
+      "plant_id": "pf-030",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-030",
+      "item_name": "Senescência foliar observada"
+    },
+    {
+      "plant_id": "pf-030",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-047",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-047",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-047",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-047",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-047",
+      "item_name": "Controle de cigarrinha-das-pastagens"
+    },
+    {
+      "plant_id": "pf-047",
+      "item_name": "Controle de outros pragas realizado"
+    },
+    {
+      "plant_id": "pf-047",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-047",
+      "item_name": "Senescência foliar observada"
+    },
+    {
+      "plant_id": "pf-047",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-048",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-048",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-048",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-048",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-048",
+      "item_name": "Controle de cigarrinha-das-pastagens"
+    },
+    {
+      "plant_id": "pf-048",
+      "item_name": "Controle de outros pragas realizado"
+    },
+    {
+      "plant_id": "pf-048",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-048",
+      "item_name": "Senescência foliar observada"
+    },
+    {
+      "plant_id": "pf-048",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-051",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-051",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-051",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-051",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-051",
+      "item_name": "Controle de cigarrinha-das-pastagens"
+    },
+    {
+      "plant_id": "pf-051",
+      "item_name": "Controle de outros pragas realizado"
+    },
+    {
+      "plant_id": "pf-051",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-051",
+      "item_name": "Senescência foliar observada"
+    },
+    {
+      "plant_id": "pf-051",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-052",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-052",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-052",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-052",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-052",
+      "item_name": "Controle de cigarrinha-das-pastagens"
+    },
+    {
+      "plant_id": "pf-052",
+      "item_name": "Controle de outros pragas realizado"
+    },
+    {
+      "plant_id": "pf-052",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-052",
+      "item_name": "Senescência foliar observada"
+    },
+    {
+      "plant_id": "pf-052",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-059",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-059",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-059",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-059",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-059",
+      "item_name": "Controle de cigarrinha-das-pastagens"
+    },
+    {
+      "plant_id": "pf-059",
+      "item_name": "Controle de outros pragas realizado"
+    },
+    {
+      "plant_id": "pf-059",
+      "item_name": "Corte/roçada realizada"
+    },
+    {
+      "plant_id": "pf-059",
+      "item_name": "Senescência foliar observada"
+    },
+    {
+      "plant_id": "pf-059",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-016",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-016",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-016",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-016",
+      "item_name": "Corte/pastejo simulado realizado"
+    },
+    {
+      "plant_id": "pf-016",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-016",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-016",
+      "item_name": "Presença de invasoras observada"
+    },
+    {
+      "plant_id": "pf-022",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-022",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-022",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-022",
+      "item_name": "Corte/pastejo simulado realizado"
+    },
+    {
+      "plant_id": "pf-022",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-022",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-022",
+      "item_name": "Presença de invasoras observada"
+    },
+    {
+      "plant_id": "pf-033",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-033",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-033",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-033",
+      "item_name": "Corte/pastejo simulado realizado"
+    },
+    {
+      "plant_id": "pf-033",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-033",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-033",
+      "item_name": "Presença de invasoras observada"
+    },
+    {
+      "plant_id": "pf-049",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-049",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-049",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-049",
+      "item_name": "Corte/pastejo simulado realizado"
+    },
+    {
+      "plant_id": "pf-049",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-049",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-049",
+      "item_name": "Presença de invasoras observada"
+    },
+    {
+      "plant_id": "pf-050",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-050",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-050",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-050",
+      "item_name": "Corte/pastejo simulado realizado"
+    },
+    {
+      "plant_id": "pf-050",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-050",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-050",
+      "item_name": "Presença de invasoras observada"
+    },
+    {
+      "plant_id": "pf-053",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-053",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-053",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-053",
+      "item_name": "Corte/pastejo simulado realizado"
+    },
+    {
+      "plant_id": "pf-053",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-053",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-053",
+      "item_name": "Presença de invasoras observada"
+    },
+    {
+      "plant_id": "pf-054",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-054",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-054",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-054",
+      "item_name": "Corte/pastejo simulado realizado"
+    },
+    {
+      "plant_id": "pf-054",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-054",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-054",
+      "item_name": "Presença de invasoras observada"
+    },
+    {
+      "plant_id": "pf-056",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-056",
+      "item_name": "Adubação nitrogenada realizada"
+    },
+    {
+      "plant_id": "pf-056",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-056",
+      "item_name": "Corte/pastejo simulado realizado"
+    },
+    {
+      "plant_id": "pf-056",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-056",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-056",
+      "item_name": "Presença de invasoras observada"
+    },
+    {
+      "plant_id": "pf-020",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-020",
+      "item_name": "Adubação de cobertura realizada"
+    },
+    {
+      "plant_id": "pf-020",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-020",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-020",
+      "item_name": "Controle de doenças foliares"
+    },
+    {
+      "plant_id": "pf-020",
+      "item_name": "Florescimento/espigamento observado"
+    },
+    {
+      "plant_id": "pf-020",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-020",
+      "item_name": "Sinais de deficiência nutricional observados"
+    },
+    {
+      "plant_id": "pf-027",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-027",
+      "item_name": "Adubação de cobertura realizada"
+    },
+    {
+      "plant_id": "pf-027",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-027",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-027",
+      "item_name": "Controle de doenças foliares"
+    },
+    {
+      "plant_id": "pf-027",
+      "item_name": "Florescimento/espigamento observado"
+    },
+    {
+      "plant_id": "pf-027",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-027",
+      "item_name": "Sinais de deficiência nutricional observados"
+    },
+    {
+      "plant_id": "pf-031",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-031",
+      "item_name": "Adubação de cobertura realizada"
+    },
+    {
+      "plant_id": "pf-031",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-031",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-031",
+      "item_name": "Controle de doenças foliares"
+    },
+    {
+      "plant_id": "pf-031",
+      "item_name": "Florescimento/espigamento observado"
+    },
+    {
+      "plant_id": "pf-031",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-031",
+      "item_name": "Sinais de deficiência nutricional observados"
+    },
+    {
+      "plant_id": "pf-032",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-032",
+      "item_name": "Adubação de cobertura realizada"
+    },
+    {
+      "plant_id": "pf-032",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-032",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-032",
+      "item_name": "Controle de doenças foliares"
+    },
+    {
+      "plant_id": "pf-032",
+      "item_name": "Florescimento/espigamento observado"
+    },
+    {
+      "plant_id": "pf-032",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-032",
+      "item_name": "Sinais de deficiência nutricional observados"
+    },
+    {
+      "plant_id": "pf-038",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-038",
+      "item_name": "Adubação de cobertura realizada"
+    },
+    {
+      "plant_id": "pf-038",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-038",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-038",
+      "item_name": "Controle de doenças foliares"
+    },
+    {
+      "plant_id": "pf-038",
+      "item_name": "Florescimento/espigamento observado"
+    },
+    {
+      "plant_id": "pf-038",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-038",
+      "item_name": "Sinais de deficiência nutricional observados"
+    },
+    {
+      "plant_id": "pf-039",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-039",
+      "item_name": "Adubação de cobertura realizada"
+    },
+    {
+      "plant_id": "pf-039",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-039",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-039",
+      "item_name": "Controle de doenças foliares"
+    },
+    {
+      "plant_id": "pf-039",
+      "item_name": "Florescimento/espigamento observado"
+    },
+    {
+      "plant_id": "pf-039",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-039",
+      "item_name": "Sinais de deficiência nutricional observados"
+    },
+    {
+      "plant_id": "pf-060",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-060",
+      "item_name": "Adubação de cobertura realizada"
+    },
+    {
+      "plant_id": "pf-060",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-060",
+      "item_name": "Controle de pragas realizado"
+    },
+    {
+      "plant_id": "pf-060",
+      "item_name": "Controle de doenças foliares"
+    },
+    {
+      "plant_id": "pf-060",
+      "item_name": "Florescimento/espigamento observado"
+    },
+    {
+      "plant_id": "pf-060",
+      "item_name": "Sinais de acamamento observados"
+    },
+    {
+      "plant_id": "pf-060",
+      "item_name": "Sinais de deficiência nutricional observados"
+    },
+    {
+      "plant_id": "pf-026",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-026",
+      "item_name": "Adubação realizada"
+    },
+    {
+      "plant_id": "pf-026",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-026",
+      "item_name": "Controle de pragas (lagartas/percevejos)"
+    },
+    {
+      "plant_id": "pf-026",
+      "item_name": "Controle de doenças foliares"
+    },
+    {
+      "plant_id": "pf-026",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-026",
+      "item_name": "Formação de vagens/capítulos observada"
+    },
+    {
+      "plant_id": "pf-026",
+      "item_name": "Sinais de deficiência nutricional observados"
+    },
+    {
+      "plant_id": "pf-029",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-029",
+      "item_name": "Adubação realizada"
+    },
+    {
+      "plant_id": "pf-029",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-029",
+      "item_name": "Controle de pragas (lagartas/percevejos)"
+    },
+    {
+      "plant_id": "pf-029",
+      "item_name": "Controle de doenças foliares"
+    },
+    {
+      "plant_id": "pf-029",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-029",
+      "item_name": "Formação de vagens/capítulos observada"
+    },
+    {
+      "plant_id": "pf-029",
+      "item_name": "Sinais de deficiência nutricional observados"
+    },
+    {
+      "plant_id": "pf-001",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-001",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-001",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-001",
+      "item_name": "Poda de formação realizada"
+    },
+    {
+      "plant_id": "pf-001",
+      "item_name": "Controle de pragas desfolhadoras"
+    },
+    {
+      "plant_id": "pf-001",
+      "item_name": "Florescimento/vagem observado"
+    },
+    {
+      "plant_id": "pf-001",
+      "item_name": "Sinais de nodulação radicular observados"
+    },
+    {
+      "plant_id": "pf-001",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-002",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-002",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-002",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-002",
+      "item_name": "Poda de formação realizada"
+    },
+    {
+      "plant_id": "pf-002",
+      "item_name": "Controle de pragas desfolhadoras"
+    },
+    {
+      "plant_id": "pf-002",
+      "item_name": "Florescimento/vagem observado"
+    },
+    {
+      "plant_id": "pf-002",
+      "item_name": "Sinais de nodulação radicular observados"
+    },
+    {
+      "plant_id": "pf-002",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-011",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-011",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-011",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-011",
+      "item_name": "Poda de formação realizada"
+    },
+    {
+      "plant_id": "pf-011",
+      "item_name": "Controle de pragas desfolhadoras"
+    },
+    {
+      "plant_id": "pf-011",
+      "item_name": "Florescimento/vagem observado"
+    },
+    {
+      "plant_id": "pf-011",
+      "item_name": "Sinais de nodulação radicular observados"
+    },
+    {
+      "plant_id": "pf-011",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-013",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-013",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-013",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-013",
+      "item_name": "Poda de formação realizada"
+    },
+    {
+      "plant_id": "pf-013",
+      "item_name": "Controle de pragas desfolhadoras"
+    },
+    {
+      "plant_id": "pf-013",
+      "item_name": "Florescimento/vagem observado"
+    },
+    {
+      "plant_id": "pf-013",
+      "item_name": "Sinais de nodulação radicular observados"
+    },
+    {
+      "plant_id": "pf-013",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-018",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-018",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-018",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-018",
+      "item_name": "Poda de formação realizada"
+    },
+    {
+      "plant_id": "pf-018",
+      "item_name": "Controle de pragas desfolhadoras"
+    },
+    {
+      "plant_id": "pf-018",
+      "item_name": "Florescimento/vagem observado"
+    },
+    {
+      "plant_id": "pf-018",
+      "item_name": "Sinais de nodulação radicular observados"
+    },
+    {
+      "plant_id": "pf-018",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-035",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-035",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-035",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-035",
+      "item_name": "Poda de formação realizada"
+    },
+    {
+      "plant_id": "pf-035",
+      "item_name": "Controle de pragas desfolhadoras"
+    },
+    {
+      "plant_id": "pf-035",
+      "item_name": "Florescimento/vagem observado"
+    },
+    {
+      "plant_id": "pf-035",
+      "item_name": "Sinais de nodulação radicular observados"
+    },
+    {
+      "plant_id": "pf-035",
+      "item_name": "Sinais de estresse hídrico observados"
+    },
+    {
+      "plant_id": "pf-003",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-003",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-003",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-003",
+      "item_name": "Controle de pragas foliares"
+    },
+    {
+      "plant_id": "pf-003",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-003",
+      "item_name": "Formação de vagens observada"
+    },
+    {
+      "plant_id": "pf-003",
+      "item_name": "Sinais de nodulação observados"
+    },
+    {
+      "plant_id": "pf-003",
+      "item_name": "Presença de haste enrolante verificada"
+    },
+    {
+      "plant_id": "pf-004",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-004",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-004",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-004",
+      "item_name": "Controle de pragas foliares"
+    },
+    {
+      "plant_id": "pf-004",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-004",
+      "item_name": "Formação de vagens observada"
+    },
+    {
+      "plant_id": "pf-004",
+      "item_name": "Sinais de nodulação observados"
+    },
+    {
+      "plant_id": "pf-004",
+      "item_name": "Presença de haste enrolante verificada"
+    },
+    {
+      "plant_id": "pf-012",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-012",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-012",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-012",
+      "item_name": "Controle de pragas foliares"
+    },
+    {
+      "plant_id": "pf-012",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-012",
+      "item_name": "Formação de vagens observada"
+    },
+    {
+      "plant_id": "pf-012",
+      "item_name": "Sinais de nodulação observados"
+    },
+    {
+      "plant_id": "pf-012",
+      "item_name": "Presença de haste enrolante verificada"
+    },
+    {
+      "plant_id": "pf-014",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-014",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-014",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-014",
+      "item_name": "Controle de pragas foliares"
+    },
+    {
+      "plant_id": "pf-014",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-014",
+      "item_name": "Formação de vagens observada"
+    },
+    {
+      "plant_id": "pf-014",
+      "item_name": "Sinais de nodulação observados"
+    },
+    {
+      "plant_id": "pf-014",
+      "item_name": "Presença de haste enrolante verificada"
+    },
+    {
+      "plant_id": "pf-015",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-015",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-015",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-015",
+      "item_name": "Controle de pragas foliares"
+    },
+    {
+      "plant_id": "pf-015",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-015",
+      "item_name": "Formação de vagens observada"
+    },
+    {
+      "plant_id": "pf-015",
+      "item_name": "Sinais de nodulação observados"
+    },
+    {
+      "plant_id": "pf-015",
+      "item_name": "Presença de haste enrolante verificada"
+    },
+    {
+      "plant_id": "pf-017",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-017",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-017",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-017",
+      "item_name": "Controle de pragas foliares"
+    },
+    {
+      "plant_id": "pf-017",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-017",
+      "item_name": "Formação de vagens observada"
+    },
+    {
+      "plant_id": "pf-017",
+      "item_name": "Sinais de nodulação observados"
+    },
+    {
+      "plant_id": "pf-017",
+      "item_name": "Presença de haste enrolante verificada"
+    },
+    {
+      "plant_id": "pf-019",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-019",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-019",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-019",
+      "item_name": "Controle de pragas foliares"
+    },
+    {
+      "plant_id": "pf-019",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-019",
+      "item_name": "Formação de vagens observada"
+    },
+    {
+      "plant_id": "pf-019",
+      "item_name": "Sinais de nodulação observados"
+    },
+    {
+      "plant_id": "pf-019",
+      "item_name": "Presença de haste enrolante verificada"
+    },
+    {
+      "plant_id": "pf-036",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-036",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-036",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-036",
+      "item_name": "Controle de pragas foliares"
+    },
+    {
+      "plant_id": "pf-036",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-036",
+      "item_name": "Formação de vagens observada"
+    },
+    {
+      "plant_id": "pf-036",
+      "item_name": "Sinais de nodulação observados"
+    },
+    {
+      "plant_id": "pf-036",
+      "item_name": "Presença de haste enrolante verificada"
+    },
+    {
+      "plant_id": "pf-037",
+      "item_name": "Irrigação realizada"
+    },
+    {
+      "plant_id": "pf-037",
+      "item_name": "Adubação fosfatada realizada"
+    },
+    {
+      "plant_id": "pf-037",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-037",
+      "item_name": "Controle de pragas foliares"
+    },
+    {
+      "plant_id": "pf-037",
+      "item_name": "Florescimento observado"
+    },
+    {
+      "plant_id": "pf-037",
+      "item_name": "Formação de vagens observada"
+    },
+    {
+      "plant_id": "pf-037",
+      "item_name": "Sinais de nodulação observados"
+    },
+    {
+      "plant_id": "pf-037",
+      "item_name": "Presença de haste enrolante verificada"
+    },
+    {
+      "plant_id": "pf-005",
+      "item_name": "Adubação orgânica realizada"
+    },
+    {
+      "plant_id": "pf-005",
+      "item_name": "Adubação mineral realizada"
+    },
+    {
+      "plant_id": "pf-005",
+      "item_name": "Controle de cochonilha-do-carmim"
+    },
+    {
+      "plant_id": "pf-005",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-005",
+      "item_name": "Replantio de cladódios perdidos"
+    },
+    {
+      "plant_id": "pf-005",
+      "item_name": "Sinais de podridão nos cladódios observados"
+    },
+    {
+      "plant_id": "pf-005",
+      "item_name": "Sinais de desidratação dos cladódios observados"
+    },
+    {
+      "plant_id": "pf-005",
+      "item_name": "Presença de outras pragas observada"
+    },
+    {
+      "plant_id": "pf-006",
+      "item_name": "Adubação orgânica realizada"
+    },
+    {
+      "plant_id": "pf-006",
+      "item_name": "Adubação mineral realizada"
+    },
+    {
+      "plant_id": "pf-006",
+      "item_name": "Controle de cochonilha-do-carmim"
+    },
+    {
+      "plant_id": "pf-006",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-006",
+      "item_name": "Replantio de cladódios perdidos"
+    },
+    {
+      "plant_id": "pf-006",
+      "item_name": "Sinais de podridão nos cladódios observados"
+    },
+    {
+      "plant_id": "pf-006",
+      "item_name": "Sinais de desidratação dos cladódios observados"
+    },
+    {
+      "plant_id": "pf-006",
+      "item_name": "Presença de outras pragas observada"
+    },
+    {
+      "plant_id": "pf-007",
+      "item_name": "Adubação orgânica realizada"
+    },
+    {
+      "plant_id": "pf-007",
+      "item_name": "Adubação mineral realizada"
+    },
+    {
+      "plant_id": "pf-007",
+      "item_name": "Controle de cochonilha-do-carmim"
+    },
+    {
+      "plant_id": "pf-007",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-007",
+      "item_name": "Replantio de cladódios perdidos"
+    },
+    {
+      "plant_id": "pf-007",
+      "item_name": "Sinais de podridão nos cladódios observados"
+    },
+    {
+      "plant_id": "pf-007",
+      "item_name": "Sinais de desidratação dos cladódios observados"
+    },
+    {
+      "plant_id": "pf-007",
+      "item_name": "Presença de outras pragas observada"
+    },
+    {
+      "plant_id": "pf-008",
+      "item_name": "Adubação orgânica realizada"
+    },
+    {
+      "plant_id": "pf-008",
+      "item_name": "Adubação mineral realizada"
+    },
+    {
+      "plant_id": "pf-008",
+      "item_name": "Controle de cochonilha-do-carmim"
+    },
+    {
+      "plant_id": "pf-008",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-008",
+      "item_name": "Replantio de cladódios perdidos"
+    },
+    {
+      "plant_id": "pf-008",
+      "item_name": "Sinais de podridão nos cladódios observados"
+    },
+    {
+      "plant_id": "pf-008",
+      "item_name": "Sinais de desidratação dos cladódios observados"
+    },
+    {
+      "plant_id": "pf-008",
+      "item_name": "Presença de outras pragas observada"
+    },
+    {
+      "plant_id": "pf-009",
+      "item_name": "Adubação orgânica realizada"
+    },
+    {
+      "plant_id": "pf-009",
+      "item_name": "Adubação mineral realizada"
+    },
+    {
+      "plant_id": "pf-009",
+      "item_name": "Controle de cochonilha-do-carmim"
+    },
+    {
+      "plant_id": "pf-009",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-009",
+      "item_name": "Replantio de cladódios perdidos"
+    },
+    {
+      "plant_id": "pf-009",
+      "item_name": "Sinais de podridão nos cladódios observados"
+    },
+    {
+      "plant_id": "pf-009",
+      "item_name": "Sinais de desidratação dos cladódios observados"
+    },
+    {
+      "plant_id": "pf-009",
+      "item_name": "Presença de outras pragas observada"
+    },
+    {
+      "plant_id": "pf-010",
+      "item_name": "Adubação orgânica realizada"
+    },
+    {
+      "plant_id": "pf-010",
+      "item_name": "Adubação mineral realizada"
+    },
+    {
+      "plant_id": "pf-010",
+      "item_name": "Controle de cochonilha-do-carmim"
+    },
+    {
+      "plant_id": "pf-010",
+      "item_name": "Capina/controle de plantas daninhas"
+    },
+    {
+      "plant_id": "pf-010",
+      "item_name": "Replantio de cladódios perdidos"
+    },
+    {
+      "plant_id": "pf-010",
+      "item_name": "Sinais de podridão nos cladódios observados"
+    },
+    {
+      "plant_id": "pf-010",
+      "item_name": "Sinais de desidratação dos cladódios observados"
+    },
+    {
+      "plant_id": "pf-010",
+      "item_name": "Presença de outras pragas observada"
+    }
+  ]
+}
