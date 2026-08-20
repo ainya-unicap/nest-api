@@ -10,14 +10,14 @@ export class PlantTemplateRepository {
   }
 
   create(data: any) {
-    return prisma.planttemplate.create({ data });
+    return prisma.plantTemplate.create({ data });
   }
 
   update(id: string, data: any) {
-    return prisma.planttemplate.update({ where: { id }, data });
+    return prisma.plantTemplate.update({ where: { id }, data });
   }
 
   delete(id: string) {
-    return prisma.planttemplate.delete({ where: { id } });
+    return prisma.plantTemplate.delete({ where: { id } });
   }
 }

@@ -1,8 +1,8 @@
 import { prisma } from '../prisma';
-import { User } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 
 export class UserRepository {
-  async create(data: Partial<User> & { password: string }) {
+  async create(data: Prisma.UserCreateInput | Prisma.UserUncheckedCreateInput) {
     return prisma.user.create({ data });
   }
 
@@ -14,7 +14,7 @@ export class UserRepository {
     return prisma.user.findUnique({ where: { id } });
   }
 
-  async update(id: string, data: Partial<User>) {
+  async update(id: string, data: Prisma.UserUpdateInput) {
     return prisma.user.update({ where: { id }, data });
   }
 }

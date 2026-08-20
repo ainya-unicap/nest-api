@@ -1,4 +1,4 @@
-import { prisma } from '../lib/prisma.js'
+import { prisma } from '../src/prisma'
 import fs from 'fs'
 import path from 'path'
 

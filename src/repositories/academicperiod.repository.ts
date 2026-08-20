@@ -10,14 +10,14 @@ export class AcademicPeriodRepository {
   }
 
   findById(id: string) {
-    return prisma.academicperiod.findUnique({ where: { id } });
+    return prisma.academicPeriod.findUnique({ where: { id } });
   }
 
   update(id: string, data: any) {
-    return prisma.academicperiod.update({ where: { id }, data });
+    return prisma.academicPeriod.update({ where: { id }, data });
   }
 
   delete(id: string) {
-    return prisma.academicperiod.delete({ where: { id } });
+    return prisma.academicPeriod.delete({ where: { id } });
   }
 }

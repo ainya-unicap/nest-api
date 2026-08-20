@@ -4,6 +4,7 @@ import { HttpError } from '../core/httpError';
 import argon2 from 'argon2';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
+import { getJwtSecret } from '../core/auth/jwt';
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -43,7 +44,7 @@ export class AuthService {
   }
 
   private async generateTokens(userId: string) {
-    const accessToken = jwt.sign({ sub: userId }, process.env.JWT_SECRET || 'dev-secret', { expiresIn: '15m' });
+    const accessToken = jwt.sign({ sub: userId }, getJwtSecret(), { expiresIn: '15m' });
 
     const refreshTokenValue = crypto.randomBytes(40).toString('hex');
     const expiresAt = new Date();

@@ -1,4 +1,6 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule, RequestMethod } from '@nestjs/common';
+import { APP_FILTER, APP_GUARD } from '@nestjs/core';
+
 import { UsersModule } from './modules/users/users.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { InstitutionsModule } from './modules/institutions/institutions.module';
@@ -15,6 +17,10 @@ import { TurmasModule } from './modules/turmas/turmas.module';
 import { AlunoTurmaModule } from './modules/aluno-turma/aluno-turma.module';
 import { AcademicPeriodsModule } from './modules/academic-periods/academic-periods.module';
 import { AlunosModule } from './modules/alunos/alunos.module';
+
+import { JwtAuthGuard } from './core/auth/jwt-auth.guard';
+import { HttpErrorFilter } from './core/http-exception.filter';
+import { loginLimiter } from './core/rate-limit';
 
 @Module({
   imports: [
@@ -35,5 +41,18 @@ import { AlunosModule } from './modules/alunos/alunos.module';
     AcademicPeriodsModule,
     AlunosModule,
   ],
+  providers: [
+    // Tudo protegido por padrão; rotas abertas usam @Public().
+    { provide: APP_GUARD, useClass: JwtAuthGuard },
+    // Converte o HttpError dos services no status HTTP correto (era 500 em tudo).
+    { provide: APP_FILTER, useClass: HttpErrorFilter },
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    // Anti brute-force apenas no login (10 tentativas / 15 min por IP).
+    consumer
+      .apply(loginLimiter)
+      .forRoutes({ path: 'users/login', method: RequestMethod.POST });
+  }
+}

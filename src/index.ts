@@ -1,32 +1,59 @@
 import 'reflect-metadata';
+import 'dotenv/config';
+
 import express from 'express';
 import { NestFactory } from '@nestjs/core';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
-
-// Importa o app Express existente da pasta api para reaproveitar rotas/serviços
-// Import relativo para o código existente (API em TypeScript). O Vercel/@vercel/node
-// irá compilar/transpilar os arquivos antes de executar.
+import { getJwtSecret } from './core/auth/jwt';
+import { UPLOAD_DIR } from './core/upload.config';
+import { setupSwagger } from './swagger/swagger';
 
 const server = express();
 
-// Inicializa Nest sobre a mesma instância Express — permite adicionar novos módulos
 async function bootstrap() {
+  // Fail-fast: sem JWT_SECRET o guard não consegue validar nada.
+  getJwtSecret();
+
   const app = await NestFactory.create(AppModule, new ExpressAdapter(server));
+
+  // O front roda em outra origem — sem isso o browser bloqueia toda chamada.
+  app.enableCors();
+
   app.setGlobalPrefix('api');
   app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
+
+  // Swagger UI em /api/docs e o spec cru em /api/docs.json.
+  setupSwagger(app);
+
+  // Em dev os uploads vão pro disco em public/uploads e são servidos aqui.
+  // Na Vercel o diretório public/ é servido pela própria plataforma.
+  server.use('/uploads', express.static(UPLOAD_DIR));
+
   await app.init();
 
-  // Após inicializar o Nest, monta o app legado. Assim as rotas do Nest terão precedência
-  // e é possível migrar endpoints gradualmente para Nest sem conflito.
-  // server.use('/', legacyApi);
+  return app;
 }
 
-bootstrap().catch((err) => {
+const bootstrapped = bootstrap().catch((err) => {
   console.error('Nest bootstrap error:', err);
+  throw err;
 });
 
-// Exporta o servidor Express compatível com @vercel/node (serverless handler espera export default)
+// Localmente sobe o servidor HTTP; na Vercel o app é importado como handler.
+if (!process.env.VERCEL) {
+  const port = process.env.PORT || 3000;
+
+  bootstrapped
+    .then(() => {
+      server.listen(port, () => {
+        console.log(`Server is running in http://localhost:${port}`);
+      });
+    })
+    .catch(() => process.exit(1));
+}
+
+// Exporta o servidor Express compatível com @vercel/node
 export default server;
