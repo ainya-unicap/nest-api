@@ -55,7 +55,7 @@ const relatorioSchema = {
   },
 };
 
-// O userId é resolvido do body ou do token; documentamos como opcional no corpo.
+// O userId vem sempre do token; o campo no corpo é aceito, mas ignorado.
 const secaoBody = (secao: string) => ({
   schema: {
     type: 'object' as const,
@@ -65,7 +65,7 @@ const secaoBody = (secao: string) => ({
       userId: {
         type: 'string' as const,
         format: 'uuid',
-        description: 'Opcional — se omitido, usa o id do token',
+        description: 'Ignorado: o dono é sempre o usuário do token',
       },
     },
   },
@@ -100,7 +100,7 @@ export class RelatoriosController {
         userId: {
           type: 'string',
           format: 'uuid',
-          description: 'Opcional — se omitido, usa o id do token',
+          description: 'Ignorado: o dono é sempre o usuário do token',
         },
       },
     },
@@ -301,8 +301,10 @@ export class RelatoriosController {
     return await this.relatorioService.updateSection(id, userId, secao, String(valor));
   }
 
+  // O token manda: se o body pudesse sobrescrever o userId, qualquer um
+  // editaria ou apagaria relatório alheio só mudando o campo.
   private resolveUserId(body: any, req?: Request): string {
-    const userId = body?.userId ?? body?.user_id ?? (req as any)?.user?.id;
+    const userId = req?.user?.id ?? body?.userId ?? body?.user_id;
 
     if (!userId) {
       throw new BadRequestException('userId é obrigatório');

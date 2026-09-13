@@ -9,8 +9,18 @@ export class RelatorioRepository {
     return prisma.relatorio.create({ data });
   }
 
+  // A lista informa o canteiro e a planta usados para montar o relatório.
+  findListaComPlanta(listId: string) {
+    return prisma.listaDeFormularios.findUnique({ where: { id: listId }, include: { plant: true } });
+  }
+
   findById(id: string) {
     return prisma.relatorio.findUnique({ where: { id }, include: { list: { include: { plant: true } }, canteiro: true } });
+  }
+
+  // Versão enxuta, para checagem de dono e de status antes de alterar.
+  findRaw(id: string) {
+    return prisma.relatorio.findUnique({ where: { id } });
   }
 
   update(id: string, data: any) {
