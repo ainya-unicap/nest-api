@@ -1,15 +1,21 @@
 import { Controller, Post, Get, Param, Body } from '@nestjs/common';
+import type { Request } from 'express';
+import { Req } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOperation,
   ApiParam,
   ApiTags,
+  ApiUnprocessableEntityResponse,
 } from '@nestjs/swagger';
 
 import { ListaDeFormulariosService } from '../../services/listadeformularios.service';
-import { ApiAuth } from '../../swagger/decorators';
+import { DossieService } from '../../services/dossie.service';
+import { ApiAuth, errorSchema } from '../../swagger/decorators';
 
 const listaSchema = {
   type: 'object' as const,
@@ -29,7 +35,10 @@ const listaSchema = {
 @ApiAuth()
 @Controller('listas-formularios')
 export class ListaDeFormulariosController {
-  constructor(private readonly listaDeFormulariosService: ListaDeFormulariosService) {}
+  constructor(
+    private readonly listaDeFormulariosService: ListaDeFormulariosService,
+    private readonly dossieService: DossieService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Cria uma lista de formulários para um canteiro' })
@@ -72,5 +81,23 @@ export class ListaDeFormulariosController {
   @ApiOkResponse({ schema: { type: 'array', items: { type: 'object' } } })
   async findFormularios(@Param('id') id: string) {
     return this.listaDeFormulariosService.findFormularios(id);
+  }
+
+  // Consolidado que alimenta o resumo por IA. Números já agregados aqui de
+  // propósito: o modelo escreve o texto, não faz a conta.
+  @Get(':id/dossie')
+  @ApiOperation({
+    summary: 'Dossiê consolidado da lista (entrada do resumo por IA)',
+    description:
+      'Reúne planta, período, métricas agregadas (com série temporal), checklist e observações ' +
+      'de todos os formulários da lista. Exige que o usuário esteja vinculado ao canteiro.',
+  })
+  @ApiParam({ name: 'id', description: 'id da lista', format: 'uuid' })
+  @ApiOkResponse({ schema: { type: 'object' } })
+  @ApiForbiddenResponse({ schema: errorSchema('Usuário não está vinculado ao canteiro desta lista') })
+  @ApiNotFoundResponse({ schema: errorSchema('Lista de formulários não encontrada') })
+  @ApiUnprocessableEntityResponse({ schema: errorSchema('A lista ainda não tem formulários preenchidos') })
+  async dossie(@Param('id') id: string, @Req() req: Request) {
+    return await this.dossieService.montar(id, req.user?.id ?? '');
   }
 }
