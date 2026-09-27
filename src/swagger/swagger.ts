@@ -60,6 +60,9 @@ export function setupSwagger(app: INestApplication) {
       { type: 'http', scheme: 'bearer', bearerFormat: 'JWT' },
       BEARER_AUTH,
     )
+    // Relativo e primeiro da lista: chama o mesmo host em que o Swagger foi aberto
+    // (local, Codespace ou Vercel), sem precisar trocar o server no seletor.
+    .addServer('/api', 'este servidor')
     .addServer('https://back-end-ainya.vercel.app/api', 'produção (Vercel)')
     .addServer(`http://localhost:${port}/api`, 'local');
 
