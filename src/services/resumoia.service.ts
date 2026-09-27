@@ -1,6 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 
 import { ResumoIaRepository } from '../repositories/resumoia.repository';
+import { UserCanteiroRepository } from '../repositories/usercanteiro.repository';
 import { DossieService } from './dossie.service';
 import { HttpError } from '../core/httpError';
 
@@ -19,6 +20,7 @@ const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS ?? 120_000);
 export class ResumoIaService {
   private readonly logger = new Logger(ResumoIaService.name);
   private readonly repo = new ResumoIaRepository();
+  private readonly userCanteiroRepo = new UserCanteiroRepository();
 
   constructor(private readonly dossieService: DossieService) {}
 
@@ -75,6 +77,27 @@ export class ResumoIaService {
   }
 
   /**
+   * Fluxo pelo canteiro: o usuário escolhe o canteiro e o sistema descobre a
+   * lista de formulários dele. Daí em diante é o mesmo `solicitar` da lista.
+   */
+  async solicitarPorCanteiro(canteiroId: string, userId: string) {
+    await this.validarAcessoCanteiro(canteiroId, userId);
+
+    const lista = await this.repo.findListaComFormularios(canteiroId);
+    if (!lista) {
+      throw new HttpError('O canteiro ainda não tem formulários preenchidos', 422);
+    }
+
+    const resumo = await this.solicitar(lista.id, userId);
+    return { ...resumo, list_id: lista.id, canteiro_id: canteiroId };
+  }
+
+  async listarPorCanteiro(canteiroId: string, userId: string) {
+    await this.validarAcessoCanteiro(canteiroId, userId);
+    return this.repo.findByCanteiro(canteiroId);
+  }
+
+  /**
    * Re-dispara um resumo que ficou em ERRO — ou preso em PROCESSANDO porque o
    * processo morreu no meio (cold start da serverless, deploy, queda de rede).
    */
@@ -93,6 +116,17 @@ export class ResumoIaService {
   }
 
   // ---------------------------------------------------------------------------
+
+  // Mesma regra do dossiê: basta estar vinculado ao canteiro.
+  private async validarAcessoCanteiro(canteiroId: string, userId: string) {
+    if (!userId) throw new HttpError('userId é obrigatório', 400);
+
+    const canteiro = await this.repo.findCanteiro(canteiroId);
+    if (!canteiro) throw new HttpError('Canteiro não encontrado', 404);
+
+    const vinculado = await this.userCanteiroRepo.exists(userId, canteiroId);
+    if (!vinculado) throw new HttpError('Usuário não está vinculado a este canteiro', 403);
+  }
 
   private async processar(id: string) {
     try {

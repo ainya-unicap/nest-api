@@ -5,7 +5,7 @@ import { UserCanteiroRepository } from '../repositories/usercanteiro.repository'
 import { HttpError } from '../core/httpError';
 
 // Contrato enviado ao serviço de IA. Mudou aqui, mudou lá — manter em sincronia
-// com ai-service/schema.py.
+// com ai-service/schemas/dossie.py.
 export const DOSSIE_VERSAO = '1';
 
 export interface MetricaNumerica {

@@ -30,7 +30,7 @@ const resumoSchema = {
         conclusao: { type: 'string' },
       },
     },
-    modelo: { type: 'string', nullable: true, example: 'llama-3.3-70b-versatile' },
+    modelo: { type: 'string', nullable: true, example: 'openai/gpt-oss-120b' },
     prompt_versao: { type: 'string', nullable: true, example: '1.0.0' },
     tokens_entrada: { type: 'integer', nullable: true },
     tokens_saida: { type: 'integer', nullable: true },
@@ -72,6 +72,48 @@ export class ResumoIaController {
   @ApiUnprocessableEntityResponse({ schema: errorSchema('A lista ainda não tem formulários preenchidos') })
   async solicitar(@Param('id') id: string, @Req() req: Request) {
     return await this.resumoIaService.solicitar(id, req.user?.id ?? '');
+  }
+
+  @Post('canteiros/:id/resumo-ia')
+  @HttpCode(HttpStatus.ACCEPTED)
+  @ApiOperation({
+    summary: 'Solicita o resumo por IA a partir do canteiro (assíncrono)',
+    description:
+      'O usuário escolhe o canteiro; o sistema pega a lista de formulários mais recente dele ' +
+      'que já tem formulário, monta o dossiê e dispara a IA. Mesmo fluxo de ' +
+      'POST /listas-formularios/{id}/resumo-ia — consulte GET /resumo-ia/{id} até PRONTO ou ERRO.',
+  })
+  @ApiParam({ name: 'id', description: 'id do canteiro' })
+  @ApiAcceptedResponse({
+    schema: {
+      type: 'object',
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+        status: { type: 'string', example: 'PENDENTE' },
+        createdAt: { type: 'string', format: 'date-time' },
+        list_id: { type: 'string', description: 'lista usada no dossiê' },
+        canteiro_id: { type: 'string' },
+      },
+    },
+  })
+  @ApiForbiddenResponse({ schema: errorSchema('Usuário não está vinculado a este canteiro') })
+  @ApiNotFoundResponse({ schema: errorSchema('Canteiro não encontrado') })
+  @ApiUnprocessableEntityResponse({ schema: errorSchema('O canteiro ainda não tem formulários preenchidos') })
+  async solicitarPorCanteiro(@Param('id') id: string, @Req() req: Request) {
+    return await this.resumoIaService.solicitarPorCanteiro(id, req.user?.id ?? '');
+  }
+
+  @Get('canteiros/:id/resumo-ia')
+  @ApiOperation({
+    summary: 'Histórico de resumos do canteiro (todas as listas)',
+    description: 'Sem o dossiê e sem as seções — use GET /resumo-ia/{id} para o conteúdo.',
+  })
+  @ApiParam({ name: 'id', description: 'id do canteiro' })
+  @ApiOkResponse({ schema: { type: 'array', items: resumoSchema } })
+  @ApiForbiddenResponse({ schema: errorSchema('Usuário não está vinculado a este canteiro') })
+  @ApiNotFoundResponse({ schema: errorSchema('Canteiro não encontrado') })
+  async listarPorCanteiro(@Param('id') id: string, @Req() req: Request) {
+    return await this.resumoIaService.listarPorCanteiro(id, req.user?.id ?? '');
   }
 
   @Get('listas-formularios/:id/resumo-ia')
