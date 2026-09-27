@@ -8,6 +8,7 @@ import { ValidationPipe } from '@nestjs/common';
 
 import { AppModule } from './app.module';
 import { getJwtSecret } from './core/auth/jwt';
+import { disconnectPrisma } from './prisma';
 import { UPLOAD_DIR } from './core/upload.config';
 import { setupSwagger } from './swagger/swagger';
 
@@ -31,6 +32,14 @@ async function bootstrap() {
   // Em dev os uploads vão pro disco em public/uploads e são servidos aqui.
   // Na Vercel o diretório public/ é servido pela própria plataforma.
   server.use('/uploads', express.static(UPLOAD_DIR));
+
+  // Fecha o pool do Postgres quando o processo recebe SIGINT/SIGTERM.
+  app.enableShutdownHooks();
+  for (const sinal of ['SIGINT', 'SIGTERM'] as const) {
+    process.once(sinal, () => {
+      void disconnectPrisma().finally(() => process.exit(0));
+    });
+  }
 
   await app.init();
 

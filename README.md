@@ -1,33 +1,73 @@
-Migração fase 1 — Nest.js
+# DonkeyCode — Back-end (NestJS)
 
-O diretório api-nest contém a conversão inicial para Nest.js dos módulos centrais (auth, users, health, upload, prisma, swagger placeholder).
+API do projeto de acompanhamento de **plantas forrageiras**. Alunos registram
+formulários semanais de campo (medições, checklist, fotos, observações) sobre
+canteiros; a partir desses dados a API monta relatórios e gera, com IA, uma
+documentação sobre o cultivo e os cuidados da planta.
 
-Como usar:
-1. Entre na pasta:
-   cd api-nest
-2. Instale dependências:
-   npm install
-3. Configure variáveis de ambiente (exemplos):
-   - DATABASE_URL (string de conexão PostgreSQL)
-   - JWT_SECRET (segredo para tokens JWT)
-   - VERCEL (opcional, define comportamento de uploads)
-4. Geração do Prisma (se você usar os modelos originais):
-   - Copie/ gere schema.prisma para a pasta prisma/ e rode: npm run prisma:build
-   - Ou, se preferir, usar o pipeline do projeto original (cli/compactarModelos.ts), mantenha a cópia dos modelos originais e gere o schema
-5. Rodar servidor em dev:
-   npm run dev
+**Stack:** NestJS 10 · TypeScript · Prisma 7 · PostgreSQL (Neon) · JWT ·
+Swagger · Python/FastAPI + Groq/Gemini (serviço de IA)
 
-Endpoints principais (fase 1):
-- GET /api/hello  — health
-- POST /api/users  — criar usuário
-- POST /api/users/login  — login (retorna accessToken + refreshToken)
-- POST /api/users/refresh  — trocar refresh token
-- POST /api/users/logout  — logout
-- GET /api/users  — listagem (protegido)
-- GET /api/users/:id  — detalhes (protegido)
-- PUT /api/users/:id/profile — atualizar perfil (protegido)
-- PUT /api/users/:id/avatar — upload de avatar (protegido)
+---
 
-Observações:
-- Esta é a primeira fase; os controllers/services restantes serão convertidos em batches.
-- A implementação reaproveita a lógica original reimplementada como providers para auth e users; a integração com o restante do projeto (models .prisma) depende da geração correta do schema Prisma.
+## Subir o projeto
+
+```bash
+npm install
+npm run prisma:generate     # gera o Prisma Client (não vem no git)
+npm run dev                 # http://localhost:3000
+```
+
+O `.env` precisa de duas variáveis no mínimo (copie de [`.env.example`](.env.example)):
+
+```env
+DATABASE_URL=postgresql://...      # Neon ou Postgres local
+JWT_SECRET=uma-string-longa        # sem isso a aplicação não sobe
+```
+
+| endereço | o que é |
+|---|---|
+| `http://localhost:3000/api` | a API |
+| `http://localhost:3000/api/docs` | Swagger (95 rotas documentadas) |
+| `http://localhost:3000/api/docs.json` | o spec OpenAPI |
+
+Para o resumo por IA, veja [docs/ia.md](docs/ia.md) — é um segundo processo.
+
+---
+
+## Documentação
+
+| documento | conteúdo |
+|---|---|
+| [docs/arquitetura.md](docs/arquitetura.md) | camadas, fluxo de uma requisição, mapa de pastas |
+| [docs/banco-de-dados.md](docs/banco-de-dados.md) | as 16 tabelas, relacionamentos e armadilhas do schema |
+| [docs/api.md](docs/api.md) | todos os endpoints, autenticação e formato de erro |
+| [docs/ia.md](docs/ia.md) | o resumo por IA: como funciona, configurar e rodar |
+| [docs/desenvolvimento.md](docs/desenvolvimento.md) | scripts, seeds, migrations e problemas comuns |
+
+---
+
+## Comandos
+
+| comando | faz |
+|---|---|
+| `npm run dev` | sobe em watch |
+| `npm run build` | compila para `dist/` |
+| `npm start` | roda o build |
+| `npm run prisma:generate` | gera o Prisma Client |
+| `npm run prisma:deploy` | aplica migrations pendentes (**não reseta** — use este no Neon) |
+| `npm run prisma:migrate` | cria e aplica migration (**só contra banco local**) |
+| `npm run prisma:seed` | popula plantas, templates e períodos |
+| `npx tsx prisma/seed-demo.ts` | cria o acompanhamento de demonstração |
+| `node scripts/limpar-dados-teste.cjs` | remove dados de teste (preview; `--executar` aplica) |
+
+---
+
+## Estado atual
+
+- ✅ 95 rotas, todas documentadas no Swagger
+- ✅ Autenticação JWT global (tudo protegido, exceto 5 rotas públicas)
+- ✅ 7 migrations aplicadas, schema sincronizado
+- ✅ Serviço de IA com Groq e Gemini — Groq validada com chave real
+- ⚠️ **Sem testes automatizados**
+- ⚠️ Sem `vercel.json` — o deploy na Vercel ainda não está configurado

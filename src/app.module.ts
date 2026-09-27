@@ -17,6 +17,7 @@ import { TurmasModule } from './modules/turmas/turmas.module';
 import { AlunoTurmaModule } from './modules/aluno-turma/aluno-turma.module';
 import { AcademicPeriodsModule } from './modules/academic-periods/academic-periods.module';
 import { AlunosModule } from './modules/alunos/alunos.module';
+import { ResumoIaModule } from './modules/resumo-ia/resumo-ia.module';
 
 import { JwtAuthGuard } from './core/auth/jwt-auth.guard';
 import { HttpErrorFilter } from './core/http-exception.filter';
@@ -40,6 +41,7 @@ import { loginLimiter } from './core/rate-limit';
     AlunoTurmaModule,
     AcademicPeriodsModule,
     AlunosModule,
+    ResumoIaModule,
   ],
   providers: [
     // Tudo protegido por padrão; rotas abertas usam @Public().

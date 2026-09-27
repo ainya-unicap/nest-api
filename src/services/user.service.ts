@@ -24,8 +24,21 @@ export class UserService {
     });
   }
 
+  // select explícito: findMany() sem select devolvia o hash da senha de todo mundo.
   async getAll() {
-    return await prisma.user.findMany();
+    return await prisma.user.findMany({
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        role: true,
+        institution_id: true,
+        avatarUrl: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+      orderBy: { name: 'asc' },
+    });
   }
 
   async findById(id: string) {

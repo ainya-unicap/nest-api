@@ -13,12 +13,24 @@ export class FormularioRepository {
     return prisma.formulario.findUnique({ where: { id }, include: { list: { include: { plant: true, canteiro: true } }, checklists: { include: { template: true } }, measurements: { include: { template: true } }, photos: true } });
   }
 
+  // Versão enxuta, para checagem de dono antes de alterar/remover.
+  findRaw(id: string) {
+    return prisma.formulario.findUnique({ where: { id } });
+  }
+
   update(id: string, data: any) {
     return prisma.formulario.update({ where: { id }, data });
   }
 
-  delete(id: string) {
-    return prisma.formulario.delete({ where: { id } });
+  // Todas as FKs de Checklist/Measurement/Photo são ON DELETE RESTRICT no banco,
+  // então os filhos precisam sair antes — tudo na mesma transação.
+  deleteWithChildren(id: string) {
+    return prisma.$transaction([
+      prisma.checklist.deleteMany({ where: { form_id: id } }),
+      prisma.measurement.deleteMany({ where: { form_id: id } }),
+      prisma.photo.deleteMany({ where: { form_id: id } }),
+      prisma.formulario.delete({ where: { id } }),
+    ]);
   }
 
   getChecklist(id: string) {
