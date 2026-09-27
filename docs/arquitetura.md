@@ -88,7 +88,7 @@ texto, não faz a conta.
 ## Integração com o serviço de IA
 
 ```
-Front ──POST /api/listas-formularios/:id/resumo-ia──> Nest ──POST /resumir──> ai-service ──> Groq
+Front ──POST /api/listas-formularios/:id/resumo-ia──> Nest ──POST /resumir──> ai-service ──> Groq / Gemini
                                                         │
                                                    ResumoIA (status)
 ```

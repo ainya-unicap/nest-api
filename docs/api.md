@@ -2,7 +2,7 @@
 
 Base: `http://localhost:3000/api` · Swagger: `/api/docs` · spec: `/api/docs.json`
 
-**93 rotas.** O Swagger é a fonte viva — este documento é o mapa geral.
+**95 rotas.** O Swagger é a fonte viva — este documento é o mapa geral.
 
 ## Autenticação
 
@@ -140,6 +140,8 @@ apagado. O dono vem sempre do token.
 | método | rota | |
 |---|---|---|
 | `GET` | `/listas-formularios/:id/dossie` | consolidado que alimenta a IA |
+| `POST` | `/canteiros/:id/resumo-ia` | **dispara pelo canteiro** (usa a lista mais recente com formulários) → `202 {id, status, list_id}` |
+| `GET` | `/canteiros/:id/resumo-ia` | histórico do canteiro (todas as listas) |
 | `POST` | `/listas-formularios/:id/resumo-ia` | **dispara** → `202 {id, status}` |
 | `GET` | `/resumo-ia/:id` | o polling do front |
 | `GET` | `/listas-formularios/:id/resumo-ia` | histórico |

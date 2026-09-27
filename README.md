@@ -6,7 +6,7 @@ canteiros; a partir desses dados a API monta relatórios e gera, com IA, uma
 documentação sobre o cultivo e os cuidados da planta.
 
 **Stack:** NestJS 10 · TypeScript · Prisma 7 · PostgreSQL (Neon) · JWT ·
-Swagger · Python/FastAPI + Groq (serviço de IA)
+Swagger · Python/FastAPI + Groq/Gemini (serviço de IA)
 
 ---
 
@@ -28,7 +28,7 @@ JWT_SECRET=uma-string-longa        # sem isso a aplicação não sobe
 | endereço | o que é |
 |---|---|
 | `http://localhost:3000/api` | a API |
-| `http://localhost:3000/api/docs` | Swagger (93 rotas documentadas) |
+| `http://localhost:3000/api/docs` | Swagger (95 rotas documentadas) |
 | `http://localhost:3000/api/docs.json` | o spec OpenAPI |
 
 Para o resumo por IA, veja [docs/ia.md](docs/ia.md) — é um segundo processo.
@@ -65,9 +65,9 @@ Para o resumo por IA, veja [docs/ia.md](docs/ia.md) — é um segundo processo.
 
 ## Estado atual
 
-- ✅ 93 rotas, todas documentadas no Swagger
+- ✅ 95 rotas, todas documentadas no Swagger
 - ✅ Autenticação JWT global (tudo protegido, exceto 5 rotas públicas)
 - ✅ 7 migrations aplicadas, schema sincronizado
-- ✅ Serviço de IA completo — falta apenas a `GROQ_API_KEY`
+- ✅ Serviço de IA com Groq e Gemini — Groq validada com chave real
 - ⚠️ **Sem testes automatizados**
 - ⚠️ Sem `vercel.json` — o deploy na Vercel ainda não está configurado

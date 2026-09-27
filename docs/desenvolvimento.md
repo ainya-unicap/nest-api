@@ -84,7 +84,7 @@ Processo separado; `npm run dev` **não** sobe. Veja [ia.md](ia.md).
 cd ai-service
 python -m venv .venv && .venv/Scripts/activate
 pip install -r requirements.txt
-cp .env.example .env          # preencha GROQ_API_KEY
+cp .env.example .env          # preencha GROQ_API_KEY e/ou GEMINI_API_KEY
 uvicorn main:app --reload --port 8000
 ```
 
