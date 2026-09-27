@@ -3,7 +3,7 @@ Construção do prompt. Isolado num módulo só para dar para versionar e compar
 saídas quando o texto mudar — sempre suba PROMPT_VERSAO junto com uma alteração
 que mude o estilo ou as regras.
 """
-from schemas import Dossie
+from schemas.dossie import Dossie
 
 PROMPT_VERSAO = "1.0.0"
 

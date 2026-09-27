@@ -6,7 +6,7 @@ o campo `versao` existe justamente para detectar essa divergência.
 """
 from typing import Literal, Optional, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 DOSSIE_VERSAO_SUPORTADA = "1"
 
@@ -105,18 +105,33 @@ class Dossie(BaseModel):
 
 class PedidoResumo(BaseModel):
     dossie: Dossie
+    # Opcional: força um provedor ("groq", "gemini"). Sem ele vale o LLM_PROVIDER do .env.
+    provedor: Optional[str] = None
 
 
 class Secoes(BaseModel):
-    """As quatro seções da documentação gerada."""
+    """
+    As quatro seções da documentação gerada. O modelo devolve cada seção como
+    lista de parágrafos (segue a divisão melhor do que com "\\n\\n" dentro de
+    uma string); aqui vira texto com linha em branco entre parágrafos, que é o
+    que o Nest grava e o front exibe.
+    """
     introducao: str
     desenvolvimento: str
     cuidados: str
     conclusao: str
 
+    @field_validator("*", mode="before")
+    @classmethod
+    def juntar_paragrafos(cls, valor):
+        if isinstance(valor, list):
+            return "\n\n".join(str(p).strip() for p in valor if str(p).strip())
+        return valor
+
 
 class RespostaResumo(BaseModel):
     secoes: Secoes
+    provedor: str
     modelo: str
     prompt_versao: str
     tokens_entrada: int
