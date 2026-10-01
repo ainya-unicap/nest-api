@@ -10,6 +10,9 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:deploy": "prisma migrate deploy",
     "prisma:seed": "prisma db seed",
+    "sonar:up": "docker compose -f docker-compose.sonar.yml up -d",
+    "sonar:down": "docker compose -f docker-compose.sonar.yml down",
+    "sonar": "npx --yes @sonar/scan",
     "vercel-build": "prisma generate && prisma migrate deploy && nest build"
   },
   "dependencies": {
