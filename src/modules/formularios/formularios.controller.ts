@@ -16,7 +16,7 @@ import {
 import { FormularioService } from '../../services/formulario.service';
 import { ChecklistService } from '../../services/checklist.service';
 import { MeasurementService } from '../../services/measurement.service';
-import { ApiAuth, errorSchema } from '../../swagger/decorators';
+import { ApiAuth, erroDeValidacaoSchema, errorSchema } from '../../swagger/decorators';
 
 const formularioSchema = {
   type: 'object' as const,
@@ -137,7 +137,20 @@ export class FormulariosController {
     },
   })
   @ApiCreatedResponse({ schema: formularioSchema })
-  @ApiBadRequestResponse({ schema: errorSchema('week deve ser um número inteiro entre 1 e 12') })
+  @ApiBadRequestResponse({
+    description:
+      'Validação: `campos` lista o problema de cada campo (todos de uma vez). ' +
+      'Se um id enviado não existir no banco, o código é REFERENCIA_INEXISTENTE ' +
+      'e `campos` nomeia qual (list_id ou user_id).',
+    schema: erroDeValidacaoSchema(
+      {
+        user_id: 'obrigatório',
+        type: 'deve ser SEMANAL ou DIARIO (recebido: "MENSAL")',
+        week: 'deve ser um número inteiro entre 1 e 12 (recebido: 99)',
+      },
+      'FORMULARIO_INVALIDO',
+    ),
+  })
   async create(@Body() body: any) {
     return await this.formularioService.create(body);
   }
@@ -269,6 +282,13 @@ export class FormulariosController {
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiBody(updateBody)
   @ApiOkResponse({ schema: formularioSchema })
+  @ApiBadRequestResponse({
+    schema: erroDeValidacaoSchema(
+      { week: 'deve ser um número inteiro entre 1 e 12 (recebido: "abc")' },
+      'FORMULARIO_INVALIDO',
+    ),
+  })
+  @ApiNotFoundResponse({ schema: errorSchema('Registro não encontrado', 'NAO_ENCONTRADO') })
   async update(@Param('id') id: string, @Body() body: any) {
     return await this.formularioService.update(id, body);
   }
@@ -278,6 +298,13 @@ export class FormulariosController {
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiBody(updateBody)
   @ApiOkResponse({ schema: formularioSchema })
+  @ApiBadRequestResponse({
+    schema: erroDeValidacaoSchema(
+      { type: 'deve ser SEMANAL ou DIARIO (recebido: "ANUAL")' },
+      'FORMULARIO_INVALIDO',
+    ),
+  })
+  @ApiNotFoundResponse({ schema: errorSchema('Registro não encontrado', 'NAO_ENCONTRADO') })
   async updatePartial(@Param('id') id: string, @Body() body: any) {
     return await this.formularioService.update(id, body);
   }

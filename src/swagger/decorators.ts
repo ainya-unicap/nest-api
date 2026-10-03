@@ -17,7 +17,39 @@ export const ApiAuth = () =>
   );
 
 // Corpo de erro padrão da API (produzido pelo HttpErrorFilter).
-export const errorSchema = (example: string) => ({
+// `error` sempre vem; `codigo` e `campos` aparecem quando a API consegue
+// apontar exatamente o que está errado.
+export const errorSchema = (example: string, codigo?: string) => ({
   type: 'object' as const,
-  properties: { error: { type: 'string' as const, example } },
+  properties: {
+    error: { type: 'string' as const, example },
+    codigo: {
+      type: 'string' as const,
+      description: 'Código estável para o front tratar sem depender do texto',
+      ...(codigo ? { example: codigo } : {}),
+    },
+    campos: {
+      type: 'object' as const,
+      nullable: true,
+      description: 'Presente em erro de validação: o problema de cada campo',
+      additionalProperties: { type: 'string' as const },
+    },
+  },
+});
+
+// Erro de validação por campo, com exemplo preenchido.
+export const erroDeValidacaoSchema = (campos: Record<string, string>, codigo = 'VALIDACAO') => ({
+  type: 'object' as const,
+  properties: {
+    error: {
+      type: 'string' as const,
+      example: Object.entries(campos).map(([c, p]) => `${c}: ${p}`).join('; '),
+    },
+    codigo: { type: 'string' as const, example: codigo },
+    campos: {
+      type: 'object' as const,
+      additionalProperties: { type: 'string' as const },
+      example: campos,
+    },
+  },
 });
