@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PlantTemplateRepository } from '../repositories/planttemplate.repository';
+import { HttpError } from '../core/httpError';
 
 @Injectable()
 export class PlantTemplateService {
@@ -9,8 +10,10 @@ export class PlantTemplateService {
     return this.repo.findAll(plantId);
   }
 
-  findById(id: string) {
-    return this.repo.findById(id);
+  async findById(id: string) {
+    const template = await this.repo.findById(id);
+    if (!template) throw new HttpError('Template não encontrado', 404);
+    return template;
   }
 
   create(body: any) {
