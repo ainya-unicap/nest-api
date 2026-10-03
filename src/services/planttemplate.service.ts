@@ -5,8 +5,8 @@ import { PlantTemplateRepository } from '../repositories/planttemplate.repositor
 export class PlantTemplateService {
   private repo = new PlantTemplateRepository();
 
-  findAll() {
-    return this.repo.findAll();
+  findAll(plantId?: string) {
+    return this.repo.findAll(plantId);
   }
 
   findById(id: string) {

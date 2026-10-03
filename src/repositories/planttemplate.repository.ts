@@ -1,8 +1,8 @@
 import { prisma } from '../prisma';
 
 export class PlantTemplateRepository {
-  findAll() {
-    return prisma.plantTemplate.findMany();
+  findAll(plantId?: string) {
+    return prisma.plantTemplate.findMany(plantId ? { where: { plant_id: plantId } } : undefined);
   }
 
   findById(id: string) {

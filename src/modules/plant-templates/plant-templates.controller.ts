@@ -1,10 +1,11 @@
-import { Controller, Get, Post, Put, Patch, Delete, Param, Body } from '@nestjs/common';
+import { Controller, Get, Post, Put, Patch, Delete, Param, Body, Query } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 
@@ -42,11 +43,15 @@ export class PlantTemplatesController {
   @Get()
   @ApiOperation({
     summary: 'Lista os campos configuráveis',
-    description: 'Cada template é um campo medido/checado para uma planta forrageira.',
+    description:
+      'Cada template é um campo medido/checado para uma planta forrageira. Sem `plant_id`, ' +
+      'devolve os templates de TODAS as plantas — ao montar o formulário de uma planta ' +
+      'específica, sempre filtre por `plant_id` para não misturar campos de outras plantas.',
   })
+  @ApiQuery({ name: 'plant_id', required: false, description: 'Filtra só os templates desta planta' })
   @ApiOkResponse({ schema: { type: 'array', items: templateSchema } })
-  async findAll() {
-    return await this.plantTemplateService.findAll();
+  async findAll(@Query('plant_id') plantId?: string) {
+    return await this.plantTemplateService.findAll(plantId);
   }
 
   @Get(':id')
