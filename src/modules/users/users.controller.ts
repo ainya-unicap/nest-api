@@ -1,7 +1,19 @@
-import { Controller, Post, Get, Put, Param, Body } from '@nestjs/common';
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Put,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import {
   ApiBadRequestResponse,
   ApiBody,
+  ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -13,6 +25,8 @@ import {
 import { UserService } from '../../services/user.service';
 import { Public } from '../../core/auth/public.decorator';
 import { ApiAuth, errorSchema } from '../../swagger/decorators';
+import { uploadOptions } from '../../core/upload.config';
+import { persistUploadedFile } from '../../core/storage';
 
 const userSchema = {
   type: 'object' as const,
@@ -104,5 +118,35 @@ export class UsersController {
   @ApiBadRequestResponse({ schema: errorSchema('Informe name ou password para atualizar') })
   async updateProfile(@Param('id') id: string, @Body() body: any) {
     return await this.userService.updateProfile(id, body);
+  }
+
+  @Post(':id/avatar')
+  @ApiAuth()
+  @UseInterceptors(FileInterceptor('avatar', uploadOptions))
+  @ApiConsumes('multipart/form-data')
+  @ApiOperation({
+    summary: 'Envia/troca a foto de perfil',
+    description:
+      'Aceita JPEG, PNG ou WEBP até 5 MB. Em dev grava em public/uploads; em produção sobe ' +
+      'pro Vercel Blob. A foto anterior (se houver) é removida depois que a nova é salva.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['avatar'],
+      properties: { avatar: { type: 'string', format: 'binary' } },
+    },
+  })
+  @ApiOkResponse({ schema: userSchema })
+  @ApiBadRequestResponse({ schema: errorSchema('Tipo de arquivo inválido. Use JPEG, PNG ou WEBP.') })
+  @ApiNotFoundResponse({ schema: errorSchema('Usuário não encontrado') })
+  async uploadAvatar(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('Arquivo de foto é obrigatório');
+    }
+
+    const url = await persistUploadedFile(file, 'avatars');
+    return await this.userService.updateAvatar(id, url);
   }
 }

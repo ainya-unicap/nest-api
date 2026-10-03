@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { prisma } from '../prisma';
 import { HttpError } from '../core/httpError';
+import { removeStoredFile } from '../core/storage';
 import argon2 from 'argon2';
 
 @Injectable()
@@ -91,6 +92,13 @@ export class UserService {
     if (!current) throw new HttpError('Usuário não encontrado', 404);
 
     const updated = await prisma.user.update({ where: { id }, data: { avatarUrl: newUrl }, select: { id: true, name: true, email: true, avatarUrl: true } });
+
+    // Best-effort: remove a foto antiga (Blob ou disco) depois que a nova já
+    // está gravada, para não acumular arquivo órfão a cada troca de avatar.
+    if (current.avatarUrl && current.avatarUrl !== newUrl) {
+      void removeStoredFile(current.avatarUrl);
+    }
+
     return updated;
   }
 }
