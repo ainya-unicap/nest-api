@@ -71,6 +71,7 @@ model Formulario {
     user_id      String
     user         User               @relation(fields: [user_id], references: [id])
     type        String             //Enum SEMANAL DIARIO
+    week        Int?               // semana do acompanhamento (1 a 12), escolhida pelo aluno
     started_at  DateTime
     ended_at    DateTime
     observations String

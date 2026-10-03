@@ -1,6 +1,7 @@
 import { Controller, Get, Post, Put, Patch, Delete, Param, Body, Query, Req } from '@nestjs/common';
 import { Request } from 'express';
 import {
+  ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
   ApiForbiddenResponse,
@@ -24,6 +25,7 @@ const formularioSchema = {
     list_id: { type: 'string', format: 'uuid' },
     user_id: { type: 'string', format: 'uuid' },
     type: { type: 'string', enum: ['SEMANAL', 'DIARIO'] },
+    week: { type: 'integer', nullable: true, minimum: 1, maximum: 12, example: 3 },
     started_at: { type: 'string', format: 'date-time' },
     ended_at: { type: 'string', format: 'date-time' },
     observations: { type: 'string' },
@@ -38,6 +40,7 @@ const updateBody = {
     type: 'object' as const,
     properties: {
       type: { type: 'string' as const, enum: ['SEMANAL', 'DIARIO'] },
+      week: { type: 'integer' as const, minimum: 1, maximum: 12, example: 3 },
       observations: { type: 'string' as const },
       started_at: { type: 'string' as const, format: 'date-time' },
       ended_at: { type: 'string' as const, format: 'date-time' },
@@ -116,7 +119,9 @@ export class FormulariosController {
   @Post()
   @ApiOperation({
     summary: 'Cria um formulário',
-    description: 'started_at/ended_at são preenchidos com a hora atual quando omitidos.',
+    description:
+      'started_at/ended_at são preenchidos com a hora atual quando omitidos. week é a ' +
+      'semana do acompanhamento (1 a 12) escolhida pelo aluno.',
   })
   @ApiBody({
     schema: {
@@ -126,11 +131,13 @@ export class FormulariosController {
         list_id: { type: 'string', format: 'uuid' },
         user_id: { type: 'string', format: 'uuid' },
         type: { type: 'string', enum: ['SEMANAL', 'DIARIO'] },
+        week: { type: 'integer', minimum: 1, maximum: 12, example: 3 },
         observations: { type: 'string', example: 'Chuva forte durante a coleta' },
       },
     },
   })
   @ApiCreatedResponse({ schema: formularioSchema })
+  @ApiBadRequestResponse({ schema: errorSchema('week deve ser um número inteiro entre 1 e 12') })
   async create(@Body() body: any) {
     return await this.formularioService.create(body);
   }
