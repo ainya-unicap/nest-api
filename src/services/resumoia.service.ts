@@ -4,6 +4,8 @@ import { ResumoIaRepository } from '../repositories/resumoia.repository';
 import { UserCanteiroRepository } from '../repositories/usercanteiro.repository';
 import { DossieService } from './dossie.service';
 import { HttpError } from '../core/httpError';
+import { GeradorResumoService } from '../ai/services/gerador-resumo.service';
+import { Dossie } from '../ai/schemas/dossie';
 
 export const STATUS = {
   PENDENTE: 'PENDENTE',
@@ -12,17 +14,16 @@ export const STATUS = {
   ERRO: 'ERRO',
 } as const;
 
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL ?? 'http://localhost:8000';
-const AI_INTERNAL_TOKEN = process.env.AI_INTERNAL_TOKEN ?? '';
-const AI_TIMEOUT_MS = Number(process.env.AI_TIMEOUT_MS ?? 120_000);
-
 @Injectable()
 export class ResumoIaService {
   private readonly logger = new Logger(ResumoIaService.name);
   private readonly repo = new ResumoIaRepository();
   private readonly userCanteiroRepo = new UserCanteiroRepository();
 
-  constructor(private readonly dossieService: DossieService) {}
+  constructor(
+    private readonly dossieService: DossieService,
+    private readonly geradorResumoService: GeradorResumoService,
+  ) {}
 
   /**
    * Cria o registro e devolve na hora. A chamada ao modelo roda depois, fora do
@@ -135,11 +136,11 @@ export class ResumoIaService {
       const resumo = await this.repo.findById(id);
       if (!resumo?.dossie) throw new Error('Registro sem dossiê gravado');
 
-      const resposta = await this.chamarServicoIA(resumo.dossie);
+      const resposta = await this.geradorResumoService.gerar(resumo.dossie as unknown as Dossie);
 
       await this.repo.atualizar(id, {
         status: STATUS.PRONTO,
-        secoes: resposta.secoes,
+        secoes: resposta.secoes as unknown as Record<string, string>,
         modelo: resposta.modelo,
         prompt_versao: resposta.prompt_versao,
         tokens_entrada: resposta.tokens_entrada,
@@ -161,52 +162,4 @@ export class ResumoIaService {
     }
   }
 
-  private async chamarServicoIA(dossie: unknown) {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
-
-    try {
-      const resposta = await fetch(`${AI_SERVICE_URL}/resumir`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(AI_INTERNAL_TOKEN ? { 'X-Internal-Token': AI_INTERNAL_TOKEN } : {}),
-        },
-        body: JSON.stringify({ dossie }),
-        signal: controller.signal,
-      });
-
-      const texto = await resposta.text();
-
-      if (!resposta.ok) {
-        // O FastAPI devolve { detail: "..." }; repassar isso ajuda a diagnosticar.
-        let detalhe = texto.slice(0, 300);
-        try {
-          detalhe = JSON.parse(texto).detail ?? detalhe;
-        } catch {
-          /* corpo não-JSON: mantém o texto cru */
-        }
-        throw new Error(`ai-service respondeu ${resposta.status}: ${detalhe}`);
-      }
-
-      return JSON.parse(texto) as {
-        secoes: Record<string, string>;
-        modelo: string;
-        prompt_versao: string;
-        tokens_entrada: number;
-        tokens_saida: number;
-        duracao_ms: number;
-      };
-    } catch (err: any) {
-      if (err?.name === 'AbortError') {
-        throw new Error(`ai-service não respondeu em ${AI_TIMEOUT_MS}ms`);
-      }
-      if (err instanceof TypeError) {
-        throw new Error(`ai-service inacessível em ${AI_SERVICE_URL} — ele está rodando?`);
-      }
-      throw err;
-    } finally {
-      clearTimeout(timer);
-    }
-  }
 }

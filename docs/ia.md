@@ -3,8 +3,12 @@
 A partir dos formulários de um acompanhamento, gera uma **documentação sobre o
 cultivo e os cuidados da planta**, em quatro seções.
 
-São **dois processos**: a API Nest e o serviço Python (`ai-service/`). O front
-conversa só com o Nest.
+Roda **dentro do próprio Nest**, em [src/ai/](../src/ai/) — chama a Groq ou o
+Gemini direto pela API REST deles, sem depender de um segundo serviço. Isso
+permite publicar tudo num único projeto da Vercel, sem precisar hospedar nada
+separado. (Existe também uma versão em Python do mesmo serviço, em
+`ai-service/`, mantida só para quem quiser rodar/comparar localmente — ver
+"Versão em Python" no fim deste documento.)
 
 ## Como funciona
 
@@ -15,7 +19,7 @@ conversa só com o Nest.
 2. Nest monta o DOSSIÊ: planta, período, métricas agregadas,
    checklist e observações                                  (~1.600 tokens)
 3. Nest grava ResumoIA { status: PENDENTE, dossie } e devolve 202 NA HORA
-4. Em segundo plano:  Nest ──POST /resumir──> ai-service ──> Groq ou Gemini
+4. Em segundo plano:  Nest (src/ai/) ──chama direto──> Groq ou Gemini
 5. O LLM devolve JSON com as 4 seções
 6. Nest grava { status: PRONTO, secoes, modelo, tokens, duracao_ms }
 7. O front, que consultava GET /api/resumo-ia/:id, vê PRONTO e exibe
@@ -31,54 +35,40 @@ aritmética. Ele só redige.
 
 ## Configurar
 
-Há dois provedores de LLM: **Groq** e **Gemini**. O `LLM_PROVIDER` escolhe o
-padrão; é obrigatória só a chave do provedor em uso.
+Há dois provedores de LLM: **Groq** e **Gemini**. `LLM_PROVIDER` escolhe o
+padrão; é obrigatória só a chave do provedor em uso. Tudo fica no `.env` da
+própria API (veja [.env.example](../.env.example)):
 
 ```env
-# ai-service/.env
 LLM_PROVIDER=groq                    # groq | gemini
 GROQ_API_KEY=gsk_...                 # https://console.groq.com/keys
 GEMINI_API_KEY=                      # https://aistudio.google.com/apikey
 ```
 
-Todo o resto tem default (veja [ai-service/.env.example](../ai-service/.env.example)):
+Todo o resto tem default:
 
 ```env
-GROQ_MODEL=openai/gpt-oss-120b       # GET /modelos?provedor=groq lista os ids
+GROQ_MODEL=openai/gpt-oss-120b       # GET /ai/modelos?provedor=groq lista os ids
 GROQ_MAX_TOKENS=4000                 # ver "Limite da Groq" abaixo
 GROQ_REASONING_EFFORT=low            # low | medium | high
-GEMINI_MODEL=gemini-2.5-flash        # GET /modelos?provedor=gemini
+GEMINI_MODEL=gemini-2.5-flash
 GEMINI_MAX_TOKENS=8192
-INTERNAL_TOKEN=                      # segredo compartilhado com o Nest
+AI_TIMEOUT_MS=120000                 # quanto esperar a Groq/Gemini responder
 ```
 
-O corpo do `/resumir` aceita `"provedor": "gemini"` para forçar outro provedor
-numa chamada específica.
-
-E, no `.env` da API:
-
-```env
-AI_SERVICE_URL=http://localhost:8000
-AI_INTERNAL_TOKEN=          # precisa ser igual ao INTERNAL_TOKEN do ai-service
-AI_TIMEOUT_MS=120000
-```
-
-> Com `INTERNAL_TOKEN` vazio nos dois lados o serviço fica aberto — aceitável só
-> em desenvolvimento local.
+O corpo do pedido de resumo aceita um provedor específico para forçar outro
+numa chamada (mesma ideia do antigo `"provedor": "gemini"`), resolvido em
+[obterProvedor](../src/ai/llm/index.ts).
 
 ## Rodar
 
-```bash
-# terminal 1
-cd ai-service
-.venv/Scripts/activate        # Linux/Mac: source .venv/bin/activate
-uvicorn main:app --reload --port 8000
+Só um processo:
 
-# terminal 2
+```bash
 npm run dev
 ```
 
-Conferir: `curl localhost:8000/health` → `provedores.groq.chave_configurada: true`.
+Não precisa mais subir nada em Python nem em outra porta.
 
 ## Endpoints
 
@@ -112,14 +102,14 @@ Acesso: Bearer + estar vinculado ao canteiro da lista.
     "cuidados": "…",   "conclusao": "…"
   },
   "provedor": "groq", "modelo": "openai/gpt-oss-120b",
-  "prompt_versao": "1.0.0",
+  "prompt_versao": "1.1.0",
   "tokens_entrada": 1608, "tokens_saida": 742, "duracao_ms": 4310
 }
 ```
 
 ## Arquivos
 
-### API (Nest)
+### Orquestração (fora de `src/ai/`)
 
 | arquivo | papel |
 |---|---|
@@ -128,22 +118,20 @@ Acesso: Bearer + estar vinculado ao canteiro da lista.
 | [resumoia.service.ts](../src/services/resumoia.service.ts) | orquestra: cria o registro, dispara em segundo plano, grava o resultado |
 | [resumo-ia.controller.ts](../src/modules/resumo-ia/resumo-ia.controller.ts) | os 6 endpoints |
 
-### Serviço Python (`ai-service/`)
+### Geração por IA (`src/ai/`)
+
+Mesma divisão em camadas que o `ai-service/` em Python tinha, só que em
+TypeScript e dentro do próprio Nest:
 
 | arquivo | papel |
 |---|---|
-| **[prompts/resumo.py](../ai-service/prompts/resumo.py)** | **o coração** — as regras do sistema e a formatação do dossiê |
-| [main.py](../ai-service/main.py) | cria o app, registra as rotas e o tratamento de erro |
-| [routers/](../ai-service/routers/) | as rotas HTTP (`/health`, `/modelos`, `/resumir`) |
-| [services/resumo_service.py](../ai-service/services/resumo_service.py) | valida o dossiê, chama o LLM, confere as 4 seções |
-| [llm/](../ai-service/llm/) | um arquivo por provedor (`groq_llm.py`, `gemini_llm.py`), mesma interface de [base.py](../ai-service/llm/base.py) |
-| [schemas/dossie.py](../ai-service/schemas/dossie.py) | o contrato com o Nest (Pydantic) |
-| [core/](../ai-service/core/) | config do `.env`, token interno e erros |
+| **[prompts/resumo.ts](../src/ai/prompts/resumo.ts)** | **o coração** — as regras do sistema e a formatação do dossiê |
+| [services/gerador-resumo.service.ts](../src/ai/services/gerador-resumo.service.ts) | valida o dossiê, chama o LLM, confere as 4 seções |
+| [llm/](../src/ai/llm/) | um arquivo por provedor (`groq.llm.ts`, `gemini.llm.ts`), mesma interface de [base.ts](../src/ai/llm/base.ts) |
+| [schemas/dossie.ts](../src/ai/schemas/dossie.ts) | o contrato do dossiê e da resposta |
+| [core/](../src/ai/core/) | config do `.env` e os erros de domínio |
 
 ## O dossiê
-
-Contrato entre os dois serviços. Mudou de um lado, muda do outro — o campo
-`versao` existe para detectar divergência (`422` se não bater).
 
 ```jsonc
 {
@@ -179,30 +167,27 @@ Três cuidados embutidos no [dossie.service.ts](../src/services/dossie.service.t
 ## Trocar de modelo
 
 Só o `.env`: `LLM_PROVIDER` troca o provedor, `GROQ_MODEL` / `GEMINI_MODEL` o
-modelo. Se o id tiver mudado:
-
-```bash
-curl "localhost:8000/modelos?provedor=groq"     # lista o que a sua chave enxerga
-curl "localhost:8000/modelos?provedor=gemini"
-```
+modelo.
 
 ## Adicionar outro provedor
 
-1. Crie `ai-service/llm/<nome>_llm.py` com uma subclasse de `ProvedorLLM`
-   ([base.py](../ai-service/llm/base.py)): `_criar_cliente`, `gerar_json` e
-   `listar_modelos`. Traduza os erros do SDK para `LimiteDeUso` / `FalhaNoModelo`.
-2. Adicione a config dele em [core/config.py](../ai-service/core/config.py).
-3. Registre em `PROVEDORES`, no [llm/\_\_init\_\_.py](../ai-service/llm/__init__.py).
+1. Crie `src/ai/llm/<nome>.llm.ts` com uma subclasse de `ProvedorLLM`
+   ([base.ts](../src/ai/llm/base.ts)): implemente `gerarJson` e `listarModelos`,
+   chamando a API REST do provedor direto (sem precisar de SDK). Traduza os
+   erros da API para `LimiteDeUso` / `FalhaNoModelo`.
+2. Adicione a config dele em [core/config.ts](../src/ai/core/config.ts).
+3. Registre em `PROVEDORES`, no [llm/index.ts](../src/ai/llm/index.ts).
 
 O service e as rotas não mudam.
 
 ## Ajustar o texto gerado
 
-Edite [ai-service/prompts/resumo.py](../ai-service/prompts/resumo.py) e **suba o `PROMPT_VERSAO`** —
-ele é gravado em cada registro, então dá para comparar saídas de versões diferentes.
+Edite [src/ai/prompts/resumo.ts](../src/ai/prompts/resumo.ts) e **suba o
+`PROMPT_VERSAO`** — ele é gravado em cada registro, então dá para comparar
+saídas de versões diferentes.
 
 **Prompt 1.1.0.** O princípio é: o modelo só redige; tudo que é conta ou
-comparação é resolvido em Python antes de chegar a ele.
+comparação é resolvido em TypeScript antes de chegar a ele.
 
 - **Entrada pronta:** cada valor vai com a unidade da própria métrica, com vírgula
   decimal e data dd/mm/aaaa. As mudanças de estádio e as lacunas (checklist sem
@@ -211,11 +196,9 @@ comparação é resolvido em Python antes de chegar a ele.
   calcular (nada de "+15 cm"); não afirmar causa que a observação não afirma;
   citar todas as métricas e todas as observações completas; recomendar só
   manejos com resultado relatado e as ações das lacunas.
-- **Saída:** cada seção vem como lista de parágrafos, e o `schemas/dossie.py` junta
-  com linha em branco. O Nest continua recebendo texto.
-
-A versão 1.0.0 trocava valores entre métricas (citou a altura como comprimento do
-entrenó), fazia contas próprias e omitia métricas inteiras.
+- **Saída:** cada seção vem como lista de parágrafos, e
+  [schemas/dossie.ts](../src/ai/schemas/dossie.ts) junta com linha em branco.
+  O resto do Nest continua recebendo texto.
 
 ### Limite da Groq (plano gratuito)
 
@@ -225,15 +208,13 @@ o `GROQ_MAX_TOKENS` reservado. Por isso:
 - `GROQ_MAX_TOKENS` acima de ~4.300 faz toda chamada ser recusada (413).
 - `GROQ_REASONING_EFFORT=low` é obrigatório: com `medium`, o raciocínio consome
   o teto e o JSON sai cortado. Em `low`, um resumo usa ~1.500 tokens em ~4 s.
-- Dois resumos no mesmo minuto: o SDK espera e tenta de novo, mas pode desistir
-  com 429 e o resumo fica em `ERRO`; nesse caso use o
-  `/reprocessar`.
+- Dois resumos no mesmo minuto: a chamada pode ser recusada com 429 e o resumo
+  fica em `ERRO`; nesse caso use o `/reprocessar`.
 
 ## Erros
 
-| status do `ai-service` | causa |
+| status | causa |
 |---|---|
-| `401` | `X-Internal-Token` errado |
 | `422` | versão de dossiê incompatível, ou dossiê vazio |
 | `400` | `provedor` desconhecido |
 | `429` | limite de uso do provedor |
@@ -245,12 +226,17 @@ girar para sempre.
 
 ## Limitações conhecidas
 
-**Vercel.** O processamento em segundo plano funciona em servidor que fica de pé
-(local, Render, Railway). Em serverless a função pode ser encerrada logo após o
-`202`, deixando o resumo preso em `PROCESSANDO` — daí existir o `/reprocessar`. A
-solução definitiva é o Python chamar um callback no Nest ao terminar.
+**Vercel.** O processamento em segundo plano (`void this.processar(id)`)
+precisa que a função siga executando depois do `202`. Em serverless ela pode
+ser encerrada antes de terminar, deixando o resumo preso em `PROCESSANDO` —
+daí existir o `/reprocessar`.
 
-**Groq validada com chave real, direto no ai-service** (dossiê sintético): o
-`openai/gpt-oss-120b` devolveu as 4 seções em ~2,5 s. O `llama-3.3-70b-versatile`,
-padrão anterior, não está mais disponível. Ainda falta rodar o fluxo completo pelo
-Nest e validar o **Gemini**, que ainda não teve chave configurada.
+## Versão em Python (`ai-service/`)
+
+Antes esse serviço rodava como um processo Python separado (FastAPI),
+chamado pelo Nest via HTTP com um token compartilhado. Essa versão continua no
+repositório, com a mesma estrutura em camadas (`routers/`, `services/`,
+`llm/`, `prompts/`, `schemas/`, `core/`), útil para quem quiser rodar ou
+comparar localmente — ver [ai-service/README.md](../ai-service/README.md).
+Ela **não é usada em produção**: o fluxo real passa inteiro por
+[src/ai/](../src/ai/), dentro do Nest.
