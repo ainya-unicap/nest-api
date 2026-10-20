@@ -1,4 +1,16 @@
-import { Controller, Get, Post, Put, Patch, Delete, Param, Body, Query, Req } from '@nestjs/common';
+import {
+  BadRequestException,
+  Controller,
+  Get,
+  Post,
+  Put,
+  Patch,
+  Delete,
+  Param,
+  Body,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { Request } from 'express';
 import {
   ApiBody,
@@ -74,6 +86,10 @@ export class FormulariosController {
     @Req() req?: Request,
   ) {
     const userId = userIdParam ?? userIdQuery ?? userIdAltQuery ?? req?.user?.id;
+    if (!userId) {
+      throw new BadRequestException('userId is required');
+    }
+
     return await this.formularioService.findAllByUser(userId);
   }
 

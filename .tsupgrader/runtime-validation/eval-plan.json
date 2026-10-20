@@ -1,0 +1,37 @@
+{
+  "generatedAt": "2026-10-19T23:35:19Z",
+  "generatedOnPlatform": "win32",
+  "projectType": "server",
+  "setup": [
+    {
+      "command": "npm",
+      "args": ["install", "--no-package-lock"],
+      "timeoutSeconds": 600
+    }
+  ],
+  "assertions": [
+    {
+      "name": "tsc-no-emit",
+      "kind": "process",
+      "command": "npx",
+      "args": ["tsc", "--noEmit"],
+      "verificationMethod": "exit-code",
+      "expected": "0",
+      "timeoutSeconds": 180
+    },
+    {
+      "name": "openapi-docs-200",
+      "kind": "http-probe",
+      "startCommand": "npm",
+      "startArgs": ["run", "start"],
+      "env": {
+        "JWT_SECRET": "runtime-validation-secret",
+        "PORT": "3000"
+      },
+      "url": "http://localhost:3000/api/docs.json",
+      "verificationMethod": "http-status",
+      "expected": "200",
+      "timeoutSeconds": 120
+    }
+  ]
+}

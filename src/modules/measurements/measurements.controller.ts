@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Get, Param, Patch, Post, Put } from '@nestjs/common';
 import {
   ApiBody,
   ApiCreatedResponse,
@@ -88,6 +88,9 @@ export class MeasurementsController {
   ) {
     const targetFormId = formId ?? formularioId;
     const { measurements } = body ?? {};
+    if (!targetFormId) {
+      throw new BadRequestException('formId is required');
+    }
 
     return await this.measurementService.createManyForFormulario(targetFormId, measurements);
   }
@@ -103,7 +106,12 @@ export class MeasurementsController {
     @Param('formId') formId?: string,
     @Param('formularioId') formularioId?: string,
   ) {
-    return await this.measurementService.findByFormulario(formId ?? formularioId);
+    const targetFormId = formId ?? formularioId;
+    if (!targetFormId) {
+      throw new BadRequestException('formId is required');
+    }
+
+    return await this.measurementService.findByFormulario(targetFormId);
   }
 
   @Patch(':id')

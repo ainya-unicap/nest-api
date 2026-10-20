@@ -1,0 +1,116 @@
+{
+  "planHash": "26e82bcb459b02a735c662831809331def065631e0f18c6dbb2a9c463c294a28",
+  "phase": "baseline",
+  "recordedAtUtc": "2026-10-20T02:42:11.0618802Z",
+  "retryCount": 0,
+  "resetBaseline": true,
+  "complete": true,
+  "result": {
+    "setupSucceeded": true,
+    "setupDurationMs": 39398,
+    "setupFailureOutput": null,
+    "assertions": [
+      {
+        "name": "tsc-no-emit",
+        "kind": "process",
+        "verificationMethod": "exit-code",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": 0,
+        "outputSample": "",
+        "durationMs": 8245
+      },
+      {
+        "name": "openapi-docs-200",
+        "kind": "http-probe",
+        "verificationMethod": "http-status",
+        "passed": true,
+        "timedOut": false,
+        "skipped": false,
+        "skippedReason": null,
+        "exitCode": null,
+        "outputSample": "HTTP 200\n{\u0022openapi\u0022:\u00223.0.0\u0022,\u0022paths\u0022:{\u0022/users\u0022:{\u0022post\u0022:{\u0022operationId\u0022:\u0022UsersController_create\u0022,\u0022summary\u0022:\u0022Cria um usu\u00E1rio\u0022,\u0022description\u0022:\u0022Rota p\u00FAblica, protegida por reCAPTCHA. A senha \u00E9 gravada com hash argon2. O token do captcha \u00E9 verificado no Google e descartado \u2014 nada \u00E9 gravado no banco.\u0022,\u0022parameters\u0022:[],\u0022requestBody\u0022:{\u0022required\u0022:true,\u0022content\u0022:{\u0022application/json\u0022:{\u0022schema\u0022:{\u0022type\u0022:\u0022object\u0022,\u0022required\u0022:[\u0022name\u0022,\u0022email\u0022,\u0022password\u0022],\u0022properties\u0022:{\u0022name\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022example\u0022:\u0022Maria Silva\u0022},\u0022email\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022email\u0022,\u0022example\u0022:\u0022maria@unicap.br\u0022},\u0022password\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022password\u0022,\u0022example\u0022:\u0022senha123\u0022},\u0022role\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022enum\u0022:[\u0022aluno\u0022,\u0022professor\u0022,\u0022admin\u0022],\u0022default\u0022:\u0022aluno\u0022},\u0022institutionId\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022uuid\u0022},\u0022recaptchaToken\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022description\u0022:\u0022Token do reCAPTCHA gerado no front. Obrigat\u00F3rio quando RECAPTCHA_SECRET est\u00E1 configurado no servidor. Aceita tamb\u00E9m os nomes captchaToken e recaptcha.\u0022}}}}}},\u0022responses\u0022:{\u0022201\u0022:{\u0022description\u0022:\u0022\u0022,\u0022content\u0022:{\u0022application/json\u0022:{\u0022schema\u0022:{\u0022type\u0022:\u0022object\u0022,\u0022properties\u0022:{\u0022message\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022example\u0022:\u0022created successfully\u0022}}}}}},\u0022400\u0022:{\u0022description\u0022:\u0022Inclui as falhas de captcha: CAPTCHA_AUSENTE, CAPTCHA_INVALIDO, CAPTCHA_EXPIRADO (token reusado) e CAPTCHA_SCORE_BAIXO (v3).\u0022,\u0022content\u0022:{\u0022application/json\u0022:{\u0022schema\u0022:{\u0022type\u0022:\u0022object\u0022,\u0022properties\u0022:{\u0022error\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022example\u0022:\u0022Captcha inv\u00E1lido\u0022},\u0022codigo\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022description\u0022:\u0022C\u00F3digo est\u00E1vel para o front tratar sem depender do texto\u0022,\u0022example\u0022:\u0022CAPTCHA_INVALIDO\u0022},\u0022campos\u0022:{\u0022type\u0022:\u0022object\u0022,\u0022nullable\u0022:true,\u0022description\u0022:\u0022Presente em erro de valida\u00E7\u00E3o: o problema de cada campo\u0022,\u0022additionalProperties\u0022:{\u0022type\u0022:\u0022string\u0022}}}}}}}},\u0022tags\u0022:[\u0022Users\u0022]},\u0022get\u0022:{\u0022operationId\u0022:\u0022UsersController_getAll\u0022,\u0022summary\u0022:\u0022Lista todos os usu\u00E1rios\u0022,\u0022parameters\u0022:[],\u0022responses\u0022:{\u0022200\u0022:{\u0022description\u0022:\u0022\u0022,\u0022content\u0022:{\u0022application/json\u0022:{\u0022schema\u0022:{\u0022type\u0022:\u0022array\u0022,\u0022items\u0022:{\u0022type\u0022:\u0022object\u0022,\u0022properties\u0022:{\u0022id\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022uuid\u0022},\u0022name\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022example\u0022:\u0022Maria Silva\u0022},\u0022email\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022email\u0022},\u0022role\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022enum\u0022:[\u0022aluno\u0022,\u0022professor\u0022,\u0022admin\u0022]},\u0022institution_id\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022uuid\u0022,\u0022nullable\u0022:true},\u0022avatarUrl\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022nullable\u0022:true},\u0022createdAt\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022date-time\u0022},\u0022updatedAt\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022date-time\u0022}}}}}}},\u0022401\u0022:{\u0022description\u0022:\u0022Token ausente, vazio ou inv\u00E1lido\u0022,\u0022content\u0022:{\u0022application/json\u0022:{\u0022schema\u0022:{\u0022type\u0022:\u0022object\u0022,\u0022properties\u0022:{\u0022error\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022example\u0022:\u0022Token n\u00E3o enviado\u0022}}}}}}},\u0022tags\u0022:[\u0022Users\u0022],\u0022security\u0022:[{\u0022bearer\u0022:[]}]}},\u0022/users/{id}\u0022:{\u0022get\u0022:{\u0022operationId\u0022:\u0022UsersController_findById\u0022,\u0022summary\u0022:\u0022Detalha um usu\u00E1rio (sem a senha)\u0022,\u0022parameters\u0022:[{\u0022name\u0022:\u0022id\u0022,\u0022required\u0022:true,\u0022in\u0022:\u0022path\u0022,\u0022schema\u0022:{\u0022format\u0022:\u0022uuid\u0022,\u0022type\u0022:\u0022string\u0022}}],\u0022responses\u0022:{\u0022200\u0022:{\u0022description\u0022:\u0022\u0022,\u0022content\u0022:{\u0022application/json\u0022:{\u0022schema\u0022:{\u0022type\u0022:\u0022object\u0022,\u0022properties\u0022:{\u0022id\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022uuid\u0022},\u0022name\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022example\u0022:\u0022Maria Silva\u0022},\u0022email\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022email\u0022},\u0022role\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022enum\u0022:[\u0022aluno\u0022,\u0022professor\u0022,\u0022admin\u0022]},\u0022institution_id\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022uuid\u0022,\u0022nullable\u0022:true},\u0022avatarUrl\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022nullable\u0022:true},\u0022createdAt\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022date-time\u0022},\u0022updatedAt\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022format\u0022:\u0022date-time\u0022}}}}}},\u0022401\u0022:{\u0022description\u0022:\u0022Token ausente, vazio ou inv\u00E1lido\u0022,\u0022content\u0022:{\u0022application/json\u0022:{\u0022schema\u0022:{\u0022type\u0022:\u0022object\u0022,\u0022properties\u0022:{\u0022error\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022example\u0022:\u0022Token n\u00E3o enviado\u0022}}}}}},\u0022404\u0022:{\u0022description\u0022:\u0022\u0022,\u0022content\u0022:{\u0022application/json\u0022:{\u0022schema\u0022:{\u0022type\u0022:\u0022object\u0022,\u0022properties\u0022:{\u0022error\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022example\u0022:\u0022Usu\u00E1rio n\u00E3o encontrado\u0022},\u0022codigo\u0022:{\u0022type\u0022:\u0022string\u0022,\u0022description\u0022:\u0022C\u00F3digo est\u00E1vel para o front tratar sem depender do texto\u0022},\u0022campos\u0022:{\u0022type\u0022:\u0022object\u0022,\u0022nullable\u0022:true,\u0022description\u0022:\u0022Presente em erro de valida\u00E7\u00E3o: o problema de cada campo\u0022,\u0022additionalProperties\u0022:{\u0022type\u0022:\u0022string\u0022}}}}}}}},\u0022tags\u0022:[\u0022Users\u0022],\u0022security\u0022:[{\u0022bearer\u0022:[]}]}},\u0022/users/{id}/profile\u0022:{\u0022put\u0022:{\u0022operationId\u0022:\u0022UsersController_updateProfile\u0022,\u0022summary\u0022:\u0022Atualiza nome \n\u2026[truncated]",
+        "durationMs": 2608
+      }
+    ],
+    "executions": [
+      {
+        "source": "setup[0]",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.cmd",
+        "args": [
+          "install",
+          "--no-package-lock"
+        ],
+        "cwd": "c:\\Users\\guilh\\OneDrive\\documentos\\Unicap2026.1\\DonkeyCodePI5\\nest-api",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32",
+        "nodeExecutable": "C:\\Program Files\\nodejs\\node.EXE",
+        "nodeVersion": "v22.17.0",
+        "packageManager": "npm",
+        "packageManagerExecutable": "C:\\Program Files\\nodejs\\npm.cmd",
+        "packageManagerVersion": "10.9.2",
+        "cleanup": {
+          "RootProcessId": 42704,
+          "Completed": true,
+          "ProcessesObserved": 9,
+          "ProcessesTerminated": 1,
+          "Failure": null
+        }
+      },
+      {
+        "source": "tsc-no-emit",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npx.CMD",
+        "args": [
+          "tsc",
+          "--noEmit"
+        ],
+        "cwd": "c:\\Users\\guilh\\OneDrive\\documentos\\Unicap2026.1\\DonkeyCodePI5\\nest-api",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32",
+        "nodeExecutable": null,
+        "nodeVersion": null,
+        "packageManager": null,
+        "packageManagerExecutable": null,
+        "packageManagerVersion": null,
+        "cleanup": {
+          "RootProcessId": 43136,
+          "Completed": true,
+          "ProcessesObserved": 7,
+          "ProcessesTerminated": 1,
+          "Failure": null
+        }
+      },
+      {
+        "source": "openapi-docs-200",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.cmd",
+        "args": [
+          "run",
+          "start"
+        ],
+        "cwd": "c:\\Users\\guilh\\OneDrive\\documentos\\Unicap2026.1\\DonkeyCodePI5\\nest-api",
+        "env": {
+          "JWT_SECRET": "\u003Credacted\u003E",
+          "PORT": "3000"
+        },
+        "prependPath": [],
+        "platform": "win32",
+        "nodeExecutable": "C:\\Program Files\\nodejs\\node.EXE",
+        "nodeVersion": "v22.17.0",
+        "packageManager": "npm",
+        "packageManagerExecutable": "C:\\Program Files\\nodejs\\npm.cmd",
+        "packageManagerVersion": "10.9.2",
+        "cleanup": {
+          "RootProcessId": 16076,
+          "Completed": true,
+          "ProcessesObserved": 7,
+          "ProcessesTerminated": 5,
+          "Failure": null
+        }
+      }
+    ]
+  }
+}
