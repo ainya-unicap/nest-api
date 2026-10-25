@@ -1,0 +1,40 @@
+{
+  "planHash": "26e82bcb459b02a735c662831809331def065631e0f18c6dbb2a9c463c294a28",
+  "phase": "postupgrade",
+  "recordedAtUtc": "2026-10-20T02:48:09.1305495Z",
+  "retryCount": 0,
+  "resetBaseline": false,
+  "complete": true,
+  "result": {
+    "setupSucceeded": false,
+    "setupDurationMs": 9515,
+    "setupFailureOutput": "setup step 0 \u0027npm\u0027 failed (exit=1, timedOut=False)\r\nnpm error code ERESOLVE\r\nnpm error ERESOLVE could not resolve\r\nnpm error\r\nnpm error While resolving: @nestjs/swagger@12.0.2\r\nnpm error Found: typescript@7.0.2\r\nnpm error node_modules/typescript\r\nnpm error   dev typescript@\u0022^7.0.2\u0022 from the root project\r\nnpm error   peerOptional typescript@\u0022\u003E=5.4.0\u0022 from @prisma/client@7.10.1\r\nnpm error   node_modules/@prisma/client\r\nnpm error     @prisma/client@\u0022^7.10.1\u0022 from the root project\r\nnpm error   3 more (prisma, ts-node, @nestjs/schematics)\r\nnpm error\r\nnpm error Could not resolve dependency:\r\nnpm error peerOptional typescript@\u0022^5.5.0 || ^6.0.0\u0022 from @nestjs/swagger@12.0.2\r\nnpm error node_modules/@nestjs/swagger\r\nnpm error   @nestjs/swagger@\u0022^12.0.2\u0022 from the root project\r\nnpm error\r\nnpm error Conflicting peer dependency: typescript@6.0.3\r\nnpm error node_modules/typescript\r\nnpm error   peerOptional typescript@\u0022^5.5.0 || ^6.0.0\u0022 from @nestjs/swagger@12.0.2\r\nnpm error   node_modules/@nestjs/swagger\r\nnpm error     @nestjs/swagger@\u0022^12.0.2\u0022 from the root project\r\nnpm error\r\nnpm error Fix the upstream dependency conflict, or retry\r\nnpm error this command with --force or --legacy-peer-deps\r\nnpm error to accept an incorrect (and potentially broken) dependency resolution.\r\nnpm error\r\nnpm error\r\nnpm error For a full report see:\r\nnpm error C:\\Users\\guilh\\AppData\\Local\\npm-cache\\_logs\\2026-10-20T02_47_59_888Z-eresolve-report.txt\r\nnpm error A complete log of this run can be found in: C:\\Users\\guilh\\AppData\\Local\\npm-cache\\_logs\\2026-10-20T02_47_59_888Z-debug-0.log\r\n",
+    "assertions": [],
+    "executions": [
+      {
+        "source": "setup[0]",
+        "resolvedExecutable": "C:\\Program Files\\nodejs\\npm.cmd",
+        "args": [
+          "install",
+          "--no-package-lock"
+        ],
+        "cwd": "c:\\Users\\guilh\\OneDrive\\documentos\\Unicap2026.1\\DonkeyCodePI5\\nest-api",
+        "env": {},
+        "prependPath": [],
+        "platform": "win32",
+        "nodeExecutable": "C:\\Program Files\\nodejs\\node.EXE",
+        "nodeVersion": "v22.17.0",
+        "packageManager": "npm",
+        "packageManagerExecutable": "C:\\Program Files\\nodejs\\npm.cmd",
+        "packageManagerVersion": "10.9.2",
+        "cleanup": {
+          "RootProcessId": 42232,
+          "Completed": true,
+          "ProcessesObserved": 5,
+          "ProcessesTerminated": 1,
+          "Failure": null
+        }
+      }
+    ]
+  }
+}
