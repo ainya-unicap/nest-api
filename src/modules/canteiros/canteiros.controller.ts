@@ -13,8 +13,6 @@ import {
 } from '@nestjs/swagger';
 
 import { CanteiroService } from '../../services/canteiro.service';
-import { ElizaService } from '../../services/eliza.service';
-import { HttpError } from '../../core/httpError';
 import { ApiAuth, errorSchema } from '../../swagger/decorators';
 
 const canteiroSchema = {
@@ -32,10 +30,7 @@ const canteiroSchema = {
 @ApiAuth()
 @Controller('canteiros')
 export class CanteirosController {
-  constructor(
-    private readonly canteiroService: CanteiroService,
-    private readonly elizaService: ElizaService,
-  ) {}
+  constructor(private readonly canteiroService: CanteiroService) {}
 
   // GET /canteiros?userId=...
   @Get()
@@ -98,29 +93,6 @@ export class CanteirosController {
   @ApiNotFoundResponse({ schema: errorSchema('Canteiro não encontrado') })
   async findFormulariosByCanteiro(@Param('id') id: string, @Req() req: Request): Promise<any> {
     return this.canteiroService.findFormulariosByCanteiro(id, req.user?.id ?? '');
-  }
-
-  // POST /canteiros/:id/relatorio-ia
-  @Post(':id/relatorio-ia')
-  @ApiOperation({
-    summary: 'Pede o relatório por IA do canteiro (Eliza)',
-    description:
-      'Repassa a chamada para o serviço de IA (Eliza, em outro deploy): manda o id do ' +
-      'canteiro na URL e o token da sessão atual no header. Exclusivo de quem está ' +
-      'vinculado ao canteiro.',
-  })
-  @ApiParam({ name: 'id', description: 'id do canteiro', format: 'uuid' })
-  @ApiOkResponse({ schema: { type: 'object' } })
-  @ApiForbiddenResponse({ schema: errorSchema('Usuário não está vinculado a este canteiro') })
-  @ApiNotFoundResponse({ schema: errorSchema('Canteiro não encontrado') })
-  async gerarRelatorioIa(@Param('id') id: string, @Req() req: Request): Promise<any> {
-    await this.canteiroService.validarAcessoCanteiro(id, req.user?.id ?? '');
-
-    const header = req.headers.authorization ?? '';
-    const accessToken = header.startsWith('Bearer ') ? header.slice('Bearer '.length).trim() : '';
-    if (!accessToken) throw new HttpError('Token não enviado', 401);
-
-    return this.elizaService.gerarRelatorio(id, accessToken);
   }
 
   // GET /canteiros/user/:userId

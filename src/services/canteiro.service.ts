@@ -49,6 +49,18 @@ export class CanteiroService {
     return this.repo.findFormulariosByCanteiro(canteiroId);
   }
 
+  /** A lista mais recente do canteiro que já tem formulário preenchido. */
+  async findListaComFormularios(canteiroId: string) {
+    const listas = await this.repo.findListasByCanteiro(canteiroId);
+    const lista = listas.find((l: any) => (l._count?.formularios ?? 0) > 0);
+
+    if (!lista) {
+      throw new HttpError('O canteiro ainda não tem formulários preenchidos', 422);
+    }
+
+    return lista;
+  }
+
   /** Lança 404/403 se o canteiro não existir ou o usuário não estiver vinculado. */
   async validarAcessoCanteiro(canteiroId: string, userId: string) {
     if (!canteiroId) throw new HttpError('canteiroId é obrigatório', 400);

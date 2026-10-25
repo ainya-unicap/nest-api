@@ -15,6 +15,7 @@ const TAGS: Array<[string, string]> = [
   ['Formularios', 'Formulários de campo (manejo semanal)'],
   ['Photos', 'Fotos de um formulário'],
   ['Relatorios', 'Relatórios acadêmicos e exportação em PDF'],
+  ['RelatorioIA', 'Geração do relatório por IA (Eliza)'],
   ['Turmas', 'Turmas'],
   ['AlunoTurma', 'Matrícula de aluno em turma'],
   ['AcademicPeriods', 'Períodos letivos'],
