@@ -21,6 +21,12 @@ const MIN_SCORE = Number(process.env.RECAPTCHA_MIN_SCORE ?? 0.5);
 const TIMEOUT_MS = Number(process.env.RECAPTCHA_TIMEOUT_MS ?? 8000);
 const EM_PRODUCAO = process.env.NODE_ENV === 'production';
 
+// Token mestre para testar manualmente os endpoints protegidos (ex.: pelo
+// Swagger em produção) sem precisar resolver o captcha de verdade. Vazio =
+// recurso desligado. Nunca é exposto no Swagger nem em nenhuma resposta —
+// só funciona para quem já conhece o valor configurado na env.
+const BYPASS_TOKEN = process.env.RECAPTCHA_BYPASS_TOKEN ?? '';
+
 interface RespostaSiteverify {
   success: boolean;
   score?: number;
@@ -80,6 +86,14 @@ export class RecaptchaService {
    * `acao` só é checada na v3, onde o token carrega a ação que o front declarou.
    */
   async verificar(token: unknown, opcoes: { acao?: string; ip?: string } = {}): Promise<void> {
+    if (BYPASS_TOKEN && typeof token === 'string' && token.trim() === BYPASS_TOKEN) {
+      this.logger.warn(
+        'Captcha ignorado via RECAPTCHA_BYPASS_TOKEN — uso aceitável só para teste manual ' +
+          '(ex.: Swagger), nunca para tráfego real.',
+      );
+      return;
+    }
+
     if (!this.ativo) {
       // Em produção isso é falha de configuração, não "modo dev".
       if (EM_PRODUCAO) {
