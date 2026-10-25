@@ -1,6 +1,7 @@
-import { Controller, Post, Param, Req } from '@nestjs/common';
+import { Body, Controller, Post, Param, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import {
+  ApiBody,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -49,16 +50,31 @@ export class RelatorioIaController {
       'num Relatorio novo, em RASCUNHO. Exclusivo de quem está vinculado ao canteiro.',
   })
   @ApiParam({ name: 'id', description: 'id do canteiro', format: 'uuid' })
+  @ApiBody({
+    required: false,
+    schema: {
+      type: 'object',
+      properties: {
+        apiKey: {
+          type: 'string',
+          description:
+            'Opcional. Sobrescreve a ELIZA_API_KEY do servidor para esta chamada — sem ela, usa o padrão do .env (se houver).',
+        },
+      },
+    },
+  })
   @ApiOkResponse({ schema: relatorioSchema })
   @ApiUnauthorizedResponse({ schema: errorSchema('Token não enviado') })
   @ApiForbiddenResponse({ schema: errorSchema('Usuário não está vinculado a este canteiro') })
   @ApiNotFoundResponse({ schema: errorSchema('Canteiro não encontrado') })
   @ApiUnprocessableEntityResponse({ schema: errorSchema('O canteiro ainda não tem formulários preenchidos') })
-  async gerar(@Param('id') id: string, @Req() req: Request) {
+  async gerar(@Param('id') id: string, @Body() body: any, @Req() req: Request) {
     const header = req.headers.authorization ?? '';
     const accessToken = header.startsWith('Bearer ') ? header.slice('Bearer '.length).trim() : '';
     if (!accessToken) throw new HttpError('Token não enviado', 401);
 
-    return this.relatorioIaService.gerar(id, req.user?.id ?? '', accessToken);
+    const apiKey = typeof body?.apiKey === 'string' ? body.apiKey : undefined;
+
+    return this.relatorioIaService.gerar(id, req.user?.id ?? '', accessToken, apiKey);
   }
 }

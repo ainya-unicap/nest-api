@@ -8,7 +8,7 @@ import { HttpError } from '../core/httpError';
 // Sem fallback hardcoded de propósito: a URL do Eliza só vem da env var —
 // um valor padrão escondido no código é fácil de esquecer de trocar entre
 // ambientes (dev/staging/produção podem apontar pra deploys diferentes).
-const ELIZA_API_KEY = process.env.ELIZA_API_KEY ?? '';
+const ELIZA_API_KEY_PADRAO = process.env.ELIZA_API_KEY ?? '';
 const ELIZA_TIMEOUT_MS = Number(process.env.ELIZA_TIMEOUT_MS ?? 60_000);
 
 @Injectable()
@@ -17,8 +17,13 @@ export class ElizaService {
    * Pede o relatório por IA de um canteiro. `accessToken` é o mesmo token do
    * usuário logado (repassado como está, sem o prefixo "Bearer") — é assim
    * que o Eliza identifica de quem são os dados.
+   *
+   * `apiKey` é opcional: quem chama o nosso endpoint pode mandar a sua
+   * própria (ex.: testando uma chave diferente); sem ela, usa o padrão do
+   * `.env` (`ELIZA_API_KEY`). Pode não ir header nenhum, se nenhuma delas
+   * estiver definida — o Eliza hoje não exige.
    */
-  async gerarRelatorio(canteiroId: string, accessToken: string) {
+  async gerarRelatorio(canteiroId: string, accessToken: string, apiKey?: string) {
     const baseUrl = process.env.ELIZA_API_URL;
     if (!baseUrl) {
       throw new HttpError('ELIZA_API_URL não configurada no servidor', 503, {
@@ -26,6 +31,7 @@ export class ElizaService {
       });
     }
 
+    const chaveUsada = apiKey || ELIZA_API_KEY_PADRAO;
     const url = `${baseUrl}/chat/canteiros/${canteiroId}/formularios`;
 
     const controller = new AbortController();
@@ -37,7 +43,7 @@ export class ElizaService {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${accessToken}`,
-          ...(ELIZA_API_KEY ? { 'X-Api-Key': ELIZA_API_KEY } : {}),
+          ...(chaveUsada ? { 'X-Api-Key': chaveUsada } : {}),
         },
         signal: controller.signal,
       });

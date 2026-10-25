@@ -32,11 +32,11 @@ export class RelatorioIaService {
    * reaproveitando o RelatorioService (mesma lógica de POST /relatorios/generate
    * e PUT /relatorios/:id) — este service não mexe no banco diretamente.
    */
-  async gerar(canteiroId: string, userId: string, accessToken: string) {
+  async gerar(canteiroId: string, userId: string, accessToken: string, apiKey?: string) {
     await this.canteiroService.validarAcessoCanteiro(canteiroId, userId);
     const lista = await this.canteiroService.findListaComFormularios(canteiroId);
 
-    const respostaEliza = await this.elizaService.gerarRelatorio(canteiroId, accessToken);
+    const respostaEliza = await this.elizaService.gerarRelatorio(canteiroId, accessToken, apiKey);
     const secoes = this.extrairSecoes(respostaEliza);
 
     const relatorio = await this.relatorioService.createRelatorio(userId, lista.id);
