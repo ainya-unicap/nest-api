@@ -22,7 +22,7 @@ produção deixaria qualquer um forjar token.
 | `npm run prisma:generate` | gera o Prisma Client |
 | `npm run prisma:deploy` | aplica migrations pendentes — **seguro no Neon** |
 | `npm run prisma:migrate` | cria e aplica migration — **só em banco local** |
-| `npm run prisma:seed` | plantas, templates e períodos |
+| `npm run prisma:seed` | instituição, plantas (15) e períodos letivos |
 | `npx tsx prisma/seed-demo.ts` | acompanhamento de demonstração |
 | `node scripts/limpar-dados-teste.cjs` | remove dados de teste |
 
@@ -49,14 +49,13 @@ Convenções a seguir (as migrations existentes usam): `TIMESTAMP(3)`, nomes de
 
 ### Seeds
 
-**Principal** (`npm run prisma:seed`) — 60 plantas forrageiras, 340 templates de
-medição, instituição e períodos letivos. Idempotente: usa `upsert`.
+**Principal** (`npm run prisma:seed`) — 15 plantas forrageiras, instituição e
+períodos letivos. Idempotente: usa `upsert`.
 
 **Demonstração** (`npx tsx prisma/seed-demo.ts`) — cria a conta abaixo e um
-acompanhamento completo de BRS Piatã: 12 formulários semanais, 72 medições, 36
-checklists e observações realistas, com uma história (crescimento → ataque de
-formigas → estiagem → corte na semana 9 → rebrota). É o que dá substância ao
-resumo por IA.
+acompanhamento completo de BRS Piatã: 12 formulários semanais (altura, clima,
+estádio fenológico, checklist e observações), com uma história (crescimento →
+ataque de formigas → estiagem → corte na semana 9 → rebrota).
 
 ```
 demo@donkeycode.com / Demo@2026
@@ -75,18 +74,6 @@ node scripts/limpar-dados-teste.cjs --executar   # aplica, em transação
 Remove usuários/instituições/canteiros sintéticos e tudo que depende deles, **na
 ordem que as FKs `RESTRICT` exigem**. A lista `MANTER_EMAILS` no topo do arquivo
 protege as contas reais — revise antes de rodar.
-
-## Serviço de IA
-
-Processo separado; `npm run dev` **não** sobe. Veja [ia.md](ia.md).
-
-```bash
-cd ai-service
-python -m venv .venv && .venv/Scripts/activate
-pip install -r requirements.txt
-cp .env.example .env          # preencha GROQ_API_KEY e/ou GEMINI_API_KEY
-uvicorn main:app --reload --port 8000
-```
 
 ## Convenções de código
 
@@ -109,15 +96,13 @@ uvicorn main:app --reload --port 8000
 | DI vem `undefined` | executando com `tsx`/esbuild, que não emite `emitDecoratorMetadata` — use `npm run dev` |
 | `DELETE` devolve 500 | FK `RESTRICT`: apague os filhos antes, em transação |
 | `syntax error at or near "references"` | palavra reservada; use `"references"` no SQL cru |
-| `ai-service inacessível` | o uvicorn não está rodando na porta 8000 |
 
 ## Dívidas técnicas conhecidas
 
 - **Sem testes automatizados.** O montador do dossiê é função pura — melhor
   candidato para o primeiro teste.
-- **Sem `vercel.json`.** O `api/index.js` existe, mas falta a configuração de build.
 - **Prisma não é injetável.** Os repositories importam o singleton global, o que
   impede mock em teste.
-- **Falta `@@unique(form_id, template_id)`** em `Measurement` e `Checklist` — sem
-  ela o `skipDuplicates` do sync não faz nada.
+- **Tabela `ResumoIA` órfã.** Era do antigo resumo por IA (removido); ninguém
+  grava ou lê dela hoje. Falta uma migration pra dropar, se não for reaproveitada.
 - **Rotas do projeto original ainda ausentes** — lista no fim de [api.md](api.md).

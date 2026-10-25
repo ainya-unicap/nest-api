@@ -59,9 +59,8 @@ src/
 ├── swagger/                  configuração do Swagger e decorators compartilhados
 └── types/express.d.ts        adiciona req.user ao Request do Express
 
-prisma/                       schema, 7 migrations, seed e seed de demonstração
+prisma/                       schema, migrations, seed e seed de demonstração
 scripts/                      utilitários operacionais (limpeza de dados de teste)
-ai-service/                   serviço Python do resumo por IA (processo separado)
 api/index.js                  handler serverless da Vercel
 ```
 
@@ -81,18 +80,5 @@ não registra duas rotas: o Nest sobrescreve a metadata e só a última vale. O 
 campo por compatibilidade, mas ele é ignorado — senão qualquer um editaria
 relatório alheio trocando um JSON.
 
-**Números são calculados no servidor.** O dossiê enviado à IA já traz min, máx,
-média e variação prontos. Modelo de linguagem erra aritmética; ele escreve o
-texto, não faz a conta.
-
-## Integração com o serviço de IA
-
-```
-Front ──POST /api/listas-formularios/:id/resumo-ia──> Nest ──POST /resumir──> ai-service ──> Groq / Gemini
-                                                        │
-                                                   ResumoIA (status)
-```
-
-O front conversa **só com o Nest**. O `ai-service` é privado, protegido por um
-segredo compartilhado (`X-Internal-Token`), e não conhece o banco — recebe JSON,
-devolve JSON. Detalhes em [ia.md](ia.md).
+**Números são calculados no servidor.** O dossiê (`GET /listas-formularios/:id/dossie`)
+já traz min, máx, média e variação prontos — não exige quem consome fazer conta.

@@ -1,12 +1,12 @@
 # DonkeyCode — Back-end (NestJS)
 
 API do projeto de acompanhamento de **plantas forrageiras**. Alunos registram
-formulários semanais de campo (medições, checklist, fotos, observações) sobre
-canteiros; a partir desses dados a API monta relatórios e gera, com IA, uma
-documentação sobre o cultivo e os cuidados da planta.
+formulários semanais de campo (altura, estado fenológico, clima, checklist,
+fotos, observações) sobre canteiros; a partir desses dados a API monta um
+dossiê consolidado e relatórios acadêmicos.
 
 **Stack:** NestJS 10 · TypeScript · Prisma 7 · PostgreSQL (Neon) · JWT ·
-Swagger · Python/FastAPI + Groq/Gemini (serviço de IA)
+Swagger
 
 ---
 
@@ -28,7 +28,7 @@ JWT_SECRET=uma-string-longa        # sem isso a aplicação não sobe
 | endereço | o que é |
 |---|---|
 | `http://localhost:3000/api` | a API |
-| `http://localhost:3000/api/docs` | Swagger (95 rotas documentadas) |
+| `http://localhost:3000/api/docs` | Swagger (70 rotas documentadas) |
 | `http://localhost:3000/api/docs.json` | o spec OpenAPI |
 
 ---
@@ -38,7 +38,7 @@ JWT_SECRET=uma-string-longa        # sem isso a aplicação não sobe
 | documento | conteúdo |
 |---|---|
 | [docs/arquitetura.md](docs/arquitetura.md) | camadas, fluxo de uma requisição, mapa de pastas |
-| [docs/banco-de-dados.md](docs/banco-de-dados.md) | as 16 tabelas, relacionamentos e armadilhas do schema |
+| [docs/banco-de-dados.md](docs/banco-de-dados.md) | as 13 tabelas, relacionamentos e armadilhas do schema |
 | [docs/api.md](docs/api.md) | todos os endpoints, autenticação e formato de erro |
 | [docs/desenvolvimento.md](docs/desenvolvimento.md) | scripts, seeds, migrations e problemas comuns |
 | [docs/sonarqube.md](docs/sonarqube.md) | análise de qualidade com SonarQube local (Docker) |
@@ -55,7 +55,7 @@ JWT_SECRET=uma-string-longa        # sem isso a aplicação não sobe
 | `npm run prisma:generate` | gera o Prisma Client |
 | `npm run prisma:deploy` | aplica migrations pendentes (**não reseta** — use este no Neon) |
 | `npm run prisma:migrate` | cria e aplica migration (**só contra banco local**) |
-| `npm run prisma:seed` | popula plantas, templates e períodos |
+| `npm run prisma:seed` | popula instituição, plantas e períodos letivos |
 | `npx tsx prisma/seed-demo.ts` | cria o acompanhamento de demonstração |
 | `node scripts/limpar-dados-teste.cjs` | remove dados de teste (preview; `--executar` aplica) |
 
@@ -63,9 +63,8 @@ JWT_SECRET=uma-string-longa        # sem isso a aplicação não sobe
 
 ## Estado atual
 
-- ✅ 95 rotas, todas documentadas no Swagger
-- ✅ Autenticação JWT global (tudo protegido, exceto 5 rotas públicas)
-- ✅ 7 migrations aplicadas, schema sincronizado
-- ✅ Serviço de IA com Groq e Gemini — Groq validada com chave real
+- ✅ 70 rotas, todas documentadas no Swagger
+- ✅ Autenticação JWT global (tudo protegido, exceto 5 rotas públicas) + reCAPTCHA no login/cadastro
+- ✅ 11 migrations aplicadas, schema sincronizado
+- ✅ Deploy configurado na Vercel (`vercel.json`), Postgres no Neon, upload no Vercel Blob
 - ⚠️ **Sem testes automatizados**
-- ⚠️ Sem `vercel.json` — o deploy na Vercel ainda não está configurado

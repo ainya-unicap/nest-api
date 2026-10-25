@@ -2,7 +2,7 @@
 
 Base: `http://localhost:3000/api` · Swagger: `/api/docs` · spec: `/api/docs.json`
 
-**95 rotas.** O Swagger é a fonte viva — este documento é o mapa geral.
+**70 rotas.** O Swagger é a fonte viva — este documento é o mapa geral.
 
 ## Autenticação
 
@@ -122,6 +122,7 @@ todas passam e o dossiê considera os formulários de todo mundo.
 | `GET` | `/canteiros?userId=` · `/canteiros/user/:userId` | devolve **canteiros**, não vínculos |
 | `POST` | `/canteiros` | com `user_id` no corpo, já cria o vínculo |
 | `GET` | `/canteiros/:id/listas` | |
+| `GET` | `/canteiros/:id/formularios` | todos os formulários do canteiro, organizados por lista (sem IA) |
 | `POST` `DELETE` | `/user-canteiros` | ids no corpo |
 | `GET` | `/user-canteiros/user/:userId` · `/user-canteiros/canteiro/:canteiro_id` | |
 | `POST` | `/listas-formularios` | |
@@ -129,29 +130,31 @@ todas passam e o dossiê considera os formulários de todo mundo.
 
 ### Formulários
 
+Campos fixos, iguais para qualquer planta: `title`, `date`, `week` (1-12),
+`weather` (SOL/NUBLADO/CHUVA), `estimated_height_cm`, `phenological_stage`
+(VEGETATIVO/ELONGACAO/FLORESCIMENTO), os 5 booleans de checklist
+(`checklist_irrigacao`, `checklist_capina`, `checklist_adubacao`,
+`checklist_plantio`, `checklist_pragas`) e `observations`.
+
 | método | rota | |
 |---|---|---|
 | `GET` | `/formularios` · `/formularios/user/:userId` | id do usuário por path, query ou token |
-| `GET` | `/formularios/:id` | inclui lista, planta, canteiro, filhos |
-| `POST` | `/formularios` | `started_at`/`ended_at` preenchidos se omitidos |
-| `PUT` `PATCH` | `/formularios/:id` | |
-| `DELETE` | `/formularios/:id` | **só o dono**; filhos removidos em transação |
-| `GET` `POST` | `/formularios/:id/checklist` · `/:id/measurements` | criação em lote |
+| `GET` | `/formularios/:id` | inclui lista, planta, canteiro, fotos |
+| `POST` | `/formularios` | `date` preenchida com a hora atual se omitida |
+| `PUT` `PATCH` | `/formularios/:id` | checklist parcial só altera os campos enviados |
+| `DELETE` | `/formularios/:id` | **só o dono**; fotos removidas em transação |
 | `GET` | `/formularios/:id/photos` | |
-| `POST` `PATCH` | `/formularios/:id/finalizar` | grava `ended_at` e `synced` |
-| `POST` | `/formularios/:id/sync` | preenchimento offline, em transação |
+| `POST` `PATCH` | `/formularios/:id/finalizar` | grava `synced` |
+| `POST` | `/formularios/:id/sync` | preenchimento offline, respeita o limite de 5 fotos |
 
-### Checklist · Measurements · Photos
+### Photos
 
 | método | rota | |
 |---|---|---|
-| `POST` | `/checklist` · `/measurements` · `/photos` | |
-| `GET` `POST` | `/checklist/form/:formId` | |
-| `GET` `POST` | `/measurements/form/:formId` · `/measurements/formulario/:formularioId` | aliases equivalentes |
-| `PATCH` `PUT` | `/measurements/:id` | atualiza o valor |
-| `PATCH` | `/checklist/:id` | marca/desmarca |
+| `POST` | `/photos` | registra uma foto já hospedada (`form_id` + `url`) |
 | `GET` `POST` | `/photos/form/:formId` · `/photos/formulario/:formularioId` | aliases |
-| `POST` | `/photos/upload` | **multipart** — JPEG/PNG/WEBP até 5 MB |
+| `POST` | `/photos/upload` | **multipart** — JPEG/PNG/WEBP até 5 MB, limite de 5 fotos por formulário |
+| `DELETE` | `/photos/:id` | |
 | `DELETE` | `/photos/:id` | |
 
 ### Relatórios
@@ -179,19 +182,11 @@ apagado. O dono vem sempre do token.
 | `POST` `DELETE` | `/aluno-turma` — `DELETE` usa `aluno_id` (não `user_id`) no corpo |
 | `GET` | `/aluno-turma/turma/:turmaId` |
 
-### Dossiê e Resumo por IA
+### Dossiê
 
 | método | rota | |
 |---|---|---|
-| `GET` | `/listas-formularios/:id/dossie` | consolidado que alimenta a IA |
-| `POST` | `/canteiros/:id/resumo-ia` | **dispara pelo canteiro** (usa a lista mais recente com formulários) → `202 {id, status, list_id}` |
-| `GET` | `/canteiros/:id/resumo-ia` | histórico do canteiro (todas as listas) |
-| `POST` | `/listas-formularios/:id/resumo-ia` | **dispara** → `202 {id, status}` |
-| `GET` | `/resumo-ia/:id` | o polling do front |
-| `GET` | `/listas-formularios/:id/resumo-ia` | histórico |
-| `POST` | `/resumo-ia/:id/reprocessar` | tenta de novo |
-
-Detalhes em [ia.md](ia.md).
+| `GET` | `/listas-formularios/:id/dossie` | consolidado da lista: métricas, checklist e observações agregados |
 
 ---
 
@@ -202,13 +197,10 @@ Comparado ao back-end em Express que originou este projeto:
 ```
 GET    /health
 GET    /plantas-forrageiras          (grupo inteiro: 5 rotas)
-PUT    /users/:id/avatar             (o service existe, falta a rota)
-POST   /formularios/:id/photos       (upload de foto do formulário)
+POST   /formularios/:id/photos       (upload de foto do formulário — hoje é POST /photos/upload)
 GET    /academic-periods/active
 GET    /aluno-turma/user/:userId
 PUT    /institutions/:id  ·  DELETE /institutions/:id
-PUT    /checklist/:id
-GET    /plant-templates/plant/:plantId
 aliases em PT: /canteiros/usuario/:userId, /relatorios/usuario/:userId,
                PATCH /relatorios/:id/objetivo
 ```

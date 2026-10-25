@@ -1,8 +1,8 @@
 # SonarQube
 
-Análise estática de qualidade e segurança do código (`src/` e `ai-service/`).
-Roda localmente, em Docker, na versão Community. Não executa a aplicação: não
-precisa de banco, `.env` nem servidor da API no ar.
+Análise estática de qualidade e segurança do código (`src/`). Roda localmente,
+em Docker, na versão Community. Não executa a aplicação: não precisa de banco,
+`.env` nem servidor da API no ar.
 
 ## Arquivos
 
@@ -12,8 +12,7 @@ precisa de banco, `.env` nem servidor da API no ar.
 | `sonar-project.properties` | chave do projeto, endereço do servidor, pastas analisadas e exclusões |
 | `package.json` | scripts `sonar:up`, `sonar:down` e `sonar` |
 
-Exclusões: `dist/`, `node_modules/`, `public/`, `prisma/migrations/` e
-`ai-service/__pycache__/`.
+Exclusões: `dist/`, `node_modules/`, `public/` e `prisma/migrations/`.
 
 ## Como usar
 

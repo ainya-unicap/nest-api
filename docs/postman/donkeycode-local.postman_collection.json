@@ -10,17 +10,15 @@
     { "key": "name", "value": "Aluno Postman" },
     { "key": "email", "value": "aluno.postman@example.com" },
     { "key": "password", "value": "SenhaLocal123!" },
+    { "key": "recaptchaToken", "value": "COLOQUE-O-RECAPTCHA_BYPASS_TOKEN-DO-SEU-.env-AQUI" },
     { "key": "userId", "value": "" },
     { "key": "accessToken", "value": "" },
     { "key": "refreshToken", "value": "" },
     { "key": "institutionId", "value": "" },
     { "key": "plantId", "value": "COLOQUE-UM-UUID-DE-PLANTA-SEMEADA-AQUI" },
-    { "key": "templateId", "value": "" },
     { "key": "canteiroId", "value": "" },
     { "key": "listId", "value": "" },
-    { "key": "formId", "value": "" },
-    { "key": "checklistId", "value": "" },
-    { "key": "measurementId", "value": "" }
+    { "key": "formId", "value": "" }
   ],
   "item": [
     {
@@ -46,7 +44,7 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "auth": { "type": "noauth" },
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"{{name}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"role\": \"aluno\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"{{name}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"role\": \"aluno\",\n  \"recaptchaToken\": \"{{recaptchaToken}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
           },
           "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
@@ -59,7 +57,7 @@
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
             "auth": { "type": "noauth" },
-            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"recaptchaToken\": \"{{recaptchaToken}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] }
           },
           "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
@@ -87,27 +85,14 @@
       ]
     },
     {
-      "name": "02 - Recursos e plantio",
+      "name": "02 - Canteiro e lista",
       "item": [
-        {
-          "name": "Listar plant templates",
-          "request": {
-            "method": "GET",
-            "header": [],
-            "url": { "raw": "{{baseUrl}}/plant-templates", "host": ["{{baseUrl}}"], "path": ["plant-templates"] }
-          },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
-            "const data = pm.response.json();",
-            "if (Array.isArray(data) && data.length && data[0].id) pm.collectionVariables.set('templateId', data[0].id);"
-          ] } }]
-        },
         {
           "name": "Criar canteiro",
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Canteiro Postman Local\",\n  \"plant_id\": \"{{plantId}}\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Canteiro Postman Local\",\n  \"plant_id\": \"{{plantId}}\",\n  \"user_id\": \"{{userId}}\"\n}" },
             "url": { "raw": "{{baseUrl}}/canteiros", "host": ["{{baseUrl}}"], "path": ["canteiros"] }
           },
           "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
@@ -142,42 +127,33 @@
           "request": {
             "method": "POST",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"list_id\": \"{{listId}}\",\n  \"user_id\": \"{{userId}}\",\n  \"type\": \"SEMANAL\",\n  \"observations\": \"Teste local executado pelo Postman\"\n}" },
+            "body": { "mode": "raw", "raw": "{\n  \"list_id\": \"{{listId}}\",\n  \"user_id\": \"{{userId}}\",\n  \"type\": \"SEMANAL\",\n  \"title\": \"Semana 1 - Postman\",\n  \"week\": 1,\n  \"weather\": \"SOL\",\n  \"estimated_height_cm\": 12,\n  \"phenological_stage\": \"VEGETATIVO\",\n  \"checklist_irrigacao\": true,\n  \"checklist_capina\": false,\n  \"checklist_adubacao\": true,\n  \"checklist_plantio\": true,\n  \"checklist_pragas\": false,\n  \"observations\": \"Teste local executado pelo Postman\"\n}" },
             "url": { "raw": "{{baseUrl}}/formularios", "host": ["{{baseUrl}}"], "path": ["formularios"] }
           },
           "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
             "pm.test('status 201', function () { pm.response.to.have.status(201); });",
             "const data = pm.response.json();",
             "pm.expect(data.id).to.be.a('string');",
+            "pm.expect(data.title).to.eql('Semana 1 - Postman');",
             "pm.collectionVariables.set('formId', data.id);"
           ] } }]
         },
         {
-          "name": "Adicionar checklist em lote",
+          "name": "Atualizar formulario (checklist parcial)",
           "request": {
-            "method": "POST",
+            "method": "PATCH",
             "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"template_ids\": [\"{{templateId}}\"]\n}" },
-            "url": { "raw": "{{baseUrl}}/formularios/{{formId}}/checklist", "host": ["{{baseUrl}}", "formularios", "{{formId}}", "checklist"] }
+            "body": { "mode": "raw", "raw": "{\n  \"checklist_pragas\": true\n}" },
+            "url": { "raw": "{{baseUrl}}/formularios/{{formId}}", "host": ["{{baseUrl}}", "formularios", "{{formId}}"] }
           },
           "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
             "const data = pm.response.json();",
-            "if (Array.isArray(data) && data[0] && data[0].id) pm.collectionVariables.set('checklistId', data[0].id);"
-          ] } }]
-        },
-        {
-          "name": "Adicionar medicao em lote",
-          "request": {
-            "method": "POST",
-            "header": [{ "key": "Content-Type", "value": "application/json" }],
-            "body": { "mode": "raw", "raw": "{\n  \"measurements\": [\n    {\n      \"template_id\": \"{{templateId}}\",\n      \"value\": 32.5\n    }\n  ]\n}" },
-            "url": { "raw": "{{baseUrl}}/formularios/{{formId}}/measurements", "host": ["{{baseUrl}}", "formularios", "{{formId}}", "measurements"] }
-          },
-          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
-            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
-            "const data = pm.response.json();",
-            "if (Array.isArray(data) && data[0] && data[0].id) pm.collectionVariables.set('measurementId', data[0].id);"
+            "pm.test('so o item enviado mudou', function () {",
+            "  pm.expect(data.checklist_pragas).to.eql(true);",
+            "  pm.expect(data.checklist_irrigacao).to.eql(true);",
+            "  pm.expect(data.checklist_plantio).to.eql(true);",
+            "});"
           ] } }]
         },
         {
@@ -190,6 +166,25 @@
           "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
             "pm.test('status 200', function () { pm.response.to.have.status(200); });",
             "pm.test('id do formulario confere', function () { pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('formId')); });"
+          ] } }]
+        },
+        {
+          "name": "Upload de foto (manual)",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "photo", "type": "file", "src": [] },
+                { "key": "form_id", "value": "{{formId}}", "type": "text" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/photos/upload", "host": ["{{baseUrl}}", "photos", "upload"] },
+            "description": "Selecione um arquivo JPEG/PNG/WEBP no campo 'photo' antes de executar — o Postman não anexa arquivo sozinho. Limite: 5 fotos por formulário."
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });"
           ] } }]
         },
         {
@@ -218,6 +213,18 @@
           "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
             "pm.test('status 200', function () { pm.response.to.have.status(200); });",
             "pm.test('resposta e uma lista', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+          ] } }]
+        },
+        {
+          "name": "Listar formularios do canteiro (organizado por lista)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/canteiros/{{canteiroId}}/formularios", "host": ["{{baseUrl}}", "canteiros", "{{canteiroId}}", "formularios"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "pm.test('resposta e uma lista de listas', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
           ] } }]
         },
         {
