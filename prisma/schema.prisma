@@ -48,39 +48,38 @@ model Canteiro {
     @@index([plant_id])
 }
 
-    
-model Checklist {
-    id          String        @id @default(uuid())
-    form_id     String
-    form        Formulario    @relation(fields: [form_id], references: [id])
-    template_id String
-    template    PlantTemplate @relation(fields: [template_id], references:[id])
-    checked     Boolean       @default(false)
-    createdAt   DateTime      @default(now())
-    updatedAt   DateTime      @updatedAt
 
-    @@index([form_id])
-    @@index([template_id])
-}
-
-    
+// Formulário de manejo semanal. Campos fixos, iguais para qualquer planta —
+// substituiu o modelo antigo (altura/estádio/checklist configuráveis por
+// espécie via PlantTemplate, que foi removido junto com Checklist e
+// Measurement).
 model Formulario {
-    id           String             @id @default(uuid())
-    list_id      String
-    list         ListaDeFormularios @relation(fields: [list_id], references: [id])
-    user_id      String
-    user         User               @relation(fields: [user_id], references: [id])
-    type        String             //Enum SEMANAL DIARIO
-    week        Int?               // semana do acompanhamento (1 a 12), escolhida pelo aluno
-    started_at  DateTime
-    ended_at    DateTime
-    observations String
-    synced      Boolean @default(false)
-    createdAt    DateTime           @default(now())
-    updatedAt    DateTime           @updatedAt
+    id            String             @id @default(uuid())
+    list_id       String
+    list          ListaDeFormularios @relation(fields: [list_id], references: [id])
+    user_id       String
+    user          User               @relation(fields: [user_id], references: [id])
+    type          String             //Enum SEMANAL DIARIO
+    title         String             // título do formulário
+    date          DateTime           // data do registro (substitui started_at/ended_at)
+    week          Int?               // semana do acompanhamento (1 a 12), escolhida pelo aluno
+    weather       String             //Enum SOL NUBLADO CHUVA
+    estimated_height_cm Float        // altura estimada da planta, em cm
+    phenological_stage  String       //Enum VEGETATIVO ELONGACAO FLORESCIMENTO
 
-    checklists   Checklist[]
-    measurements Measurement[]
+    // Checklist fixo (5 itens, iguais para qualquer planta)
+    checklist_irrigacao Boolean @default(false) // irrigação verificada
+    checklist_capina    Boolean @default(false) // capina realizada
+    checklist_adubacao  Boolean @default(false) // adubação de cobertura
+    checklist_plantio   Boolean @default(false) // plantio/replantio
+    checklist_pragas    Boolean @default(false) // controle de pragas
+
+    observations  String
+    synced        Boolean @default(false)
+    createdAt     DateTime           @default(now())
+    updatedAt     DateTime           @updatedAt
+
+    // Registro fotográfico — limite de 5 fotos por formulário, aplicado no service.
     photos       Photo[]
 
     @@index([list_id])
@@ -119,22 +118,7 @@ model ListaDeFormularios {
     @@index([created_by])
 }
 
-    
-model Measurement {
-    id          String   @id @default(uuid())
-    form_id     String
-    form        Formulario    @relation(fields: [form_id], references: [id])
-    template_id String
-    template    PlantTemplate @relation(fields: [template_id], references:[id])
-    value       Float
-    createdAt   DateTime @default(now())
-    updatedAt   DateTime @updatedAt
 
-    @@index([form_id])
-    @@index([template_id])
-}
-
-    
 model Photo {
     id        String   @id @default(uuid())
     form_id   String
@@ -158,24 +142,6 @@ model PlantaForrageira {
 
     canteiros          Canteiro[]
     listaDeFormularios ListaDeFormularios[]
-    plantTemplates     PlantTemplate[]
-}
-
-    
-model PlantTemplate {
-    id                String           @id @default(uuid())
-    plant_id          String
-    planta_forrageira PlantaForrageira @relation(fields: [plant_id], references: [id])
-    field_name        String
-    unit              String
-    field_type        String           @default("NUMERICO") //Enum NUMERICO, CATEGORICO
-    createdAt         DateTime         @default(now())
-    updatedAt         DateTime         @updatedAt
-
-    checklists   Checklist[]
-    measurements Measurement[]
-
-    @@unique([plant_id, field_name]) // impede o seed de duplicar de novo
 }
 
     model RefreshToken {

@@ -7,8 +7,8 @@
  *   node scripts/limpar-dados-teste.cjs --executar   # aplica, em uma transação
  *
  * Por que existe: as FKs do projeto são ON DELETE RESTRICT, então não dá para
- * apagar um usuário sem antes remover, na ordem certa, measurements/checklists/
- * photos -> formulários -> relatórios -> listas -> vínculos -> canteiros.
+ * apagar um usuário sem antes remover, na ordem certa, photos -> formulários
+ * -> relatórios -> listas -> vínculos -> canteiros.
  *
  * Segurança: os e-mails em MANTER_EMAILS nunca são tocados. Revise essa lista
  * antes de rodar.
@@ -72,11 +72,7 @@ const PADRAO_CANTEIRO_TESTE = '^(canteiro teste|canteiro de teste|testecanteiro|
   console.log(`\nCanteiros (${canteiros.length}):`);
   canteiros.forEach((x) => console.log(`   ${x.name}`));
   console.log(`\nListas: ${listas.length} | Formulários: ${formularios.length} | Relatórios: ${relatorios.length}`);
-  console.log(
-    `Filhos arrastados -> measurements: ${await conta('Measurement', 'form_id', idsForms)}` +
-      ` | checklists: ${await conta('Checklist', 'form_id', idsForms)}` +
-      ` | photos: ${await conta('Photo', 'form_id', idsForms)}`,
-  );
+  console.log(`Filhos arrastados -> photos: ${await conta('Photo', 'form_id', idsForms)}`);
 
   console.log('\n================ SERÁ MANTIDO ================');
   (await q(`select email, name from "User" where email in ${manter}`, MANTER_EMAILS))
@@ -84,8 +80,7 @@ const PADRAO_CANTEIRO_TESTE = '^(canteiro teste|canteiro de teste|testecanteiro|
   const cantOk = await q(`select name from "Canteiro" where id <> all($1) order by name`, [idsCanteiros]);
   console.log(`   canteiros: ${cantOk.map((x) => x.name).join(', ')}`);
   const formOk = await q(`select count(*)::int n from "Formulario" where id <> all($1)`, [idsForms]);
-  const medOk = await q(`select count(*)::int n from "Measurement" where form_id <> all($1)`, [idsForms]);
-  console.log(`   formulários: ${formOk[0].n} | measurements: ${medOk[0].n}`);
+  console.log(`   formulários: ${formOk[0].n}`);
 
   if (!EXECUTAR) {
     console.log('\n>>> PREVIEW — nada foi alterado. Rode com --executar para aplicar.');
@@ -101,8 +96,6 @@ const PADRAO_CANTEIRO_TESTE = '^(canteiro teste|canteiro de teste|testecanteiro|
     };
     console.log('\n================ EXECUTANDO ================');
     await del('ResumoIA', `delete from "ResumoIA" where list_id = any($1) or user_id = any($2)`, [idsListas, idsUsuarios]);
-    await del('Measurement', `delete from "Measurement" where form_id = any($1)`, [idsForms]);
-    await del('Checklist', `delete from "Checklist" where form_id = any($1)`, [idsForms]);
     await del('Photo', `delete from "Photo" where form_id = any($1)`, [idsForms]);
     await del('Relatorio', `delete from "Relatorio" where id = any($1)`, [idsRel]);
     await del('Formulario', `delete from "Formulario" where id = any($1)`, [idsForms]);

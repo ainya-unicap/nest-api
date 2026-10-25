@@ -9,6 +9,10 @@ export class PhotoRepository {
     return prisma.photo.findMany({ where: { form_id }, orderBy: { takenAt: 'desc' } });
   }
 
+  countByFormulario(form_id: string) {
+    return prisma.photo.count({ where: { form_id } });
+  }
+
   delete(id: string) {
     return prisma.photo.delete({ where: { id } });
   }

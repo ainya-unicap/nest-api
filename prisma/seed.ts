@@ -71,39 +71,9 @@ async function main() {
 
   console.log('Plantas forrageiras criadas/atualizadas')
 
-  // upsert, nao create: com create cada execucao do seed duplicava os 340
-  // templates (foi o que gerou as 680 linhas e quebrou a serie das medicoes).
-  const UNIDADES_CATEGORICAS = [
-    'vegetativo/elongação/florescimento',
-    'vegetativo/florescimento/frutificação',
-    'V1/V2/VT/R1/R2/R3',
-    'VE/V1/V2/R1/R2/R3/R4',
-  ]
-
-  for (const template of data.plant_templates) {
-    // "unit" com "/" nao basta para identificar categorico: "perfilhos/m²" e numerico.
-    const field_type = UNIDADES_CATEGORICAS.includes(template.unit)
-      ? 'CATEGORICO'
-      : 'NUMERICO'
-
-    await prisma.plantTemplate.upsert({
-      where: {
-        plant_id_field_name: {
-          plant_id: template.plant_id,
-          field_name: template.field_name,
-        },
-      },
-      update: { unit: template.unit, field_type },
-      create: {
-        plant_id: template.plant_id,
-        field_name: template.field_name,
-        unit: template.unit,
-        field_type,
-      },
-    })
-  }
-
-  console.log('Templates de medições criados/atualizados')
+  // plant_templates do JSON não é mais usado: o formulário agora tem campos
+  // fixos (altura, estado fenológico, clima, checklist), iguais para
+  // qualquer planta — não depende mais de um molde configurável por espécie.
 
   console.log('Seed finalizado com sucesso')
 }

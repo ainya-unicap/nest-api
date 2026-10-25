@@ -97,7 +97,16 @@ async function main() {
   const criar = await fetch(`${BASE}/formularios`, {
     method: 'POST',
     headers: { ...auth, 'Content-Type': 'application/json' },
-    body: JSON.stringify({ list_id: lista.id, user_id: user.id, type: 'SEMANAL', week: 1 }),
+    body: JSON.stringify({
+      list_id: lista.id,
+      user_id: user.id,
+      type: 'SEMANAL',
+      week: 1,
+      title: 'Teste de upload de foto',
+      weather: 'SOL',
+      estimated_height_cm: 10,
+      phenological_stage: 'VEGETATIVO',
+    }),
   });
   const formulario = await criar.json();
   if (criar.status !== 201) {
@@ -152,8 +161,6 @@ async function main() {
 
 async function limpar(formularioId, arquivo) {
   await prisma.photo.deleteMany({ where: { form_id: formularioId } });
-  await prisma.checklist.deleteMany({ where: { form_id: formularioId } });
-  await prisma.measurement.deleteMany({ where: { form_id: formularioId } });
   await prisma.formulario.delete({ where: { id: formularioId } }).catch(() => undefined);
   if (arquivo && fs.existsSync(arquivo)) fs.unlinkSync(arquivo);
   console.log('\n(limpeza feita: formulário, foto e arquivo removidos — use --manter para conservar)');

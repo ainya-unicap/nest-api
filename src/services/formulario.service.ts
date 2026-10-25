@@ -5,6 +5,18 @@ import { HttpError, erroDeCampos } from '../core/httpError';
 const TIPOS_VALIDOS = ['SEMANAL', 'DIARIO'];
 const SEMANA_MIN = 1;
 const SEMANA_MAX = 12;
+const CLIMAS_VALIDOS = ['SOL', 'NUBLADO', 'CHUVA'];
+const ESTADIOS_VALIDOS = ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO'];
+
+// Chaves do checklist fixo (iguais para qualquer planta — não depende mais
+// de PlantTemplate). O nome da coluna no banco é o valor à direita.
+const CHECKLIST_CAMPOS = {
+  checklist_irrigacao: 'checklist_irrigacao',
+  checklist_capina: 'checklist_capina',
+  checklist_adubacao: 'checklist_adubacao',
+  checklist_plantio: 'checklist_plantio',
+  checklist_pragas: 'checklist_pragas',
+} as const;
 
 @Injectable()
 export class FormularioService {
@@ -55,14 +67,76 @@ export class FormularioService {
     return numero;
   }
 
+  /** Normaliza a condição do tempo (Sol/Nublado/Chuva). */
+  private lerClima(valor: unknown, campos: Record<string, string>): string | undefined {
+    if (valor === undefined || valor === null || valor === '') return undefined;
+
+    const normalizado = String(valor).trim().toUpperCase();
+    if (!CLIMAS_VALIDOS.includes(normalizado)) {
+      campos.weather = `deve ser ${CLIMAS_VALIDOS.join(', ')} (recebido: ${JSON.stringify(valor)})`;
+      return undefined;
+    }
+
+    return normalizado;
+  }
+
+  /** Normaliza o estádio fenológico (Vegetativo/Elongação/Florescimento). */
+  private lerEstadio(valor: unknown, campos: Record<string, string>): string | undefined {
+    if (valor === undefined || valor === null || valor === '') return undefined;
+
+    const normalizado = String(valor)
+      .trim()
+      .toUpperCase()
+      .normalize('NFD')
+      .replace(/[̀-ͯ]/g, ''); // remove acento: "Elongação" -> "ELONGACAO"
+
+    if (!ESTADIOS_VALIDOS.includes(normalizado)) {
+      campos.phenological_stage =
+        `deve ser ${ESTADIOS_VALIDOS.join(', ')} (recebido: ${JSON.stringify(valor)})`;
+      return undefined;
+    }
+
+    return normalizado;
+  }
+
+  /** Altura estimada em cm — número finito e não negativo. */
+  private lerAltura(valor: unknown, campos: Record<string, string>): number | undefined {
+    if (valor === undefined || valor === null || valor === '') return undefined;
+
+    const numero = Number(valor);
+    if (!Number.isFinite(numero) || numero < 0) {
+      campos.estimated_height_cm = `deve ser um número maior ou igual a 0 (recebido: ${JSON.stringify(valor)})`;
+      return undefined;
+    }
+
+    return numero;
+  }
+
+  /** Lê os 5 itens do checklist fixo; cada um é opcional e vira false se omitido. */
+  private lerChecklist(body: any, campos: Record<string, string>): Record<string, boolean> {
+    const resultado: Record<string, boolean> = {};
+
+    for (const chave of Object.values(CHECKLIST_CAMPOS)) {
+      const valor = body?.[chave];
+      if (valor === undefined || valor === null) {
+        resultado[chave] = false;
+        continue;
+      }
+      if (typeof valor !== 'boolean') {
+        campos[chave] = `deve ser true ou false (recebido: ${JSON.stringify(valor)})`;
+        continue;
+      }
+      resultado[chave] = valor;
+    }
+
+    return resultado;
+  }
+
   findAllByUser(user_id: string) {
     if (!user_id) throw new HttpError('user_id is required', 400);
     return this.repo.findManyByUser(user_id);
   }
 
-  // started_at, ended_at e observations são NOT NULL sem default no banco:
-  // se não forem preenchidos aqui, o Prisma recusa o insert.
-  //
   // A validação é acumulada em `campos` e só então lançada: o cliente recebe
   // TUDO que está errado de uma vez, em vez de descobrir um problema por
   // tentativa.
@@ -73,25 +147,38 @@ export class FormularioService {
     if (!list_id) campos.list_id = 'obrigatório';
     if (!user_id) campos.user_id = 'obrigatório';
     if (!body?.type) campos.type = `obrigatório (${TIPOS_VALIDOS.join(' ou ')})`;
+    if (!body?.title) campos.title = 'obrigatório';
+    if (!body?.weather) campos.weather = `obrigatório (${CLIMAS_VALIDOS.join(', ')})`;
+    if (body?.estimated_height_cm === undefined || body?.estimated_height_cm === null) {
+      campos.estimated_height_cm = 'obrigatório';
+    }
+    if (!body?.phenological_stage) {
+      campos.phenological_stage = `obrigatório (${ESTADIOS_VALIDOS.join(', ')})`;
+    }
 
     const tipo = this.lerTipo(body?.type, campos);
     const semana = this.lerSemana(week, campos);
-    const inicio = this.lerData(body?.started_at, 'started_at', campos);
-    const fim = this.lerData(body?.ended_at, 'ended_at', campos);
+    const clima = this.lerClima(body?.weather, campos);
+    const estadio = this.lerEstadio(body?.phenological_stage, campos);
+    const altura = this.lerAltura(body?.estimated_height_cm, campos);
+    const data = this.lerData(body?.date, 'date', campos);
+    const checklist = this.lerChecklist(body, campos);
 
     if (Object.keys(campos).length > 0) {
       throw erroDeCampos(campos, 'FORMULARIO_INVALIDO');
     }
 
-    const agora = new Date();
-
     return this.repo.create({
       list_id,
       user_id,
       type: tipo,
+      title: body.title,
+      date: data ?? new Date(),
       week: semana ?? null,
-      started_at: inicio ?? agora,
-      ended_at: fim ?? agora,
+      weather: clima,
+      estimated_height_cm: altura,
+      phenological_stage: estadio,
+      ...checklist,
       observations: observations ?? '',
       synced: false,
     });
@@ -106,16 +193,6 @@ export class FormularioService {
     return formulario;
   }
 
-  getChecklist(id: string) {
-    if (!id) throw new HttpError('id é obrigatório', 400);
-    return this.repo.getChecklist(id);
-  }
-
-  getMeasurements(id: string) {
-    if (!id) throw new HttpError('id é obrigatório', 400);
-    return this.repo.getMeasurements(id);
-  }
-
   getPhotos(id: string) {
     if (!id) throw new HttpError('id é obrigatório', 400);
     return this.repo.getPhotos(id);
@@ -124,13 +201,22 @@ export class FormularioService {
   update(id: string, body: any) {
     if (!id) throw new HttpError('id é obrigatório', 400, { codigo: 'CAMPO_OBRIGATORIO' });
 
-    const { observations, week, synced } = body ?? {};
+    const { observations, week, synced, title } = body ?? {};
     const campos: Record<string, string> = {};
 
     const tipo = this.lerTipo(body?.type, campos);
     const semana = this.lerSemana(week, campos);
-    const inicio = this.lerData(body?.started_at, 'started_at', campos);
-    const fim = this.lerData(body?.ended_at, 'ended_at', campos);
+    const clima = this.lerClima(body?.weather, campos);
+    const estadio = this.lerEstadio(body?.phenological_stage, campos);
+    const altura = this.lerAltura(body?.estimated_height_cm, campos);
+    const data = this.lerData(body?.date, 'date', campos);
+
+    const checklistEnviado = Object.values(CHECKLIST_CAMPOS).some((c) => body?.[c] !== undefined);
+    const checklist = checklistEnviado ? this.lerChecklist(body, campos) : {};
+
+    if (title !== undefined && !title) {
+      campos.title = 'não pode ficar vazio';
+    }
 
     if (synced !== undefined && typeof synced !== 'boolean') {
       campos.synced = `deve ser true ou false (recebido: ${JSON.stringify(synced)})`;
@@ -142,10 +228,14 @@ export class FormularioService {
 
     return this.repo.update(id, {
       type: tipo,
+      title,
+      date: data,
       week: semana,
+      weather: clima,
+      estimated_height_cm: altura,
+      phenological_stage: estadio,
+      ...checklist,
       observations,
-      started_at: inicio,
-      ended_at: fim,
       synced,
     });
   }

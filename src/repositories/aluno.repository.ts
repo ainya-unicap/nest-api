@@ -11,7 +11,7 @@ export class AlunoRepository {
   }
 
   getHomeRecent(userId: string) {
-    return prisma.formulario.findMany({ where: { user_id: userId }, orderBy: { createdAt: 'desc' }, take: 5, select: { id: true, type: true, synced: true, started_at: true, ended_at: true, createdAt: true, list: { include: { plant: { select: { id: true, name: true, category: true } } } } } });
+    return prisma.formulario.findMany({ where: { user_id: userId }, orderBy: { createdAt: 'desc' }, take: 5, select: { id: true, type: true, synced: true, date: true, createdAt: true, list: { include: { plant: { select: { id: true, name: true, category: true } } } } } });
   }
 
   findVinculos(userId: string) {

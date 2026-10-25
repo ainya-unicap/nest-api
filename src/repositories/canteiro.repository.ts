@@ -22,21 +22,16 @@ export class CanteiroRepository {
     return prisma.canteiro.findUnique({ where: { id } });
   }
 
-  // Organizado por lista: cada lista já vem com todos os seus formulários,
-  // e cada formulário com checklist/medições/fotos — sem precisar de uma
-  // segunda chamada por lista.
+  // Organizado por lista: cada lista já vem com todos os seus formulários
+  // (campos fixos + fotos) — sem precisar de uma segunda chamada por lista.
   findFormulariosByCanteiro(canteiroId: string) {
     return prisma.listaDeFormularios.findMany({
       where: { canteiro_id: canteiroId },
       include: {
         plant: { select: { id: true, name: true, category: true } },
         formularios: {
-          orderBy: { started_at: 'asc' },
-          include: {
-            checklists: { include: { template: true } },
-            measurements: { include: { template: true } },
-            photos: true,
-          },
+          orderBy: { date: 'asc' },
+          include: { photos: true },
         },
       },
       orderBy: { createdAt: 'desc' },

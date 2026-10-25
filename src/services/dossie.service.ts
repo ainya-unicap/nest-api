@@ -5,7 +5,7 @@ import { UserCanteiroRepository } from '../repositories/usercanteiro.repository'
 import { HttpError } from '../core/httpError';
 
 // Contrato enviado ao serviço de IA. Mudou aqui, mudou lá — manter em sincronia
-// com ai-service/schemas/dossie.py.
+// com src/ai/schemas/dossie.ts.
 export const DOSSIE_VERSAO = '1';
 
 export interface MetricaNumerica {
@@ -35,6 +35,27 @@ export interface MetricaCategorica {
 const arredonda = (n: number, casas = 2) => Number(n.toFixed(casas));
 const soData = (d: Date) => d.toISOString().slice(0, 10);
 
+// Rótulos legíveis dos valores fixos gravados no banco em maiúsculas/sem acento.
+const ROTULOS_ESTADIO: Record<string, string> = {
+  VEGETATIVO: 'vegetativo',
+  ELONGACAO: 'elongação',
+  FLORESCIMENTO: 'florescimento',
+};
+const ROTULOS_CLIMA: Record<string, string> = {
+  SOL: 'sol',
+  NUBLADO: 'nublado',
+  CHUVA: 'chuva',
+};
+
+// Os 5 itens fixos do checklist, na ordem em que aparecem no formulário.
+const ITENS_CHECKLIST: Array<{ campo: string; item: string }> = [
+  { campo: 'checklist_irrigacao', item: 'Irrigação verificada' },
+  { campo: 'checklist_capina', item: 'Capina realizada' },
+  { campo: 'checklist_adubacao', item: 'Adubação de cobertura' },
+  { campo: 'checklist_plantio', item: 'Plantio/Replantio' },
+  { campo: 'checklist_pragas', item: 'Controle de pragas' },
+];
+
 @Injectable()
 export class DossieService {
   private readonly repo = new DossieRepository();
@@ -60,7 +81,7 @@ export class DossieService {
       throw new HttpError('A lista ainda não tem formulários preenchidos', 422);
     }
 
-    const datas = formularios.map((f) => f.started_at ?? f.createdAt);
+    const datas = formularios.map((f) => f.date ?? f.createdAt);
     const inicio = datas[0];
     const fim = datas[datas.length - 1];
 
@@ -104,62 +125,24 @@ export class DossieService {
     return [...mapa.values()];
   }
 
-  // Agrupa por field_name + unit, NUNCA por template_id: o seed chegou a criar
-  // templates duplicados e a mesma métrica ficou dividida em dois ids — agrupar
-  // por template quebraria a série no meio.
+  // Três métricas fixas, direto das colunas do Formulario — substituem as
+  // medições configuráveis por planta (PlantTemplate/Measurement, removidos).
   private metricas(formularios: any[]): Array<MetricaNumerica | MetricaCategorica> {
-    const grupos = new Map<string, { template: any; pontos: Array<{ data: Date; valor: number }> }>();
-
-    for (const f of formularios) {
-      const data = f.started_at ?? f.createdAt;
-
-      // Um ponto por (formulário, campo). Sem @@unique(form_id, template_id) o
-      // banco aceita a mesma medição repetida no mesmo formulário — e o
-      // skipDuplicates do sync não protege nada. Fica a leitura mais recente,
-      // senão a série ganharia dois pontos na mesma data.
-      const ultimoPorCampo = new Map<string, any>();
-      for (const m of f.measurements) {
-        const chave = `${m.template.field_name}|${m.template.unit}`;
-        const anterior = ultimoPorCampo.get(chave);
-        if (!anterior || m.createdAt >= anterior.createdAt) ultimoPorCampo.set(chave, m);
-      }
-
-      for (const [chave, m] of ultimoPorCampo) {
-        if (!grupos.has(chave)) grupos.set(chave, { template: m.template, pontos: [] });
-        grupos.get(chave)!.pontos.push({ data, valor: m.value });
-      }
-    }
-
     const metricas: Array<MetricaNumerica | MetricaCategorica> = [];
 
-    for (const { template, pontos } of grupos.values()) {
-      pontos.sort((a, b) => a.data.getTime() - b.data.getTime());
+    // --- Altura estimada (cm) ------------------------------------------
+    const alturas = formularios
+      .filter((f) => typeof f.estimated_height_cm === 'number')
+      .map((f) => ({ data: f.date ?? f.createdAt, valor: f.estimated_height_cm as number }));
 
-      if (template.field_type === 'CATEGORICO') {
-        // Em campo categórico o "unit" guarda as opções e o "value" é o índice.
-        const opcoes = template.unit.split('/').map((o: string) => o.trim());
-        const rotulo = (v: number) => opcoes[Math.round(v)] ?? `opção ${v}`;
-        const serie = pontos.map((p) => ({ data: soData(p.data), valor: rotulo(p.valor) }));
-
-        metricas.push({
-          campo: template.field_name,
-          tipo: 'categorico',
-          opcoes,
-          leituras: serie.length,
-          primeiro: serie[0].valor,
-          ultimo: serie[serie.length - 1].valor,
-          serie,
-        });
-        continue;
-      }
-
-      const valores = pontos.map((p) => p.valor);
+    if (alturas.length > 0) {
+      const valores = alturas.map((p) => p.valor);
       const primeiro = valores[0];
       const ultimo = valores[valores.length - 1];
 
       metricas.push({
-        campo: template.field_name,
-        unidade: template.unit,
+        campo: 'Altura estimada',
+        unidade: 'cm',
         tipo: 'numerico',
         leituras: valores.length,
         primeiro,
@@ -169,29 +152,59 @@ export class DossieService {
         media: arredonda(valores.reduce((a, b) => a + b, 0) / valores.length),
         // Os números vêm calculados daqui de propósito: LLM erra aritmética.
         variacao_pct: primeiro === 0 ? null : arredonda(((ultimo - primeiro) / Math.abs(primeiro)) * 100, 1),
-        serie: pontos.map((p) => ({ data: soData(p.data), valor: p.valor })),
+        serie: alturas.map((p) => ({ data: soData(p.data), valor: p.valor })),
       });
     }
 
-    return metricas.sort((a, b) => a.campo.localeCompare(b.campo));
-  }
+    // --- Estado fenológico (categórico) --------------------------------
+    const estadios = formularios
+      .filter((f) => f.phenological_stage)
+      .map((f) => ({
+        data: f.date ?? f.createdAt,
+        valor: ROTULOS_ESTADIO[f.phenological_stage] ?? f.phenological_stage,
+      }));
 
-  private checklist(formularios: any[]) {
-    const mapa = new Map<string, { marcado: number; total: number }>();
-
-    for (const f of formularios) {
-      for (const c of f.checklists) {
-        const nome = c.template.field_name;
-        const atual = mapa.get(nome) ?? { marcado: 0, total: 0 };
-        atual.total += 1;
-        if (c.checked) atual.marcado += 1;
-        mapa.set(nome, atual);
-      }
+    if (estadios.length > 0) {
+      metricas.push({
+        campo: 'Estado fenológico',
+        tipo: 'categorico',
+        opcoes: Object.values(ROTULOS_ESTADIO),
+        leituras: estadios.length,
+        primeiro: estadios[0].valor,
+        ultimo: estadios[estadios.length - 1].valor,
+        serie: estadios.map((p) => ({ data: soData(p.data), valor: p.valor })),
+      });
     }
 
-    return [...mapa.entries()]
-      .map(([item, v]) => ({ item, marcado: v.marcado, total: v.total, pct: arredonda((v.marcado / v.total) * 100, 1) }))
-      .sort((a, b) => a.item.localeCompare(b.item));
+    // --- Condição do tempo (categórico) --------------------------------
+    const climas = formularios
+      .filter((f) => f.weather)
+      .map((f) => ({ data: f.date ?? f.createdAt, valor: ROTULOS_CLIMA[f.weather] ?? f.weather }));
+
+    if (climas.length > 0) {
+      metricas.push({
+        campo: 'Condição do tempo',
+        tipo: 'categorico',
+        opcoes: Object.values(ROTULOS_CLIMA),
+        leituras: climas.length,
+        primeiro: climas[0].valor,
+        ultimo: climas[climas.length - 1].valor,
+        serie: climas.map((p) => ({ data: soData(p.data), valor: p.valor })),
+      });
+    }
+
+    return metricas;
+  }
+
+  // Checklist fixo: 5 itens, iguais para qualquer planta — substitui o
+  // checklist configurável por planta (PlantTemplate/Checklist, removidos).
+  private checklist(formularios: any[]) {
+    const total = formularios.length;
+
+    return ITENS_CHECKLIST.map(({ campo, item }) => {
+      const marcado = formularios.filter((f) => f[campo] === true).length;
+      return { item, marcado, total, pct: arredonda((marcado / total) * 100, 1) };
+    });
   }
 
   // Texto livre do aluno: é o insumo qualitativo principal (praga, chuva, poda).
@@ -199,7 +212,7 @@ export class DossieService {
     return formularios
       .filter((f) => (f.observations ?? '').trim().length > 0)
       .map((f) => ({
-        data: soData(f.started_at ?? f.createdAt),
+        data: soData(f.date ?? f.createdAt),
         autor: f.user?.name ?? 'desconhecido',
         texto: f.observations.trim(),
       }));

@@ -84,8 +84,8 @@ export class CanteirosController {
   @ApiOperation({
     summary: 'Todos os formulários do canteiro, organizados por lista',
     description:
-      'Leitura direta do banco (sem IA). Cada lista vem com seus formulários completos — ' +
-      'checklist, medições e fotos incluídos. Exclusivo de quem está vinculado ao canteiro.',
+      'Leitura direta do banco (sem IA). Cada lista vem com seus formulários completos ' +
+      '(campos fixos + fotos). Exclusivo de quem está vinculado ao canteiro.',
   })
   @ApiParam({ name: 'id', description: 'id do canteiro', format: 'uuid' })
   @ApiOkResponse({ schema: { type: 'array', items: { type: 'object' } } })

@@ -25,15 +25,23 @@ const PLANTA = 'BRS Piatã';
 const SEMANAS = 12;
 const INICIO = new Date('2026-03-14T08:00:00.000Z');
 
-// Uma entrada por semana. O índice do array é a semana.
-const SERIES: Record<string, number[]> = {
-  'Altura da planta':                 [8, 14, 21, 29, 38, 46, 52, 55, 20, 27, 33, 38],
-  'Cobertura do solo':                [15, 24, 35, 47, 58, 67, 74, 79, 62, 71, 80, 85],
-  'Número de perfilhos por touceira': [3, 4, 6, 8, 10, 12, 14, 15, 15, 16, 17, 17],
-  'Comprimento do entrenó':           [2.1, 2.4, 2.9, 3.4, 4.0, 4.6, 5.2, 5.6, 3.1, 4.2, 5.1, 5.8],
-  'Largura da folha':                 [0.8, 0.9, 1.1, 1.3, 1.5, 1.6, 1.8, 1.9, 1.2, 1.5, 1.7, 1.8],
-  // CATEGORICO: o valor é o índice da opção em unit ("vegetativo/elongação/florescimento")
-  'Estádio fenológico':               [0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 2, 2],
+// Uma entrada por semana (índice do array = semana). A altura reflete o
+// corte de uniformização na semana 9 (índice 8): cai de 55 para 20.
+const ALTURA_CM = [8, 14, 21, 29, 38, 46, 52, 55, 20, 27, 33, 38];
+
+// 0 = vegetativo, 1 = elongação, 2 = florescimento.
+const ESTADIO_INDICE = [0, 0, 0, 0, 0, 0, 1, 1, 0, 1, 2, 2];
+const ESTADIOS = ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO'];
+
+const CLIMA = ['SOL', 'CHUVA', 'SOL', 'NUBLADO', 'SOL', 'NUBLADO', 'SOL', 'SOL', 'NUBLADO', 'CHUVA', 'SOL', 'SOL'];
+
+// Os 5 itens fixos do checklist, por semana — acompanha a narrativa das observações.
+const CHECKLIST = {
+  irrigacao: [false, true, true, true, true, true, false, true, true, true, true, true],
+  capina: [true, true, true, true, true, true, true, true, true, true, true, true],
+  adubacao: [true, false, false, true, false, false, false, false, false, false, false, false],
+  plantio: [true, false, false, false, false, false, false, false, false, false, false, false],
+  pragas: [false, false, false, false, true, true, false, false, false, false, false, false],
 };
 
 const OBSERVACOES = [
@@ -50,8 +58,6 @@ const OBSERVACOES = [
   'Início do florescimento em cerca de 30% das touceiras. Coloração verde intenso, sem sintomas de deficiência.',
   'Florescimento pleno. Encerramento do acompanhamento do semestre. Material apresentou boa rebrota e boa cobertura de solo.',
 ];
-
-const CHECKLIST_SEMANAL = ['Altura da planta', 'Cobertura do solo', 'Estádio fenológico'];
 
 const diaDaSemana = (i: number) => new Date(INICIO.getTime() + i * 7 * 86_400_000);
 
@@ -75,12 +81,6 @@ async function main() {
 
   const planta = await prisma.plantaForrageira.findFirst({ where: { name: PLANTA } });
   if (!planta) throw new Error(`Planta "${PLANTA}" não encontrada — rode o seed principal antes.`);
-
-  const templates = await prisma.plantTemplate.findMany({ where: { plant_id: planta.id } });
-  const porNome = new Map(templates.map((t) => [t.field_name, t]));
-
-  const faltando = Object.keys(SERIES).filter((n) => !porNome.has(n));
-  if (faltando.length) throw new Error(`Templates ausentes para ${PLANTA}: ${faltando.join(', ')}`);
 
   // --- canteiro + vínculo do aluno ---
   const canteiro = await prisma.canteiro.upsert({
@@ -108,59 +108,57 @@ async function main() {
     },
   });
 
-  // --- 12 formulários semanais, com medições e checklist ---
+  // --- 12 formulários semanais, com os campos fixos do novo formulário ---
   for (let semana = 0; semana < SEMANAS; semana++) {
     const data = diaDaSemana(semana);
     const formId = `demo-form-${String(semana + 1).padStart(2, '0')}`;
 
     await prisma.formulario.upsert({
       where: { id: formId },
-      update: { observations: OBSERVACOES[semana], started_at: data, ended_at: data, user_id: aluno.id },
+      update: {
+        observations: OBSERVACOES[semana],
+        date: data,
+        user_id: aluno.id,
+        weather: CLIMA[semana],
+        estimated_height_cm: ALTURA_CM[semana],
+        phenological_stage: ESTADIOS[ESTADIO_INDICE[semana]],
+        checklist_irrigacao: CHECKLIST.irrigacao[semana],
+        checklist_capina: CHECKLIST.capina[semana],
+        checklist_adubacao: CHECKLIST.adubacao[semana],
+        checklist_plantio: CHECKLIST.plantio[semana],
+        checklist_pragas: CHECKLIST.pragas[semana],
+      },
       create: {
         id: formId,
         list_id: lista.id,
         user_id: aluno.id,
         type: 'SEMANAL',
-        started_at: data,
-        ended_at: new Date(data.getTime() + 45 * 60_000),
+        title: `Semana ${semana + 1} — ${PLANTA}`,
+        date: data,
+        week: semana + 1,
+        weather: CLIMA[semana],
+        estimated_height_cm: ALTURA_CM[semana],
+        phenological_stage: ESTADIOS[ESTADIO_INDICE[semana]],
+        checklist_irrigacao: CHECKLIST.irrigacao[semana],
+        checklist_capina: CHECKLIST.capina[semana],
+        checklist_adubacao: CHECKLIST.adubacao[semana],
+        checklist_plantio: CHECKLIST.plantio[semana],
+        checklist_pragas: CHECKLIST.pragas[semana],
         observations: OBSERVACOES[semana],
         synced: true,
         createdAt: data,
       },
     });
-
-    for (const [campo, valores] of Object.entries(SERIES)) {
-      const template = porNome.get(campo)!;
-      const id = `${formId}-m-${template.id.slice(0, 8)}`;
-      await prisma.measurement.upsert({
-        where: { id },
-        update: { value: valores[semana] },
-        create: { id, form_id: formId, template_id: template.id, value: valores[semana], createdAt: data },
-      });
-    }
-
-    for (const campo of CHECKLIST_SEMANAL) {
-      const template = porNome.get(campo)!;
-      const id = `${formId}-c-${template.id.slice(0, 8)}`;
-      await prisma.checklist.upsert({
-        where: { id },
-        update: {},
-        // semana 9 foi o corte: nem tudo foi conferido naquele dia
-        create: { id, form_id: formId, template_id: template.id, checked: semana !== 8, createdAt: data },
-      });
-    }
   }
 
-  const totalMed = await prisma.measurement.count({ where: { form: { list_id: lista.id } } });
-  const totalChk = await prisma.checklist.count({ where: { form: { list_id: lista.id } } });
+  const totalForm = await prisma.formulario.count({ where: { list_id: lista.id } });
 
   console.log('Seed de demonstração concluído:');
   console.log(`  aluno      : ${aluno.name} <${aluno.email}>  senha: ${DEMO_SENHA}`);
   console.log(`  planta     : ${planta.name} (${planta.category})`);
   console.log(`  canteiro   : ${canteiro.name}`);
   console.log(`  lista      : ${lista.id}`);
-  console.log(`  formulários: ${SEMANAS} semanais (${diaDaSemana(0).toISOString().slice(0, 10)} a ${diaDaSemana(SEMANAS - 1).toISOString().slice(0, 10)})`);
-  console.log(`  medições   : ${totalMed} | checklists: ${totalChk}`);
+  console.log(`  formulários: ${totalForm} semanais (${diaDaSemana(0).toISOString().slice(0, 10)} a ${diaDaSemana(SEMANAS - 1).toISOString().slice(0, 10)})`);
 }
 
 main()

@@ -10,7 +10,7 @@ export class FormularioRepository {
   }
 
   findById(id: string) {
-    return prisma.formulario.findUnique({ where: { id }, include: { list: { include: { plant: true, canteiro: true } }, checklists: { include: { template: true } }, measurements: { include: { template: true } }, photos: true } });
+    return prisma.formulario.findUnique({ where: { id }, include: { list: { include: { plant: true, canteiro: true } }, photos: true } });
   }
 
   // Versão enxuta, para checagem de dono antes de alterar/remover.
@@ -22,23 +22,13 @@ export class FormularioRepository {
     return prisma.formulario.update({ where: { id }, data });
   }
 
-  // Todas as FKs de Checklist/Measurement/Photo são ON DELETE RESTRICT no banco,
-  // então os filhos precisam sair antes — tudo na mesma transação.
+  // A FK de Photo é ON DELETE RESTRICT no banco, então os filhos precisam
+  // sair antes — tudo na mesma transação.
   deleteWithChildren(id: string) {
     return prisma.$transaction([
-      prisma.checklist.deleteMany({ where: { form_id: id } }),
-      prisma.measurement.deleteMany({ where: { form_id: id } }),
       prisma.photo.deleteMany({ where: { form_id: id } }),
       prisma.formulario.delete({ where: { id } }),
     ]);
-  }
-
-  getChecklist(id: string) {
-    return prisma.checklist.findMany({ where: { form_id: id }, include: { template: { select: { id: true, field_name: true, unit: true } } } });
-  }
-
-  getMeasurements(id: string) {
-    return prisma.measurement.findMany({ where: { form_id: id }, include: { template: { select: { id: true, field_name: true, unit: true } } } });
   }
 
   getPhotos(id: string) {
@@ -46,21 +36,34 @@ export class FormularioRepository {
   }
 
   finalizar(id: string) {
-    return prisma.formulario.update({ where: { id }, data: { ended_at: new Date(), synced: true } });
+    return prisma.formulario.update({ where: { id }, data: { synced: true } });
   }
 
+  // Sincroniza o formulário preenchido offline. O checklist agora são 5
+  // colunas fixas no próprio Formulario — não cria mais linhas em Checklist/
+  // Measurement (legado, mantido só para formulários antigos).
   async sync(id: string, body: any) {
-    const { formulario, checklist, measurements, photos } = body;
+    const { formulario, photos } = body;
     return prisma.$transaction(async (tx) => {
-      const updated = await tx.formulario.update({ where: { id }, data: { type: formulario?.type, observations: formulario?.observations, started_at: formulario?.started_at ? new Date(formulario.started_at) : undefined, ended_at: formulario?.ended_at ? new Date(formulario.ended_at) : new Date(), synced: true } });
-
-      if (Array.isArray(checklist) && checklist.length > 0) {
-        await tx.checklist.createMany({ data: checklist.map((item: any) => ({ form_id: id, template_id: item.template_id, checked: item.checked ?? false })), skipDuplicates: true });
-      }
-
-      if (Array.isArray(measurements) && measurements.length > 0) {
-        await tx.measurement.createMany({ data: measurements.map((item: any) => ({ form_id: id, template_id: item.template_id, value: item.value ?? 0 })), skipDuplicates: true });
-      }
+      const updated = await tx.formulario.update({
+        where: { id },
+        data: {
+          type: formulario?.type,
+          title: formulario?.title,
+          date: formulario?.date ? new Date(formulario.date) : undefined,
+          week: formulario?.week,
+          weather: formulario?.weather,
+          estimated_height_cm: formulario?.estimated_height_cm,
+          phenological_stage: formulario?.phenological_stage,
+          checklist_irrigacao: formulario?.checklist_irrigacao,
+          checklist_capina: formulario?.checklist_capina,
+          checklist_adubacao: formulario?.checklist_adubacao,
+          checklist_plantio: formulario?.checklist_plantio,
+          checklist_pragas: formulario?.checklist_pragas,
+          observations: formulario?.observations,
+          synced: true,
+        },
+      });
 
       if (Array.isArray(photos) && photos.length > 0) {
         await tx.photo.createMany({ data: photos.map((item: any) => ({ form_id: id, url: item.url })) });

@@ -26,8 +26,6 @@ import {
 } from '@nestjs/swagger';
 
 import { FormularioService } from '../../services/formulario.service';
-import { ChecklistService } from '../../services/checklist.service';
-import { MeasurementService } from '../../services/measurement.service';
 import { ApiAuth, erroDeValidacaoSchema, errorSchema } from '../../swagger/decorators';
 
 const formularioSchema = {
@@ -37,9 +35,17 @@ const formularioSchema = {
     list_id: { type: 'string', format: 'uuid' },
     user_id: { type: 'string', format: 'uuid' },
     type: { type: 'string', enum: ['SEMANAL', 'DIARIO'] },
+    title: { type: 'string', example: 'Semana 3 — canteiro A1' },
+    date: { type: 'string', format: 'date-time' },
     week: { type: 'integer', nullable: true, minimum: 1, maximum: 12, example: 3 },
-    started_at: { type: 'string', format: 'date-time' },
-    ended_at: { type: 'string', format: 'date-time' },
+    weather: { type: 'string', enum: ['SOL', 'NUBLADO', 'CHUVA'] },
+    estimated_height_cm: { type: 'number', example: 38 },
+    phenological_stage: { type: 'string', enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO'] },
+    checklist_irrigacao: { type: 'boolean', description: 'Irrigação verificada' },
+    checklist_capina: { type: 'boolean', description: 'Capina realizada' },
+    checklist_adubacao: { type: 'boolean', description: 'Adubação de cobertura' },
+    checklist_plantio: { type: 'boolean', description: 'Plantio/Replantio' },
+    checklist_pragas: { type: 'boolean', description: 'Controle de pragas' },
     observations: { type: 'string' },
     synced: { type: 'boolean' },
     createdAt: { type: 'string', format: 'date-time' },
@@ -52,10 +58,21 @@ const updateBody = {
     type: 'object' as const,
     properties: {
       type: { type: 'string' as const, enum: ['SEMANAL', 'DIARIO'] },
+      title: { type: 'string' as const, example: 'Semana 3 — canteiro A1' },
+      date: { type: 'string' as const, format: 'date-time' },
       week: { type: 'integer' as const, minimum: 1, maximum: 12, example: 3 },
+      weather: { type: 'string' as const, enum: ['SOL', 'NUBLADO', 'CHUVA'] },
+      estimated_height_cm: { type: 'number' as const, example: 38 },
+      phenological_stage: {
+        type: 'string' as const,
+        enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO'],
+      },
+      checklist_irrigacao: { type: 'boolean' as const, description: 'Irrigação verificada' },
+      checklist_capina: { type: 'boolean' as const, description: 'Capina realizada' },
+      checklist_adubacao: { type: 'boolean' as const, description: 'Adubação de cobertura' },
+      checklist_plantio: { type: 'boolean' as const, description: 'Plantio/Replantio' },
+      checklist_pragas: { type: 'boolean' as const, description: 'Controle de pragas' },
       observations: { type: 'string' as const },
-      started_at: { type: 'string' as const, format: 'date-time' },
-      ended_at: { type: 'string' as const, format: 'date-time' },
       synced: { type: 'boolean' as const },
     },
   },
@@ -65,11 +82,7 @@ const updateBody = {
 @ApiAuth()
 @Controller('formularios')
 export class FormulariosController {
-  constructor(
-    private readonly formularioService: FormularioService,
-    private readonly checklistService: ChecklistService,
-    private readonly measurementService: MeasurementService,
-  ) {}
+  constructor(private readonly formularioService: FormularioService) {}
 
   // Aliases de mesmo verbo vao no mesmo decorator; empilhar @Get duas vezes
   // sobrescreve a metadata e so uma rota fica registrada.
@@ -99,29 +112,13 @@ export class FormulariosController {
   @Get(':id')
   @ApiOperation({
     summary: 'Detalha um formulário',
-    description: 'Inclui lista, planta, canteiro, checklist, medições e fotos.',
+    description: 'Inclui lista, planta, canteiro e fotos.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ schema: formularioSchema })
   @ApiNotFoundResponse({ schema: errorSchema('Formulário não encontrado') })
   async findById(@Param('id') id: string) {
     return await this.formularioService.findById(id);
-  }
-
-  @Get(':id/checklist')
-  @ApiOperation({ summary: 'Itens de checklist do formulário' })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiOkResponse({ schema: { type: 'array', items: { type: 'object' } } })
-  async getChecklist(@Param('id') id: string) {
-    return await this.formularioService.getChecklist(id);
-  }
-
-  @Get(':id/measurements')
-  @ApiOperation({ summary: 'Medições do formulário' })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiOkResponse({ schema: { type: 'array', items: { type: 'object' } } })
-  async getMeasurements(@Param('id') id: string) {
-    return await this.formularioService.getMeasurements(id);
   }
 
   @Get(':id/photos')
@@ -136,18 +133,49 @@ export class FormulariosController {
   @ApiOperation({
     summary: 'Cria um formulário',
     description:
-      'started_at/ended_at são preenchidos com a hora atual quando omitidos. week é a ' +
-      'semana do acompanhamento (1 a 12) escolhida pelo aluno.',
+      'Formulário de manejo semanal, com campos fixos (iguais para qualquer planta). ' +
+      'date é preenchida com a hora atual quando omitida. week é a semana do ' +
+      'acompanhamento (1 a 12). As fotos são anexadas depois, em POST /photos/upload ' +
+      '(limite de 5 por formulário).',
   })
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['list_id', 'user_id', 'type'],
+      required: [
+        'list_id',
+        'user_id',
+        'type',
+        'title',
+        'weather',
+        'estimated_height_cm',
+        'phenological_stage',
+      ],
       properties: {
         list_id: { type: 'string', format: 'uuid' },
         user_id: { type: 'string', format: 'uuid' },
         type: { type: 'string', enum: ['SEMANAL', 'DIARIO'] },
+        title: { type: 'string', example: 'Semana 3 — canteiro A1' },
+        date: { type: 'string', format: 'date-time', description: 'padrão: agora' },
         week: { type: 'integer', minimum: 1, maximum: 12, example: 3 },
+        weather: { type: 'string', enum: ['SOL', 'NUBLADO', 'CHUVA'] },
+        estimated_height_cm: { type: 'number', example: 38 },
+        phenological_stage: {
+          type: 'string',
+          enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO'],
+        },
+        checklist_irrigacao: {
+          type: 'boolean',
+          default: false,
+          description: 'Irrigação verificada',
+        },
+        checklist_capina: { type: 'boolean', default: false, description: 'Capina realizada' },
+        checklist_adubacao: {
+          type: 'boolean',
+          default: false,
+          description: 'Adubação de cobertura',
+        },
+        checklist_plantio: { type: 'boolean', default: false, description: 'Plantio/Replantio' },
+        checklist_pragas: { type: 'boolean', default: false, description: 'Controle de pragas' },
         observations: { type: 'string', example: 'Chuva forte durante a coleta' },
       },
     },
@@ -171,60 +199,10 @@ export class FormulariosController {
     return await this.formularioService.create(body);
   }
 
-  @Post(':id/checklist')
-  @ApiOperation({ summary: 'Cria em lote os itens de checklist do formulário' })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: ['template_ids'],
-      properties: {
-        template_ids: {
-          type: 'array',
-          items: { type: 'string', format: 'uuid' },
-          description: 'ids dos PlantTemplate que viram itens do checklist',
-        },
-      },
-    },
-  })
-  @ApiCreatedResponse({ schema: { type: 'array', items: { type: 'object' } } })
-  async createChecklistForFormulario(@Param('id') id: string, @Body() body: any) {
-    const { template_ids } = body;
-    return await this.checklistService.createManyForFormulario(id, template_ids);
-  }
-
-  @Post(':id/measurements')
-  @ApiOperation({ summary: 'Cria em lote as medições do formulário' })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: ['measurements'],
-      properties: {
-        measurements: {
-          type: 'array',
-          items: {
-            type: 'object',
-            required: ['template_id', 'value'],
-            properties: {
-              template_id: { type: 'string', format: 'uuid' },
-              value: { type: 'number', example: 32.5 },
-            },
-          },
-        },
-      },
-    },
-  })
-  @ApiCreatedResponse({ schema: { type: 'array', items: { type: 'object' } } })
-  async createMeasurementsForFormulario(@Param('id') id: string, @Body() body: any) {
-    const { measurements } = body;
-    return await this.measurementService.createManyForFormulario(id, measurements);
-  }
-
   @Post(':id/finalizar')
   @ApiOperation({
     summary: 'Finaliza o formulário',
-    description: 'Grava ended_at = agora e marca synced = true.',
+    description: 'Marca synced = true.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiCreatedResponse({ schema: formularioSchema })
@@ -244,8 +222,7 @@ export class FormulariosController {
   @Post(':id/sync')
   @ApiOperation({
     summary: 'Sincroniza o formulário preenchido offline',
-    description:
-      'Atualiza o formulário e insere checklist, medições e fotos numa única transação.',
+    description: 'Atualiza o formulário e insere as fotos numa única transação.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiBody({
@@ -256,29 +233,21 @@ export class FormulariosController {
           type: 'object',
           properties: {
             type: { type: 'string', enum: ['SEMANAL', 'DIARIO'] },
+            title: { type: 'string' },
+            date: { type: 'string', format: 'date-time' },
+            week: { type: 'integer', minimum: 1, maximum: 12 },
+            weather: { type: 'string', enum: ['SOL', 'NUBLADO', 'CHUVA'] },
+            estimated_height_cm: { type: 'number' },
+            phenological_stage: {
+              type: 'string',
+              enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO'],
+            },
+            checklist_irrigacao: { type: 'boolean' },
+            checklist_capina: { type: 'boolean' },
+            checklist_adubacao: { type: 'boolean' },
+            checklist_plantio: { type: 'boolean' },
+            checklist_pragas: { type: 'boolean' },
             observations: { type: 'string' },
-            started_at: { type: 'string', format: 'date-time' },
-            ended_at: { type: 'string', format: 'date-time' },
-          },
-        },
-        checklist: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              template_id: { type: 'string', format: 'uuid' },
-              checked: { type: 'boolean' },
-            },
-          },
-        },
-        measurements: {
-          type: 'array',
-          items: {
-            type: 'object',
-            properties: {
-              template_id: { type: 'string', format: 'uuid' },
-              value: { type: 'number' },
-            },
           },
         },
         photos: {
@@ -328,7 +297,7 @@ export class FormulariosController {
   @Delete(':id')
   @ApiOperation({
     summary: 'Remove o formulário',
-    description: 'Só o dono pode remover; checklist, medições e fotos vão junto.',
+    description: 'Só o dono pode remover; as fotos vão junto.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiOkResponse({ schema: formularioSchema })

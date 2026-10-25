@@ -6,7 +6,7 @@ export class ListaDeFormulariosRepository {
   }
 
   findById(id: string) {
-    return prisma.listaDeFormularios.findUnique({ where: { id }, include: { plant: { select: { id: true, name: true, category: true } }, formularios: { orderBy: { createdAt: 'asc' }, select: { id: true, type: true, synced: true, started_at: true, ended_at: true, createdAt: true } } } });
+    return prisma.listaDeFormularios.findUnique({ where: { id }, include: { plant: { select: { id: true, name: true, category: true } }, formularios: { orderBy: { createdAt: 'asc' }, select: { id: true, type: true, synced: true, date: true, createdAt: true } } } });
   }
 
   findByCanteiro(canteiroId: string) {
