@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { FormularioRepository } from '../repositories/formulario.repository';
+import { PhotoRepository } from '../repositories/photo.repository';
+import { LIMITE_FOTOS_POR_FORMULARIO } from './photo.service';
 import { HttpError, erroDeCampos } from '../core/httpError';
 
 const TIPOS_VALIDOS = ['SEMANAL', 'DIARIO'];
@@ -21,6 +23,7 @@ const CHECKLIST_CAMPOS = {
 @Injectable()
 export class FormularioService {
   private repo = new FormularioRepository();
+  private photoRepo = new PhotoRepository();
 
   /** Devolve a data ou registra o problema em `campos`. */
   private lerData(
@@ -112,14 +115,25 @@ export class FormularioService {
     return numero;
   }
 
-  /** Lê os 5 itens do checklist fixo; cada um é opcional e vira false se omitido. */
-  private lerChecklist(body: any, campos: Record<string, string>): Record<string, boolean> {
+  /**
+   * Lê os 5 itens do checklist fixo.
+   *
+   * Em `completar: true` (criação) cada item omitido vira `false` — o
+   * registro nasce com os 5 campos definidos. Em `completar: false`
+   * (atualização parcial) um item omitido fica de fora do resultado, pra não
+   * sobrescrever com `false` o que já estava `true` no banco.
+   */
+  private lerChecklist(
+    body: any,
+    campos: Record<string, string>,
+    completar: boolean,
+  ): Record<string, boolean> {
     const resultado: Record<string, boolean> = {};
 
     for (const chave of Object.values(CHECKLIST_CAMPOS)) {
       const valor = body?.[chave];
       if (valor === undefined || valor === null) {
-        resultado[chave] = false;
+        if (completar) resultado[chave] = false;
         continue;
       }
       if (typeof valor !== 'boolean') {
@@ -162,7 +176,7 @@ export class FormularioService {
     const estadio = this.lerEstadio(body?.phenological_stage, campos);
     const altura = this.lerAltura(body?.estimated_height_cm, campos);
     const data = this.lerData(body?.date, 'date', campos);
-    const checklist = this.lerChecklist(body, campos);
+    const checklist = this.lerChecklist(body, campos, true);
 
     if (Object.keys(campos).length > 0) {
       throw erroDeCampos(campos, 'FORMULARIO_INVALIDO');
@@ -212,7 +226,7 @@ export class FormularioService {
     const data = this.lerData(body?.date, 'date', campos);
 
     const checklistEnviado = Object.values(CHECKLIST_CAMPOS).some((c) => body?.[c] !== undefined);
-    const checklist = checklistEnviado ? this.lerChecklist(body, campos) : {};
+    const checklist = checklistEnviado ? this.lerChecklist(body, campos, false) : {};
 
     if (title !== undefined && !title) {
       campos.title = 'não pode ficar vazio';
@@ -240,7 +254,7 @@ export class FormularioService {
     });
   }
 
-  // Só o dono apaga, e os filhos (checklist/measurements/photos) saem junto:
+  // Só o dono apaga, e as fotos saem junto:
   // as FKs no banco são ON DELETE RESTRICT, então sem isso o delete falha.
   async delete(id: string, userId?: string) {
     if (!id) throw new HttpError('id é obrigatório', 400);
@@ -261,8 +275,23 @@ export class FormularioService {
     return this.repo.finalizar(id);
   }
 
-  sync(id: string, body: any) {
+  async sync(id: string, body: any) {
     if (!id) throw new HttpError('id é obrigatório', 400);
+
+    // Mesmo limite do upload normal — sem isso o sync offline furava a regra.
+    const novasFotos = Array.isArray(body?.photos) ? body.photos.length : 0;
+    if (novasFotos > 0) {
+      const atual = await this.photoRepo.countByFormulario(id);
+      if (atual + novasFotos > LIMITE_FOTOS_POR_FORMULARIO) {
+        throw new HttpError(
+          `Limite de ${LIMITE_FOTOS_POR_FORMULARIO} fotos por formulário atingido ` +
+            `(já tem ${atual}, tentando adicionar ${novasFotos})`,
+          400,
+          { codigo: 'LIMITE_FOTOS_ATINGIDO' },
+        );
+      }
+    }
+
     return this.repo.sync(id, body);
   }
 }

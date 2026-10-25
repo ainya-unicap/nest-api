@@ -2,8 +2,9 @@ import { Injectable } from '@nestjs/common';
 import { PhotoRepository } from '../repositories/photo.repository';
 import { HttpError } from '../core/httpError';
 
-// Registro fotográfico do formulário: no máximo 5 fotos.
-const LIMITE_FOTOS_POR_FORMULARIO = 5;
+// Registro fotográfico do formulário: no máximo 5 fotos. Exportado porque o
+// /formularios/:id/sync também cria fotos e precisa respeitar o mesmo limite.
+export const LIMITE_FOTOS_POR_FORMULARIO = 5;
 
 @Injectable()
 export class PhotoService {

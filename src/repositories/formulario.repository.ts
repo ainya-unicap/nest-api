@@ -39,9 +39,9 @@ export class FormularioRepository {
     return prisma.formulario.update({ where: { id }, data: { synced: true } });
   }
 
-  // Sincroniza o formulário preenchido offline. O checklist agora são 5
-  // colunas fixas no próprio Formulario — não cria mais linhas em Checklist/
-  // Measurement (legado, mantido só para formulários antigos).
+  // Sincroniza o formulário preenchido offline. O checklist são 5 colunas
+  // fixas no próprio Formulario — o limite de fotos é checado antes, no
+  // service (FormularioService.sync).
   async sync(id: string, body: any) {
     const { formulario, photos } = body;
     return prisma.$transaction(async (tx) => {

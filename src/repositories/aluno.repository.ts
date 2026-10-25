@@ -1,9 +1,9 @@
 import { prisma } from '../prisma';
 
 export class AlunoRepository {
-  // Só id + createdAt: o suficiente para contar formulários e semanas distintas.
+  // id + week: o suficiente para contar formulários e semanas distintas.
   findAllFormularios(userId: string) {
-    return prisma.formulario.findMany({ where: { user_id: userId }, select: { id: true, createdAt: true } });
+    return prisma.formulario.findMany({ where: { user_id: userId }, select: { id: true, week: true } });
   }
 
   contarRelatorios(userId: string) {

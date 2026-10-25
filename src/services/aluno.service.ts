@@ -2,21 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { AlunoRepository } from '../repositories/aluno.repository';
 import { HttpError } from '../core/httpError';
 
-type FormularioResumo = { id: string; createdAt: Date };
+type FormularioResumo = { id: string; week: number | null };
 
-// Quantas semanas distintas do calendário têm pelo menos um formulário.
+// Quantas semanas distintas (1 a 12) do acompanhamento já têm formulário —
+// usa o número que o próprio aluno escolhe ao preencher, não mais uma
+// estimativa a partir da data de criação do registro.
 function calcularSemanasUnicas(formularios: FormularioResumo[]): number {
   const semanas = new Set(
-    formularios.map((formulario) => {
-      const createdAt = new Date(formulario.createdAt);
-      const year = createdAt.getFullYear();
-
-      const startOfYear = new Date(year, 0, 1);
-      const diffInDays = Math.floor((createdAt.getTime() - startOfYear.getTime()) / 86400000);
-      const week = Math.ceil((diffInDays + startOfYear.getDay() + 1) / 7);
-
-      return `${year}-${week}`;
-    }),
+    formularios.map((f) => f.week).filter((w): w is number => w !== null),
   );
 
   return semanas.size;
