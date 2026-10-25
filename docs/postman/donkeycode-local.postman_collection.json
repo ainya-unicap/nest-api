@@ -1,0 +1,270 @@
+{
+  "info": {
+    "_postman_id": "d7db157c-7995-4eb7-aef0-2e6d45a25f43",
+    "name": "DonkeyCode API - Local",
+    "description": "Fluxo local de smoke/integracao para a API DonkeyCode. Consulte docs/postman/FLUXO-TESTE-LOCAL.md antes de executar. Todas as rotas usam apenas o ambiente local.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000/api" },
+    { "key": "name", "value": "Aluno Postman" },
+    { "key": "email", "value": "aluno.postman@example.com" },
+    { "key": "password", "value": "SenhaLocal123!" },
+    { "key": "userId", "value": "" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "institutionId", "value": "" },
+    { "key": "plantId", "value": "COLOQUE-UM-UUID-DE-PLANTA-SEMEADA-AQUI" },
+    { "key": "templateId", "value": "" },
+    { "key": "canteiroId", "value": "" },
+    { "key": "listId", "value": "" },
+    { "key": "formId", "value": "" },
+    { "key": "checklistId", "value": "" },
+    { "key": "measurementId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 - Preparacao publica",
+      "item": [
+        {
+          "name": "Listar instituicoes",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "auth": { "type": "noauth" },
+            "url": { "raw": "{{baseUrl}}/institutions", "host": ["{{baseUrl}}"], "path": ["institutions"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "const data = pm.response.json();",
+            "if (Array.isArray(data) && data.length && data[0].id) pm.collectionVariables.set('institutionId', data[0].id);"
+          ] } }]
+        },
+        {
+          "name": "Cadastrar usuario de teste",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "noauth" },
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"{{name}}\",\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\",\n  \"role\": \"aluno\"\n}" },
+            "url": { "raw": "{{baseUrl}}/users", "host": ["{{baseUrl}}"], "path": ["users"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201 ou usuario ja existente', function () { pm.expect([201, 400, 409]).to.include(pm.response.code); });"
+          ] } }]
+        },
+        {
+          "name": "Login e captura de tokens",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "noauth" },
+            "body": { "mode": "raw", "raw": "{\n  \"email\": \"{{email}}\",\n  \"password\": \"{{password}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/users/login", "host": ["{{baseUrl}}"], "path": ["users", "login"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "const data = pm.response.json();",
+            "pm.expect(data.accessToken).to.be.a('string');",
+            "pm.expect(data.refreshToken).to.be.a('string');",
+            "pm.collectionVariables.set('accessToken', data.accessToken);",
+            "pm.collectionVariables.set('refreshToken', data.refreshToken);",
+            "if (data.id) pm.collectionVariables.set('userId', data.id);"
+          ] } }]
+        },
+        {
+          "name": "Buscar usuario autenticado",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["users", "{{userId}}"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "pm.test('resposta nao expoe senha', function () { pm.expect(pm.response.json()).to.not.have.property('password'); });"
+          ] } }]
+        }
+      ]
+    },
+    {
+      "name": "02 - Recursos e plantio",
+      "item": [
+        {
+          "name": "Listar plant templates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/plant-templates", "host": ["{{baseUrl}}"], "path": ["plant-templates"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "const data = pm.response.json();",
+            "if (Array.isArray(data) && data.length && data[0].id) pm.collectionVariables.set('templateId', data[0].id);"
+          ] } }]
+        },
+        {
+          "name": "Criar canteiro",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Canteiro Postman Local\",\n  \"plant_id\": \"{{plantId}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/canteiros", "host": ["{{baseUrl}}"], "path": ["canteiros"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "const data = pm.response.json();",
+            "pm.expect(data.id).to.be.a('string');",
+            "pm.collectionVariables.set('canteiroId', data.id);"
+          ] } }]
+        },
+        {
+          "name": "Criar lista de formularios",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"canteiro_id\": \"{{canteiroId}}\",\n  \"plant_id\": \"{{plantId}}\",\n  \"created_by\": \"{{userId}}\",\n  \"name\": \"Acompanhamento Postman Local\"\n}" },
+            "url": { "raw": "{{baseUrl}}/listas-formularios", "host": ["{{baseUrl}}"], "path": ["listas-formularios"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "const data = pm.response.json();",
+            "pm.expect(data.id).to.be.a('string');",
+            "pm.collectionVariables.set('listId', data.id);"
+          ] } }]
+        }
+      ]
+    },
+    {
+      "name": "03 - Formulario semanal",
+      "item": [
+        {
+          "name": "Criar formulario",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"list_id\": \"{{listId}}\",\n  \"user_id\": \"{{userId}}\",\n  \"type\": \"SEMANAL\",\n  \"observations\": \"Teste local executado pelo Postman\"\n}" },
+            "url": { "raw": "{{baseUrl}}/formularios", "host": ["{{baseUrl}}"], "path": ["formularios"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "const data = pm.response.json();",
+            "pm.expect(data.id).to.be.a('string');",
+            "pm.collectionVariables.set('formId', data.id);"
+          ] } }]
+        },
+        {
+          "name": "Adicionar checklist em lote",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"template_ids\": [\"{{templateId}}\"]\n}" },
+            "url": { "raw": "{{baseUrl}}/formularios/{{formId}}/checklist", "host": ["{{baseUrl}}", "formularios", "{{formId}}", "checklist"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "const data = pm.response.json();",
+            "if (Array.isArray(data) && data[0] && data[0].id) pm.collectionVariables.set('checklistId', data[0].id);"
+          ] } }]
+        },
+        {
+          "name": "Adicionar medicao em lote",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"measurements\": [\n    {\n      \"template_id\": \"{{templateId}}\",\n      \"value\": 32.5\n    }\n  ]\n}" },
+            "url": { "raw": "{{baseUrl}}/formularios/{{formId}}/measurements", "host": ["{{baseUrl}}", "formularios", "{{formId}}", "measurements"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 201', function () { pm.response.to.have.status(201); });",
+            "const data = pm.response.json();",
+            "if (Array.isArray(data) && data[0] && data[0].id) pm.collectionVariables.set('measurementId', data[0].id);"
+          ] } }]
+        },
+        {
+          "name": "Consultar formulario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/formularios/{{formId}}", "host": ["{{baseUrl}}", "formularios", "{{formId}}"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "pm.test('id do formulario confere', function () { pm.expect(pm.response.json().id).to.eql(pm.collectionVariables.get('formId')); });"
+          ] } }]
+        },
+        {
+          "name": "Finalizar formulario",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/formularios/{{formId}}/finalizar", "host": ["{{baseUrl}}", "formularios", "{{formId}}", "finalizar"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200 ou 201', function () { pm.expect([200, 201]).to.include(pm.response.code); });"
+          ] } }]
+        }
+      ]
+    },
+    {
+      "name": "04 - Consultas e sessao",
+      "item": [
+        {
+          "name": "Listar formularios do usuario",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/formularios/user/{{userId}}", "host": ["{{baseUrl}}", "formularios", "user", "{{userId}}"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "pm.test('resposta e uma lista', function () { pm.expect(pm.response.json()).to.be.an('array'); });"
+          ] } }]
+        },
+        {
+          "name": "Consultar dossie da lista",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/listas-formularios/{{listId}}/dossie", "host": ["{{baseUrl}}", "listas-formularios", "{{listId}}", "dossie"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200 ou 422', function () { pm.expect([200, 422]).to.include(pm.response.code); });"
+          ] } }]
+        },
+        {
+          "name": "Renovar tokens",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "noauth" },
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/users/refresh", "host": ["{{baseUrl}}", "users", "refresh"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });",
+            "const data = pm.response.json();",
+            "pm.collectionVariables.set('accessToken', data.accessToken);",
+            "pm.collectionVariables.set('refreshToken', data.refreshToken);"
+          ] } }]
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "auth": { "type": "noauth" },
+            "body": { "mode": "raw", "raw": "{\n  \"refreshToken\": \"{{refreshToken}}\"\n}" },
+            "url": { "raw": "{{baseUrl}}/users/logout", "host": ["{{baseUrl}}", "users", "logout"] }
+          },
+          "event": [{ "listen": "test", "script": { "type": "text/javascript", "exec": [
+            "pm.test('status 200', function () { pm.response.to.have.status(200); });"
+          ] } }]
+        }
+      ]
+    }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+  }
+}
