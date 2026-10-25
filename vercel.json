@@ -3,7 +3,7 @@
   "functions": {
     "api/index.js": {
       "maxDuration": 60,
-      "includeFiles": "dist/**"
+      "includeFiles": "{dist/**,node_modules/pdfkit/js/standard-fonts/**}"
     }
   },
   "rewrites": [
