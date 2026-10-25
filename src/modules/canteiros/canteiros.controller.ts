@@ -1,7 +1,10 @@
-import { Controller, Get, Post, Param, Body, Query } from '@nestjs/common';
+import { Controller, Get, Post, Param, Body, Query, Req } from '@nestjs/common';
+import type { Request } from 'express';
 import {
   ApiBody,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -10,7 +13,7 @@ import {
 } from '@nestjs/swagger';
 
 import { CanteiroService } from '../../services/canteiro.service';
-import { ApiAuth } from '../../swagger/decorators';
+import { ApiAuth, errorSchema } from '../../swagger/decorators';
 
 const canteiroSchema = {
   type: 'object' as const,
@@ -74,6 +77,22 @@ export class CanteirosController {
   @ApiOkResponse({ schema: { type: 'array', items: { type: 'object' } } })
   async findListasByCanteiro(@Param('id') id: string): Promise<any> {
     return this.canteiroService.findListasByCanteiro(id);
+  }
+
+  // GET /canteiros/:id/formularios
+  @Get(':id/formularios')
+  @ApiOperation({
+    summary: 'Todos os formulários do canteiro, organizados por lista',
+    description:
+      'Leitura direta do banco (sem IA). Cada lista vem com seus formulários completos — ' +
+      'checklist, medições e fotos incluídos. Exclusivo de quem está vinculado ao canteiro.',
+  })
+  @ApiParam({ name: 'id', description: 'id do canteiro', format: 'uuid' })
+  @ApiOkResponse({ schema: { type: 'array', items: { type: 'object' } } })
+  @ApiForbiddenResponse({ schema: errorSchema('Usuário não está vinculado a este canteiro') })
+  @ApiNotFoundResponse({ schema: errorSchema('Canteiro não encontrado') })
+  async findFormulariosByCanteiro(@Param('id') id: string, @Req() req: Request): Promise<any> {
+    return this.canteiroService.findFormulariosByCanteiro(id, req.user?.id ?? '');
   }
 
   // GET /canteiros/user/:userId

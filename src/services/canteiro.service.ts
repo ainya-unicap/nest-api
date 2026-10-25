@@ -1,10 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { CanteiroRepository } from '../repositories/canteiro.repository';
+import { UserCanteiroRepository } from '../repositories/usercanteiro.repository';
 import { HttpError } from '../core/httpError';
 
 @Injectable()
 export class CanteiroService {
   private readonly repo = new CanteiroRepository();
+  private readonly userCanteiroRepo = new UserCanteiroRepository();
 
   // O front espera uma lista de canteiros, não os registros de vínculo:
   // por isso o map extraindo v.canteiro.
@@ -36,5 +38,25 @@ export class CanteiroService {
   findListasByCanteiro(id: string) {
     if (!id) throw new HttpError('canteiroId é obrigatório', 400);
     return this.repo.findListasByCanteiro(id);
+  }
+
+  /**
+   * Todos os formulários do canteiro, organizados por lista. Exclusivo de
+   * quem está vinculado ao canteiro — não usa IA, é leitura direta do banco.
+   */
+  async findFormulariosByCanteiro(canteiroId: string, userId: string) {
+    await this.validarAcessoCanteiro(canteiroId, userId);
+    return this.repo.findFormulariosByCanteiro(canteiroId);
+  }
+
+  private async validarAcessoCanteiro(canteiroId: string, userId: string) {
+    if (!canteiroId) throw new HttpError('canteiroId é obrigatório', 400);
+    if (!userId) throw new HttpError('userId é obrigatório', 400);
+
+    const canteiro = await this.repo.findById(canteiroId);
+    if (!canteiro) throw new HttpError('Canteiro não encontrado', 404);
+
+    const vinculado = await this.userCanteiroRepo.exists(userId, canteiroId);
+    if (!vinculado) throw new HttpError('Usuário não está vinculado a este canteiro', 403);
   }
 }
