@@ -31,8 +31,6 @@ JWT_SECRET=uma-string-longa        # sem isso a aplicação não sobe
 | `http://localhost:3000/api/docs` | Swagger (95 rotas documentadas) |
 | `http://localhost:3000/api/docs.json` | o spec OpenAPI |
 
-Para o resumo por IA, veja [docs/ia.md](docs/ia.md) — é um segundo processo.
-
 ---
 
 ## Documentação
@@ -42,7 +40,6 @@ Para o resumo por IA, veja [docs/ia.md](docs/ia.md) — é um segundo processo.
 | [docs/arquitetura.md](docs/arquitetura.md) | camadas, fluxo de uma requisição, mapa de pastas |
 | [docs/banco-de-dados.md](docs/banco-de-dados.md) | as 16 tabelas, relacionamentos e armadilhas do schema |
 | [docs/api.md](docs/api.md) | todos os endpoints, autenticação e formato de erro |
-| [docs/ia.md](docs/ia.md) | o resumo por IA: como funciona, configurar e rodar |
 | [docs/desenvolvimento.md](docs/desenvolvimento.md) | scripts, seeds, migrations e problemas comuns |
 | [docs/sonarqube.md](docs/sonarqube.md) | análise de qualidade com SonarQube local (Docker) |
 

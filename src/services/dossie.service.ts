@@ -4,8 +4,9 @@ import { DossieRepository } from '../repositories/dossie.repository';
 import { UserCanteiroRepository } from '../repositories/usercanteiro.repository';
 import { HttpError } from '../core/httpError';
 
-// Contrato enviado ao serviço de IA. Mudou aqui, mudou lá — manter em sincronia
-// com src/ai/schemas/dossie.ts.
+// Dossiê consolidado da lista: métricas agregadas, checklist e observações.
+// Hoje serve o endpoint GET /listas-formularios/:id/dossie diretamente — o
+// antigo consumidor (resumo por IA) foi removido.
 export const DOSSIE_VERSAO = '1';
 
 export interface MetricaNumerica {
