@@ -3,6 +3,28 @@ import { prisma } from '../src/prisma'
 import fs from 'fs'
 import path from 'path'
 
+// Catálogo reduzido para 15 espécies (decisão do time), escolhidas pra cobrir
+// as categorias principais e a relevância regional (semiárido/NE, com peso em
+// palma forrageira). O JSON de origem tem 60 — as demais ficam de fora daqui
+// em vez de editar o arquivo histórico.
+const PLANTAS_MANTIDAS = [
+  'pf-041', // Capim Mombaça
+  'pf-040', // Capim Tanzânia
+  'pf-030', // BRS Piatã
+  'pf-051', // Brachiaria decumbens
+  'pf-024', // Brachiaria ruziziensis
+  'pf-016', // Tifton
+  'pf-042', // Capim-elefante cv. Mott
+  'pf-034', // BRS Capiaçu
+  'pf-001', // Gliricídia
+  'pf-002', // Leucena
+  'pf-018', // Guandu
+  'pf-005', // Palma Gigante
+  'pf-006', // Palma Miúda
+  'pf-039', // Milheto
+  'pf-027', // Cana-de-açúcar
+]
+
 async function main() {
   const filePath = path.resolve('prisma/seed_plantas_forrageiras_atualizado.json')
 
@@ -48,7 +70,11 @@ async function main() {
     console.log('Períodos letivos criados/atualizados')
   }
 
-  for (const planta of data.plantas_forrageiras) {
+  const plantasFiltradas = data.plantas_forrageiras.filter((p: { id: string }) =>
+    PLANTAS_MANTIDAS.includes(p.id),
+  )
+
+  for (const planta of plantasFiltradas) {
     await prisma.plantaForrageira.upsert({
       where: {
         id: planta.id,
