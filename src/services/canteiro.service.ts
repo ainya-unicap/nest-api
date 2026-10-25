@@ -49,7 +49,8 @@ export class CanteiroService {
     return this.repo.findFormulariosByCanteiro(canteiroId);
   }
 
-  private async validarAcessoCanteiro(canteiroId: string, userId: string) {
+  /** Lança 404/403 se o canteiro não existir ou o usuário não estiver vinculado. */
+  async validarAcessoCanteiro(canteiroId: string, userId: string) {
     if (!canteiroId) throw new HttpError('canteiroId é obrigatório', 400);
     if (!userId) throw new HttpError('userId é obrigatório', 400);
 
