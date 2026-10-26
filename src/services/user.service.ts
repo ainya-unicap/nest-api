@@ -57,11 +57,28 @@ export class UserService {
         createdAt: true,
         updatedAt: true,
         institution: { select: { id: true, name: true } },
+        alunoTurmas: {
+          orderBy: { createdAt: 'desc' },
+          take: 1,
+          select: {
+            turma: {
+              select: { id: true, name: true, period: { select: { id: true, name: true, semester: true } } },
+            },
+          },
+        },
       },
     });
 
     if (!user) throw new HttpError('Usuário não encontrado', 404);
-    return user;
+
+    // Vínculo mais recente do aluno; null quando não há turma.
+    const { alunoTurmas, ...rest } = user;
+    const turma = alunoTurmas[0]?.turma ?? null;
+    return {
+      ...rest,
+      turma: turma ? { id: turma.id, name: turma.name } : null,
+      academic_period: turma?.period ?? null,
+    };
   }
 
   async updateProfile(id: string, body: { name?: string; password?: string }) {
