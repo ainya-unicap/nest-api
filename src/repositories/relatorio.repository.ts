@@ -2,7 +2,7 @@ import { prisma } from '../prisma';
 
 export class RelatorioRepository {
   getRelatoriosByUser(userId: string) {
-    return prisma.relatorio.findMany({ where: { user_id: userId }, include: { list: { include: { plant: { select: { name: true } } } }, canteiro: { select: { id: true, name: true } } }, orderBy: { createdAt: 'desc' } });
+    return prisma.relatorio.findMany({ where: { user_id: userId }, include: { list: { include: { plant: { select: { name: true } }, _count: { select: { formularios: true } } } }, canteiro: { select: { id: true, name: true } } }, orderBy: { createdAt: 'desc' } });
   }
 
   createRelatorio(data: any) {
