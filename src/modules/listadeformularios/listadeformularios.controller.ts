@@ -2,6 +2,7 @@ import { Controller, Post, Get, Param, Body } from '@nestjs/common';
 import type { Request } from 'express';
 import { Req } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiBody,
   ApiCreatedResponse,
   ApiOkResponse,
@@ -41,22 +42,27 @@ export class ListaDeFormulariosController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Cria uma lista de formulários para um canteiro' })
+  @ApiOperation({
+    summary: 'Cria uma lista de formulários para um canteiro',
+    description:
+      'plant_id é herdado do canteiro (canteiro_id) — não precisa mandar. created_by é ' +
+      'sempre o usuário do token; qualquer valor enviado no corpo é ignorado.',
+  })
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['canteiro_id', 'plant_id', 'created_by'],
+      required: ['canteiro_id'],
       properties: {
         canteiro_id: { type: 'string', format: 'uuid' },
-        plant_id: { type: 'string', format: 'uuid' },
-        created_by: { type: 'string', format: 'uuid', description: 'id do usuário criador' },
         name: { type: 'string', example: 'Acompanhamento semanal 2026.1' },
       },
     },
   })
   @ApiCreatedResponse({ schema: listaSchema })
-  async create(@Body() body: any) {
-    return this.listaDeFormulariosService.create(body);
+  @ApiBadRequestResponse({ schema: errorSchema('canteiro_id é obrigatório') })
+  @ApiNotFoundResponse({ schema: errorSchema('Canteiro não encontrado') })
+  async create(@Body() body: any, @Req() req: Request) {
+    return this.listaDeFormulariosService.create(body, req.user?.id ?? '');
   }
 
   @Get(':id')

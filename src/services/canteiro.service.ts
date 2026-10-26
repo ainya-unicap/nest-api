@@ -1,12 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { CanteiroRepository } from '../repositories/canteiro.repository';
 import { UserCanteiroRepository } from '../repositories/usercanteiro.repository';
-import { HttpError } from '../core/httpError';
+import { PlantaForrageiraRepository } from '../repositories/plantaforrageira.repository';
+import { HttpError, erroDeCampos } from '../core/httpError';
 
 @Injectable()
 export class CanteiroService {
   private readonly repo = new CanteiroRepository();
   private readonly userCanteiroRepo = new UserCanteiroRepository();
+  private readonly plantaRepo = new PlantaForrageiraRepository();
 
   // O front espera uma lista de canteiros, não os registros de vínculo:
   // por isso o map extraindo v.canteiro.
@@ -17,22 +19,31 @@ export class CanteiroService {
     return vinculos.map((v) => v.canteiro);
   }
 
-  // Com user_id no corpo, já cria o vínculo — senão o canteiro nasce órfão
-  // e não aparece em nenhuma listagem do aluno.
-  async create(body: any) {
-    const { plant_id, name, user_id } = body ?? {};
+  // Cria o canteiro, o vínculo com o usuário logado e a lista de formulários
+  // numa única transação — nada fica gravado se um passo falhar no meio
+  // (antes isso exigia 3 chamadas separadas do app, podendo sobrar canteiro
+  // sem lista). user_id/created_by do corpo são sempre ignorados: o dono é
+  // quem está no token.
+  async create(body: any, userId: string) {
+    if (!userId) throw new HttpError('Token inválido', 401);
 
-    if (!plant_id || !name) {
-      throw new HttpError('plant_id e name são obrigatórios', 400);
+    const nome = typeof body?.name === 'string' ? body.name.trim() : '';
+    const plantId = typeof body?.plant_id === 'string' ? body.plant_id : '';
+    const listName =
+      typeof body?.list_name === 'string' && body.list_name.trim() ? body.list_name.trim() : nome;
+
+    const campos: Record<string, string> = {};
+    if (!nome || nome.length < 2) campos.name = 'obrigatório, mínimo 2 caracteres';
+    if (!plantId) campos.plant_id = 'obrigatório';
+
+    if (Object.keys(campos).length > 0) {
+      throw erroDeCampos(campos, 'CANTEIRO_INVALIDO');
     }
 
-    const canteiro = await this.repo.create({ plant_id, name });
+    const planta = await this.plantaRepo.findById(plantId);
+    if (!planta) throw new HttpError('Planta não encontrada', 404);
 
-    if (user_id) {
-      await this.repo.vincularUsuario(user_id, canteiro.id);
-    }
-
-    return canteiro;
+    return this.repo.createComListaETransacao({ name: nome, plant_id: plantId, userId, listName });
   }
 
   findListasByCanteiro(id: string) {

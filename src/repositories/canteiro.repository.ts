@@ -10,8 +10,41 @@ export class CanteiroRepository {
     return prisma.canteiro.create({ data });
   }
 
-  vincularUsuario(user_id: string, canteiro_id: string) {
-    return prisma.userCanteiro.create({ data: { user_id, canteiro_id } });
+  // Canteiro + vínculo do usuário + lista, tudo ou nada: se qualquer passo
+  // falhar, nada fica gravado (resolve o canteiro órfão sem lista).
+  async createComListaETransacao(data: {
+    name: string;
+    plant_id: string;
+    userId: string;
+    listName: string;
+  }) {
+    return prisma.$transaction(async (tx) => {
+      const canteiro = await tx.canteiro.create({
+        data: { name: data.name, plant_id: data.plant_id },
+      });
+
+      await tx.userCanteiro.create({
+        data: { user_id: data.userId, canteiro_id: canteiro.id },
+      });
+
+      await tx.listaDeFormularios.create({
+        data: {
+          canteiro_id: canteiro.id,
+          plant_id: data.plant_id,
+          created_by: data.userId,
+          name: data.listName,
+        },
+      });
+
+      // Recarrega já com o formato de saída pedido: planta + a lista criada.
+      return tx.canteiro.findUniqueOrThrow({
+        where: { id: canteiro.id },
+        include: {
+          plant: { select: { id: true, name: true, category: true } },
+          listaDeFormularios: { select: { id: true, name: true } },
+        },
+      });
+    });
   }
 
   findListasByCanteiro(canteiroId: string) {
