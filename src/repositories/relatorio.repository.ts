@@ -9,6 +9,15 @@ export class RelatorioRepository {
     return prisma.relatorio.create({ data });
   }
 
+  // Um rascunho por (lista, usuário): evita criar um relatório duplicado
+  // toda vez que o aluno gera de novo pro mesmo canteiro.
+  findRascunhoPorListaEUsuario(listId: string, userId: string) {
+    return prisma.relatorio.findFirst({
+      where: { list_id: listId, user_id: userId, status: 'RASCUNHO' },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   // A lista informa o canteiro e a planta usados para montar o relatório.
   findListaComPlanta(listId: string) {
     return prisma.listaDeFormularios.findUnique({ where: { id: listId }, include: { plant: true } });

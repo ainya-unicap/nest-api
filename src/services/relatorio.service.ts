@@ -39,6 +39,13 @@ export class RelatorioService {
       throw new HttpError('Usuário não está vinculado ao canteiro da lista informada', 403);
     }
 
+    // Já existe um rascunho desse usuário pra essa lista? Reaproveita em vez
+    // de criar outro — sem isso, gerar de novo (manual ou por IA) ia deixando
+    // relatórios duplicados pra trás, e o aluno podia acabar submetendo o
+    // errado.
+    const rascunhoExistente = await this.repo.findRascunhoPorListaEUsuario(listId, userId);
+    if (rascunhoExistente) return rascunhoExistente;
+
     const objetivoGerado =
       `Acompanhar e registrar o desenvolvimento de ${lista.plant.name} ao longo do semestre, ` +
       'documentando medições semanais de altura, cobertura do solo e estádio fenológico.';
