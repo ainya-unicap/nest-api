@@ -3,7 +3,7 @@ import { prisma } from '../prisma';
 export class CanteiroRepository {
   // Devolve os vínculos; o service extrai o canteiro de dentro de cada um.
   findVinculosByUser(userId: string) {
-    return prisma.userCanteiro.findMany({ where: { user_id: userId }, include: { canteiro: { include: { plant: { select: { id: true, name: true, category: true } }, listaDeFormularios: { include: { plant: { select: { id: true, name: true } }, _count: { select: { formularios: true } } } } } } } });
+    return prisma.userCanteiro.findMany({ where: { user_id: userId }, include: { canteiro: { include: { plant: { select: { id: true, name: true, category: true } }, listaDeFormularios: { include: { plant: { select: { id: true, name: true } }, _count: { select: { formularios: true } }, formularios: { orderBy: { date: 'desc' }, take: 1, select: { id: true, date: true } } } } } } } });
   }
 
   create(data: { plant_id: string; name: string }) {
