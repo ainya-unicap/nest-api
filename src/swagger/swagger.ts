@@ -10,6 +10,7 @@ const TAGS: Array<[string, string]> = [
   ['Institutions', 'Instituições de ensino'],
   ['Alunos', 'Resumo e home do aluno'],
   ['UserCanteiros', 'Vínculo entre usuário e canteiro'],
+  ['PlantasForrageiras', 'Catálogo de plantas forrageiras'],
   ['Canteiros', 'Canteiros de plantio'],
   ['ListasFormularios', 'Listas de formulários de um canteiro'],
   ['Formularios', 'Formulários de campo (manejo semanal)'],
