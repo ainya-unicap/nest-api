@@ -81,24 +81,66 @@ export class UserService {
     };
   }
 
-  async updateProfile(id: string, body: { name?: string; password?: string }) {
+  async updateProfile(
+    id: string,
+    body: { name?: string; password?: string; currentPassword?: string; institution_id?: string | null },
+  ) {
     if (!id) throw new HttpError('id é obrigatório', 400);
 
-    const { name, password } = body;
-    if (!name && !password) throw new HttpError('Informe name ou password para atualizar', 400);
+    const { name, password, currentPassword, institution_id } = body;
+    const changesInstitution = institution_id !== undefined;
+    if (!name && !password && !changesInstitution) {
+      throw new HttpError('Informe name, password ou institution_id para atualizar', 400);
+    }
 
     const data: any = {};
     if (name) {
       if (name.trim().length < 2) throw new HttpError('name deve ter pelo menos 2 caracteres', 400);
-      data.name = name;
+      data.name = name.trim();
     }
     if (password) {
       if (password.length < 6) throw new HttpError('password deve ter pelo menos 6 caracteres', 400);
+      if (!currentPassword) throw new HttpError('Informe a senha atual para trocar a senha', 400);
+
+      const current = await prisma.user.findUnique({ where: { id }, select: { password: true } });
+      if (!current) throw new HttpError('Usuário não encontrado', 404);
+      if (!(await argon2.verify(current.password, currentPassword))) {
+        throw new HttpError('Senha atual incorreta', 400, { codigo: 'SENHA_ATUAL_INCORRETA' });
+      }
       data.password = await argon2.hash(password);
     }
+    if (changesInstitution) {
+      if (institution_id === null) {
+        data.institution = { disconnect: true };
+      } else {
+        const institution = await prisma.institution.findUnique({ where: { id: institution_id } });
+        if (!institution) throw new HttpError('Instituição não encontrada', 404);
+        data.institution = { connect: { id: institution_id } };
+      }
+    }
 
-    const updated = await prisma.user.update({ where: { id }, data, select: { id: true, name: true, email: true, role: true, institution_id: true } });
-    return updated;
+    return await prisma.user.update({
+      where: { id },
+      data,
+      select: { id: true, name: true, email: true, role: true, institution_id: true },
+    });
+  }
+
+  // Troca a turma do aluno: remove os vínculos atuais e cria o novo (ou só remove, se turmaId for null).
+  async updateTurma(id: string, turmaId: string | null) {
+    if (!id) throw new HttpError('id é obrigatório', 400);
+
+    if (turmaId) {
+      const turma = await prisma.turma.findUnique({ where: { id: turmaId } });
+      if (!turma) throw new HttpError('Turma não encontrada', 404);
+    }
+
+    await prisma.$transaction([
+      prisma.alunoTurma.deleteMany({ where: { user_id: id } }),
+      ...(turmaId ? [prisma.alunoTurma.create({ data: { user_id: id, turma_id: turmaId } })] : []),
+    ]);
+
+    return await this.findById(id);
   }
 
   async updateAvatar(id: string, newUrl: string) {

@@ -2,15 +2,18 @@ import {
   BadRequestException,
   Body,
   Controller,
+  ForbiddenException,
   Get,
   Param,
   Post,
   Put,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
+import type { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiBody,
@@ -48,6 +51,10 @@ const userSchema = {
 @Controller('users')
 export class UsersController {
   constructor(private readonly userService: UserService) {}
+
+  private assertSelf(id: string, req: Request) {
+    if (req.user?.id !== id) throw new ForbiddenException('Você só pode alterar o próprio perfil');
+  }
 
   // Público: a tela de cadastro precisa criar a conta antes de existir token.
   // login/refresh/logout ficam no AuthController.
@@ -119,8 +126,10 @@ export class UsersController {
   @Put(':id/profile')
   @ApiAuth()
   @ApiOperation({
-    summary: 'Atualiza nome e/ou senha',
-    description: 'Envie ao menos um dos campos. name com 2+ caracteres, password com 6+.',
+    summary: 'Atualiza nome, senha e/ou instituição',
+    description:
+      'Envie ao menos um campo. name com 2+ caracteres; password com 6+ exige currentPassword; ' +
+      'institution_id aceita null para desvincular. Só o próprio usuário pode alterar o perfil.',
   })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiBody({
@@ -129,13 +138,38 @@ export class UsersController {
       properties: {
         name: { type: 'string', minLength: 2, example: 'Maria S. Silva' },
         password: { type: 'string', format: 'password', minLength: 6 },
+        currentPassword: { type: 'string', format: 'password', description: 'Obrigatória ao trocar a senha' },
+        institution_id: { type: 'string', format: 'uuid', nullable: true },
       },
     },
   })
   @ApiOkResponse({ schema: userSchema })
-  @ApiBadRequestResponse({ schema: errorSchema('Informe name ou password para atualizar') })
-  async updateProfile(@Param('id') id: string, @Body() body: any) {
-    return await this.userService.updateProfile(id, body);
+  @ApiBadRequestResponse({ schema: errorSchema('Senha atual incorreta', 'SENHA_ATUAL_INCORRETA') })
+  async updateProfile(@Param('id') id: string, @Body() body: any, @Req() req: Request) {
+    this.assertSelf(id, req);
+    return await this.userService.updateProfile(id, body ?? {});
+  }
+
+  @Put(':id/turma')
+  @ApiAuth()
+  @ApiOperation({
+    summary: 'Define a turma do aluno',
+    description: 'Substitui a matrícula atual pela turma informada; turma_id null desvincula. O período vem da turma.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['turma_id'],
+      properties: { turma_id: { type: 'string', format: 'uuid', nullable: true } },
+    },
+  })
+  @ApiOkResponse({ schema: userSchema })
+  @ApiNotFoundResponse({ schema: errorSchema('Turma não encontrada') })
+  async updateTurma(@Param('id') id: string, @Body() body: any, @Req() req: Request) {
+    this.assertSelf(id, req);
+    if (body?.turma_id === undefined) throw new BadRequestException('turma_id é obrigatório (ou null)');
+    return await this.userService.updateTurma(id, body.turma_id);
   }
 
   @Post(':id/avatar')
@@ -159,7 +193,8 @@ export class UsersController {
   @ApiOkResponse({ schema: userSchema })
   @ApiBadRequestResponse({ schema: errorSchema('Tipo de arquivo inválido. Use JPEG, PNG ou WEBP.') })
   @ApiNotFoundResponse({ schema: errorSchema('Usuário não encontrado') })
-  async uploadAvatar(@Param('id') id: string, @UploadedFile() file: Express.Multer.File) {
+  async uploadAvatar(@Param('id') id: string, @UploadedFile() file: Express.Multer.File, @Req() req: Request) {
+    this.assertSelf(id, req);
     if (!file) {
       throw new BadRequestException('Arquivo de foto é obrigatório');
     }

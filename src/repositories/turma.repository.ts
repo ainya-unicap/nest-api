@@ -2,7 +2,7 @@ import { prisma } from '../prisma';
 
 export class TurmaRepository {
   findAll() {
-    return prisma.turma.findMany();
+    return prisma.turma.findMany({ include: { period: { select: { id: true, name: true, semester: true } } }, orderBy: { name: 'asc' } });
   }
 
   findById(id: string) {
