@@ -67,7 +67,9 @@ export class UsersController {
     summary: 'Cria um usuário',
     description:
       'Rota pública, protegida por reCAPTCHA. A senha é gravada com hash argon2. ' +
-      'O token do captcha é verificado no Google e descartado — nada é gravado no banco.',
+      'O token do captcha é verificado no Google e descartado — nada é gravado no banco. ' +
+      'O role é sempre "aluno": esta rota não aceita criar professor/admin, mesmo que ' +
+      'um valor diferente seja enviado — qualquer role recebido é ignorado.',
   })
   @ApiBody({
     schema: {
@@ -76,8 +78,7 @@ export class UsersController {
       properties: {
         name: { type: 'string', example: 'Maria Silva' },
         email: { type: 'string', format: 'email', example: 'maria@unicap.br' },
-        password: { type: 'string', format: 'password', example: 'senha123' },
-        role: { type: 'string', enum: ['aluno', 'professor', 'admin'], default: 'aluno' },
+        password: { type: 'string', format: 'password', minLength: 6, example: 'senha123' },
         institutionId: { type: 'string', format: 'uuid' },
         recaptchaToken: {
           type: 'string',
@@ -96,8 +97,9 @@ export class UsersController {
   })
   @ApiBadRequestResponse({
     description:
-      'Inclui as falhas de captcha: CAPTCHA_AUSENTE, CAPTCHA_INVALIDO, ' +
-      'CAPTCHA_EXPIRADO (token reusado) e CAPTCHA_SCORE_BAIXO (v3).',
+      'Inclui as falhas de captcha (CAPTCHA_AUSENTE, CAPTCHA_INVALIDO, CAPTCHA_EXPIRADO, ' +
+      'CAPTCHA_SCORE_BAIXO), além de EMAIL_INVALIDO, senha curta e INSTITUICAO_INVALIDA ' +
+      '(quando institutionId não existe).',
     schema: errorSchema('Captcha inválido', 'CAPTCHA_INVALIDO'),
   })
   async create(@Body() body: any) {

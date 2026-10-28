@@ -7,19 +7,36 @@ import argon2 from 'argon2';
 @Injectable()
 export class UserService {
   async create(body: any) {
-    if (!body.name || !body.email || !body.password) {
+    const { name, email, password, institutionId } = body ?? {};
+
+    if (!name || !email || !password) {
       throw new HttpError('Name, email and password are required', 400);
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      throw new HttpError('email inválido', 400, { codigo: 'EMAIL_INVALIDO' });
+    }
+
+    if (password.length < 6) {
+      throw new HttpError('password deve ter pelo menos 6 caracteres', 400);
+    }
+
+    if (institutionId) {
+      const institution = await prisma.institution.findUnique({ where: { id: institutionId } });
+      if (!institution) {
+        throw new HttpError('Instituição não encontrada', 400, { codigo: 'INSTITUICAO_INVALIDA' });
+      }
     }
 
     await prisma.user.create({
       data: {
-        name: body.name,
-        email: body.email,
-        role: body.role,
-        password: await argon2.hash(body.password),
-        ...(body.institutionId && {
-          institution: { connect: { id: body.institutionId } },
-        }),
+        name,
+        email,
+        // Cadastro público nunca decide o próprio role: senão qualquer um
+        // vira "admin" ou "professor" só chamando a API direto.
+        role: 'aluno',
+        password: await argon2.hash(password),
+        ...(institutionId && { institution: { connect: { id: institutionId } } }),
       },
       include: { institution: true },
     });
