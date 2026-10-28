@@ -16,11 +16,12 @@ import { AcademicPeriodsModule } from './modules/academic-periods/academic-perio
 import { AlunosModule } from './modules/alunos/alunos.module';
 import { RelatorioIaModule } from './modules/relatorio-ia/relatorio-ia.module';
 import { PlantasForrageirasModule } from './modules/plantas-forrageiras/plantas-forrageiras.module';
+import { PasswordRecoveryModule } from './modules/password-recovery/password-recovery.module';
 
 import { JwtAuthGuard } from './core/auth/jwt-auth.guard';
 import { RecaptchaModule } from './core/recaptcha';
 import { HttpErrorFilter } from './core/http-exception.filter';
-import { loginLimiter } from './core/rate-limit';
+import { loginLimiter, passwordRecoveryIpLimiter, passwordRecoveryEmailLimiter } from './core/rate-limit';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { loginLimiter } from './core/rate-limit';
     AlunosModule,
     RelatorioIaModule,
     PlantasForrageirasModule,
+    PasswordRecoveryModule,
   ],
   providers: [
     // Tudo protegido por padrão; rotas abertas usam @Public().
@@ -54,5 +56,10 @@ export class AppModule implements NestModule {
     consumer
       .apply(loginLimiter)
       .forRoutes({ path: 'users/login', method: RequestMethod.POST });
+
+    // Pedido de recuperação de senha: limite por IP e por e-mail juntos.
+    consumer
+      .apply(passwordRecoveryIpLimiter, passwordRecoveryEmailLimiter)
+      .forRoutes({ path: 'users/password-recovery/request', method: RequestMethod.POST });
   }
 }

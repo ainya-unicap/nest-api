@@ -222,8 +222,29 @@ model User {
     relatorios         Relatorio[]
     turmasCriadas      Turma[]
     resumosIA          ResumoIA[]
+    passwordResetCodes PasswordResetCode[]
 
     @@index([institution_id])
+}
+
+model PasswordResetCode {
+    id     String @id @default(uuid())
+    userId String
+    user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    codeHash  String
+    expiresAt DateTime
+    attempts  Int      @default(0)
+
+    usedAt     DateTime?
+    verifiedAt DateTime?
+
+    resetTokenHash      String?
+    resetTokenExpiresAt DateTime?
+
+    createdAt DateTime @default(now())
+
+    @@index([userId])
 }
 
 model UserCanteiro {

@@ -19,7 +19,16 @@ interface Resolvido {
 }
 
 // Campos que nunca devem aparecer no log.
-const SIGILOSOS = ['password', 'senha', 'token', 'refreshToken', 'accessToken', 'authorization'];
+const SIGILOSOS = [
+  'password',
+  'senha',
+  'token',
+  'refreshToken',
+  'accessToken',
+  'authorization',
+  'code',
+  'resetToken',
+];
 
 function corpoParaLog(body: unknown): string {
   if (!body || typeof body !== 'object') return '-';
