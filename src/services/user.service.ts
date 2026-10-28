@@ -28,18 +28,41 @@ export class UserService {
       }
     }
 
-    await prisma.user.create({
-      data: {
-        name,
-        email,
-        // Cadastro público nunca decide o próprio role: senão qualquer um
-        // vira "admin" ou "professor" só chamando a API direto.
-        role: 'aluno',
-        password: await argon2.hash(password),
-        ...(institutionId && { institution: { connect: { id: institutionId } } }),
-      },
-      include: { institution: true },
-    });
+    // Só dígitos; '' vira undefined pra não colidir com outras matrículas vazias.
+    const matricula = String(body?.matricula ?? '').replace(/\D/g, '') || undefined;
+    if (matricula) {
+      if (matricula.length < 4) {
+        throw new HttpError('matricula deve ter pelo menos 4 dígitos', 400, {
+          codigo: 'MATRICULA_INVALIDA',
+        });
+      }
+      if (!institutionId) {
+        throw new HttpError('institutionId é obrigatório ao informar matricula', 400);
+      }
+    }
+
+    try {
+      await prisma.user.create({
+        data: {
+          name,
+          email,
+          // Cadastro público nunca decide o próprio role: senão qualquer um
+          // vira "admin" ou "professor" só chamando a API direto.
+          role: 'aluno',
+          password: await argon2.hash(password),
+          matricula,
+          ...(institutionId && { institution: { connect: { id: institutionId } } }),
+        },
+        include: { institution: true },
+      });
+    } catch (e: any) {
+      if (e?.code === 'P2002' && matricula) {
+        throw new HttpError('Matrícula já cadastrada nesta instituição', 409, {
+          codigo: 'MATRICULA_JA_CADASTRADA',
+        });
+      }
+      throw e;
+    }
   }
 
   // select explícito: findMany() sem select devolvia o hash da senha de todo mundo.
@@ -51,6 +74,7 @@ export class UserService {
         email: true,
         role: true,
         institution_id: true,
+        matricula: true,
         avatarUrl: true,
         createdAt: true,
         updatedAt: true,
@@ -70,6 +94,7 @@ export class UserService {
         email: true,
         role: true,
         institution_id: true,
+        matricula: true,
         avatarUrl: true,
         createdAt: true,
         updatedAt: true,

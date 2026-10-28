@@ -17,6 +17,7 @@ import type { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiBody,
+  ApiConflictResponse,
   ApiConsumes,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -41,6 +42,7 @@ const userSchema = {
     email: { type: 'string', format: 'email' },
     role: { type: 'string', enum: ['aluno', 'professor', 'admin'] },
     institution_id: { type: 'string', format: 'uuid', nullable: true },
+    matricula: { type: 'string', nullable: true, example: '20231234' },
     avatarUrl: { type: 'string', nullable: true },
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },
@@ -80,6 +82,13 @@ export class UsersController {
         email: { type: 'string', format: 'email', example: 'maria@unicap.br' },
         password: { type: 'string', format: 'password', minLength: 6, example: 'senha123' },
         institutionId: { type: 'string', format: 'uuid' },
+        matricula: {
+          type: 'string',
+          description:
+            'Matrícula do aluno, só dígitos (mínimo 4). Normalizada no servidor (demais ' +
+            'caracteres são removidos). Exige institutionId. Única por instituição.',
+          example: '20231234',
+        },
         recaptchaToken: {
           type: 'string',
           description:
@@ -98,9 +107,14 @@ export class UsersController {
   @ApiBadRequestResponse({
     description:
       'Inclui as falhas de captcha (CAPTCHA_AUSENTE, CAPTCHA_INVALIDO, CAPTCHA_EXPIRADO, ' +
-      'CAPTCHA_SCORE_BAIXO), além de EMAIL_INVALIDO, senha curta e INSTITUICAO_INVALIDA ' +
-      '(quando institutionId não existe).',
+      'CAPTCHA_SCORE_BAIXO), além de EMAIL_INVALIDO, senha curta, INSTITUICAO_INVALIDA ' +
+      '(institutionId não existe) e MATRICULA_INVALIDA (menos de 4 dígitos, ou matricula ' +
+      'sem institutionId).',
     schema: errorSchema('Captcha inválido', 'CAPTCHA_INVALIDO'),
+  })
+  @ApiConflictResponse({
+    description: 'Já existe um usuário com essa matrícula nessa instituição.',
+    schema: errorSchema('Matrícula já cadastrada nesta instituição', 'MATRICULA_JA_CADASTRADA'),
   })
   async create(@Body() body: any) {
     await this.userService.create(body);

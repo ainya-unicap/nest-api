@@ -210,6 +210,7 @@ model User {
     role           String   @default("aluno") //enum "aluno", "professor", "admin"
     institution_id String?
     institution Institution? @relation(fields: [institution_id], references: [id])
+    matricula      String?
     avatarUrl      String?
     refreshTokens      RefreshToken[]
     createdAt          DateTime @default(now())
@@ -225,6 +226,9 @@ model User {
     passwordResetCodes PasswordResetCode[]
 
     @@index([institution_id])
+    // NULL não colide com NULL no Postgres: o índice só "trava" quando os
+    // dois campos estão preenchidos, exatamente o comportamento pedido.
+    @@unique([institution_id, matricula])
 }
 
 model PasswordResetCode {
