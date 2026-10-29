@@ -89,7 +89,11 @@ export class RelatoriosController {
   @Post('generate')
   @ApiOperation({
     summary: 'Gera um relatório a partir de uma lista de formulários',
-    description: 'O relatório nasce com status RASCUNHO.',
+    description:
+      'O relatório nasce com status RASCUNHO. Com tipo = "simples", a introdução e o ' +
+      'desenvolvimento já saem preenchidos com todos os formulários da lista, em ordem ' +
+      'cronológica e organizados por semana (sem IA); exige ao menos um formulário (422). ' +
+      'Sem tipo, cria só o rascunho com o objetivo.',
   })
   @ApiBody({
     schema: {
@@ -98,6 +102,11 @@ export class RelatoriosController {
       properties: {
         list_id: { type: 'string', format: 'uuid' },
         listId: { type: 'string', format: 'uuid', description: 'Alias de list_id' },
+        tipo: {
+          type: 'string',
+          enum: ['simples'],
+          description: 'Opcional. "simples" monta o texto com todos os formulários da lista',
+        },
         userId: {
           type: 'string',
           format: 'uuid',
@@ -114,6 +123,10 @@ export class RelatoriosController {
 
     if (!listId) {
       throw new BadRequestException('listId/list_id é obrigatório');
+    }
+
+    if (body?.tipo === 'simples') {
+      return await this.relatorioService.gerarSimples(userId, listId);
     }
 
     return await this.relatorioService.createRelatorio(userId, listId);

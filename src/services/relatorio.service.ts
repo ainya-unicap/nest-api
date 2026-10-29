@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { RelatorioRepository } from '../repositories/relatorio.repository';
 import { UserCanteiroRepository } from '../repositories/usercanteiro.repository';
+import { DossieRepository } from '../repositories/dossie.repository';
 import { HttpError } from '../core/httpError';
+import { montarTextosSimples } from '../core/relatorio-simples';
 
 const SECOES_VALIDAS = [
   'introduction',
@@ -19,6 +21,7 @@ const STATUS_FECHADOS = ['SUBMETIDO', 'CORRIGIDO'];
 export class RelatorioService {
   private readonly repo = new RelatorioRepository();
   private readonly userCanteiroRepo = new UserCanteiroRepository();
+  private readonly dossieRepo = new DossieRepository();
 
   getRelatoriosByUser(userId: string) {
     if (!userId) throw new HttpError('userId é obrigatório', 400);
@@ -64,6 +67,32 @@ export class RelatorioService {
       feedback: '',
       submittedAt: new Date(),
     });
+  }
+
+  // Relatório "simples": todos os formulários da lista juntos e organizados por
+  // semana, sem IA. Usa o rascunho do aluno para a lista (cria se não houver) e
+  // regrava introdução e desenvolvimento, para refletir os registros atuais.
+  async gerarSimples(userId: string, listId: string) {
+    if (!userId) throw new HttpError('userId é obrigatório', 400);
+    if (!listId) throw new HttpError('list_id é obrigatório', 400);
+
+    const lista = await this.dossieRepo.findLista(listId);
+    if (!lista) throw new HttpError('Lista de formulários não encontrada.', 404);
+
+    const vinculado = await this.userCanteiroRepo.exists(userId, lista.canteiro_id);
+    if (!vinculado) {
+      throw new HttpError('Usuário não está vinculado ao canteiro da lista informada', 403);
+    }
+
+    const formularios = await this.dossieRepo.findFormularios(listId);
+    if (formularios.length === 0) {
+      throw new HttpError('A lista ainda não tem formulários preenchidos', 422);
+    }
+
+    const textos = montarTextosSimples(lista, formularios);
+    const rascunho = await this.createRelatorio(userId, listId);
+
+    return this.repo.update(rascunho.id, textos);
   }
 
   async getRelatorioById(id: string) {
