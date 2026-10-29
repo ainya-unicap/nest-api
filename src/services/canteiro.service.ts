@@ -3,6 +3,7 @@ import { CanteiroRepository } from '../repositories/canteiro.repository';
 import { UserCanteiroRepository } from '../repositories/usercanteiro.repository';
 import { PlantaForrageiraRepository } from '../repositories/plantaforrageira.repository';
 import { HttpError, erroDeCampos } from '../core/httpError';
+import { removeStoredFile } from '../core/storage';
 
 @Injectable()
 export class CanteiroService {
@@ -82,5 +83,37 @@ export class CanteiroService {
 
     const vinculado = await this.userCanteiroRepo.exists(userId, canteiroId);
     if (!vinculado) throw new HttpError('Usuário não está vinculado a este canteiro', 403);
+  }
+
+  // Se houver outro usuário vinculado, só remove o vínculo de quem pediu
+  // (o canteiro continua existindo pros demais). Só apaga o canteiro de
+  // verdade quando o usuário do token é o único vinculado — e mesmo assim,
+  // nunca se já existir relatório fechado (SUBMETIDO/CORRIGIDO), que é
+  // histórico acadêmico e não pode sumir.
+  async deleteCanteiro(canteiroId: string, userId: string) {
+    await this.validarAcessoCanteiro(canteiroId, userId);
+
+    const temOutroVinculo = await this.repo.temOutroVinculo(canteiroId, userId);
+    if (temOutroVinculo) {
+      await this.userCanteiroRepo.delete({ user_id: userId, canteiro_id: canteiroId });
+      return { message: 'Vínculo removido com sucesso', removido: 'vinculo' as const };
+    }
+
+    const temRelatorioFechado = await this.repo.existeRelatorioFechado(canteiroId);
+    if (temRelatorioFechado) {
+      throw new HttpError(
+        'Não é possível excluir: o canteiro tem relatório submetido ou corrigido',
+        400,
+        { codigo: 'CANTEIRO_COM_RELATORIO_FECHADO' },
+      );
+    }
+
+    const urlsDasFotos = await this.repo.deleteCanteiroCompleto(canteiroId);
+
+    // Best-effort, depois que a transação já confirmou: se sobrar arquivo
+    // órfão em disco/blob, não é motivo pra falhar a exclusão em si.
+    await Promise.allSettled(urlsDasFotos.map((url) => removeStoredFile(url)));
+
+    return { message: 'Canteiro excluído com sucesso', removido: 'canteiro' as const };
   }
 }

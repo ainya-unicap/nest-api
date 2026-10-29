@@ -1,5 +1,7 @@
 import { prisma } from '../prisma';
 
+const STATUS_FECHADOS = ['SUBMETIDO', 'CORRIGIDO'];
+
 export class CanteiroRepository {
   // Devolve os vínculos; o service extrai o canteiro de dentro de cada um.
   findVinculosByUser(userId: string) {
@@ -68,6 +70,53 @@ export class CanteiroRepository {
         },
       },
       orderBy: { createdAt: 'desc' },
+    });
+  }
+
+  temOutroVinculo(canteiroId: string, userId: string) {
+    return prisma.userCanteiro
+      .count({ where: { canteiro_id: canteiroId, user_id: { not: userId } } })
+      .then((total) => total > 0);
+  }
+
+  existeRelatorioFechado(canteiroId: string) {
+    return prisma.relatorio
+      .findFirst({ where: { canteiro_id: canteiroId, status: { in: STATUS_FECHADOS } } })
+      .then((r) => !!r);
+  }
+
+  // Apaga tudo o que pertence ao canteiro, na ordem exigida pelas FKs
+  // (RESTRICT): fotos -> formulários -> relatórios -> listas -> vínculos ->
+  // canteiro. Devolve as urls das fotos para o service remover os arquivos
+  // só depois que a transação confirmar.
+  async deleteCanteiroCompleto(canteiroId: string): Promise<string[]> {
+    return prisma.$transaction(async (tx) => {
+      const listas = await tx.listaDeFormularios.findMany({
+        where: { canteiro_id: canteiroId },
+        select: { id: true },
+      });
+      const listaIds = listas.map((l) => l.id);
+
+      const formularios = await tx.formulario.findMany({
+        where: { list_id: { in: listaIds } },
+        select: { id: true },
+      });
+      const formularioIds = formularios.map((f) => f.id);
+
+      const fotos = await tx.photo.findMany({
+        where: { form_id: { in: formularioIds } },
+        select: { url: true },
+      });
+
+      await tx.photo.deleteMany({ where: { form_id: { in: formularioIds } } });
+      await tx.formulario.deleteMany({ where: { id: { in: formularioIds } } });
+      // Só RASCUNHO chega aqui: o service já barrou SUBMETIDO/CORRIGIDO antes de chamar isto.
+      await tx.relatorio.deleteMany({ where: { canteiro_id: canteiroId } });
+      await tx.listaDeFormularios.deleteMany({ where: { canteiro_id: canteiroId } });
+      await tx.userCanteiro.deleteMany({ where: { canteiro_id: canteiroId } });
+      await tx.canteiro.delete({ where: { id: canteiroId } });
+
+      return fotos.map((f) => f.url);
     });
   }
 }

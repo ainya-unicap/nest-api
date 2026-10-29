@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Param, Body, Query, Req } from '@nestjs/common';
+import { Controller, Delete, Get, Post, Param, Body, Query, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import {
   ApiBadRequestResponse,
@@ -140,6 +140,39 @@ export class CanteirosController {
   @ApiNotFoundResponse({ schema: errorSchema('Canteiro não encontrado') })
   async findFormulariosByCanteiro(@Param('id') id: string, @Req() req: Request): Promise<any> {
     return this.canteiroService.findFormulariosByCanteiro(id, req.user?.id ?? '');
+  }
+
+  // DELETE /canteiros/:id
+  @Delete(':id')
+  @ApiOperation({
+    summary: 'Remove o vínculo do usuário com o canteiro, ou exclui o canteiro',
+    description:
+      'Se houver outro usuário vinculado ao canteiro, apenas remove o vínculo de quem está ' +
+      'autenticado (o canteiro continua existindo). Se o usuário do token for o único ' +
+      'vinculado, exclui o canteiro inteiro (listas, formulários, fotos e relatórios em ' +
+      'RASCUNHO) — a menos que exista relatório SUBMETIDO ou CORRIGIDO, que bloqueia a ' +
+      'exclusão por ser histórico acadêmico.',
+  })
+  @ApiParam({ name: 'id', description: 'id do canteiro', format: 'uuid' })
+  @ApiOkResponse({
+    schema: {
+      type: 'object',
+      properties: {
+        message: { type: 'string', example: 'Canteiro excluído com sucesso' },
+        removido: { type: 'string', enum: ['vinculo', 'canteiro'] },
+      },
+    },
+  })
+  @ApiBadRequestResponse({
+    schema: errorSchema(
+      'Não é possível excluir: o canteiro tem relatório submetido ou corrigido',
+      'CANTEIRO_COM_RELATORIO_FECHADO',
+    ),
+  })
+  @ApiForbiddenResponse({ schema: errorSchema('Usuário não está vinculado a este canteiro') })
+  @ApiNotFoundResponse({ schema: errorSchema('Canteiro não encontrado') })
+  async delete(@Param('id') id: string, @Req() req: Request): Promise<any> {
+    return this.canteiroService.deleteCanteiro(id, req.user?.id ?? '');
   }
 
   // GET /canteiros/user/:userId
