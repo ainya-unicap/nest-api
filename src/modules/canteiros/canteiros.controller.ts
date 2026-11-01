@@ -1,8 +1,9 @@
-import { Controller, Delete, Get, Post, Param, Body, Query, Req } from '@nestjs/common';
+import { Controller, Delete, Get, Post, Put, Param, Body, Query, Req } from '@nestjs/common';
 import type { Request } from 'express';
 import {
   ApiBadRequestResponse,
   ApiBody,
+  ApiConflictResponse,
   ApiCreatedResponse,
   ApiForbiddenResponse,
   ApiNotFoundResponse,
@@ -115,6 +116,56 @@ export class CanteirosController {
   @ApiNotFoundResponse({ schema: errorSchema('Planta não encontrada') })
   async create(@Body() body: any, @Req() req: Request): Promise<any> {
     return this.canteiroService.create(body, req.user?.id ?? '');
+  }
+
+  // PUT /canteiros/:id
+  @Put(':id')
+  @ApiOperation({
+    summary: 'Edita o nome e/ou a planta do canteiro',
+    description:
+      'Pelo menos um dos dois campos é obrigatório. O canteiro é compartilhado: qualquer ' +
+      'pessoa vinculada pode editar e a alteração vale para todas. Renomear é sempre ' +
+      'permitido — e as listas que seguiam o nome antigo do canteiro são renomeadas junto ' +
+      '(lista com nome próprio fica intacta). Trocar a planta só é permitido enquanto o ' +
+      'canteiro não tiver nenhum formulário; quando permitido, o plant_id das listas é ' +
+      'atualizado na mesma transação. Se nada mudar, responde 200 sem gravar.',
+  })
+  @ApiParam({ name: 'id', description: 'id do canteiro', format: 'uuid' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      description: 'Informe name, plant_id, ou os dois.',
+      properties: {
+        name: { type: 'string', example: 'Canteiro A1', minLength: 2 },
+        plant_id: {
+          type: 'string',
+          format: 'uuid',
+          description: 'id da nova planta forrageira',
+        },
+      },
+    },
+  })
+  @ApiOkResponse({ schema: canteiroCriadoSchema })
+  @ApiBadRequestResponse({
+    description: 'Corpo sem nenhum campo, ou campo inválido.',
+    schema: erroDeValidacaoSchema(
+      { name: 'obrigatório, mínimo 2 caracteres' },
+      'CANTEIRO_INVALIDO',
+    ),
+  })
+  @ApiForbiddenResponse({ schema: errorSchema('Usuário não está vinculado a este canteiro') })
+  @ApiNotFoundResponse({
+    description: 'Canteiro inexistente, ou plant_id que não corresponde a nenhuma planta.',
+    schema: errorSchema('Planta não encontrada'),
+  })
+  @ApiConflictResponse({
+    schema: errorSchema(
+      'Não é possível trocar a planta: o canteiro já tem formulários',
+      'CANTEIRO_COM_FORMULARIOS',
+    ),
+  })
+  async update(@Param('id') id: string, @Body() body: any, @Req() req: Request): Promise<any> {
+    return this.canteiroService.updateCanteiro(id, body, req.user?.id ?? '');
   }
 
   // GET /canteiros/:id/listas

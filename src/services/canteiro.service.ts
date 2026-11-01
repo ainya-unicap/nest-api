@@ -73,7 +73,11 @@ export class CanteiroService {
     return lista;
   }
 
-  /** Lança 404/403 se o canteiro não existir ou o usuário não estiver vinculado. */
+  /**
+   * Lança 404/403 se o canteiro não existir ou o usuário não estiver vinculado.
+   * Devolve o canteiro para quem já precisa dos valores atuais, evitando uma
+   * segunda consulta.
+   */
   async validarAcessoCanteiro(canteiroId: string, userId: string) {
     if (!canteiroId) throw new HttpError('canteiroId é obrigatório', 400);
     if (!userId) throw new HttpError('userId é obrigatório', 400);
@@ -83,6 +87,83 @@ export class CanteiroService {
 
     const vinculado = await this.userCanteiroRepo.exists(userId, canteiroId);
     if (!vinculado) throw new HttpError('Usuário não está vinculado a este canteiro', 403);
+
+    return canteiro;
+  }
+
+  /**
+   * Edita nome e/ou planta do canteiro.
+   *
+   * O canteiro é compartilhado: qualquer pessoa vinculada pode editar, e a
+   * alteração aparece para todas as demais.
+   *
+   * Renomear é sempre permitido. Trocar a planta só enquanto o canteiro não
+   * tiver nenhum formulário — depois disso a série de dados já foi coletada
+   * para aquela espécie, e trocá-la tornaria o histórico incoerente
+   * (um relatório de Palma com medições feitas em Capim).
+   */
+  async updateCanteiro(canteiroId: string, body: any, userId: string) {
+    const canteiro = await this.validarAcessoCanteiro(canteiroId, userId);
+
+    const temNome = body?.name !== undefined && body?.name !== null;
+    const temPlanta = body?.plant_id !== undefined && body?.plant_id !== null;
+
+    if (!temNome && !temPlanta) {
+      throw new HttpError('Informe name ou plant_id para atualizar', 400, {
+        codigo: 'CANTEIRO_INVALIDO',
+      });
+    }
+
+    const campos: Record<string, string> = {};
+
+    let nome: string | undefined;
+    if (temNome) {
+      nome = typeof body.name === 'string' ? body.name.trim() : '';
+      if (!nome || nome.length < 2) campos.name = 'obrigatório, mínimo 2 caracteres';
+    }
+
+    let plantId: string | undefined;
+    if (temPlanta) {
+      plantId = typeof body.plant_id === 'string' ? body.plant_id.trim() : '';
+      if (!plantId) campos.plant_id = 'obrigatório';
+    }
+
+    if (Object.keys(campos).length > 0) {
+      throw erroDeCampos(campos, 'CANTEIRO_INVALIDO');
+    }
+
+    // Só o que mudou de fato é enviado ao repositório.
+    const novoNome = nome !== undefined && nome !== canteiro.name ? nome : undefined;
+    const novaPlanta =
+      plantId !== undefined && plantId !== canteiro.plant_id ? plantId : undefined;
+
+    if (novoNome === undefined && novaPlanta === undefined) {
+      const atual = await this.repo.findByIdComDetalhes(canteiroId);
+      if (!atual) throw new HttpError('Canteiro não encontrado', 404);
+      return atual;
+    }
+
+    if (novaPlanta !== undefined) {
+      const planta = await this.plantaRepo.findById(novaPlanta);
+      if (!planta) throw new HttpError('Planta não encontrada', 404);
+
+      const formularios = await this.repo.contarFormulariosDoCanteiro(canteiroId);
+      if (formularios > 0) {
+        // 409: o pedido é válido, mas conflita com o estado atual do recurso.
+        throw new HttpError(
+          'Não é possível trocar a planta: o canteiro já tem formulários',
+          409,
+          { codigo: 'CANTEIRO_COM_FORMULARIOS' },
+        );
+      }
+    }
+
+    return this.repo.atualizarCanteiro({
+      canteiroId,
+      nomeAntigo: canteiro.name,
+      name: novoNome,
+      plant_id: novaPlanta,
+    });
   }
 
   // Se houver outro usuário vinculado, só remove o vínculo de quem pediu

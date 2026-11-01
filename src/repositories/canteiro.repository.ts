@@ -57,6 +57,72 @@ export class CanteiroRepository {
     return prisma.canteiro.findUnique({ where: { id } });
   }
 
+  // Mesmo formato de saída do POST /canteiros: planta + listas.
+  findByIdComDetalhes(id: string) {
+    return prisma.canteiro.findUnique({
+      where: { id },
+      include: {
+        plant: { select: { id: true, name: true, category: true } },
+        listaDeFormularios: { select: { id: true, name: true } },
+      },
+    });
+  }
+
+  // Formulários de todas as listas do canteiro. Usado para decidir se a troca
+  // de planta ainda é permitida.
+  contarFormulariosDoCanteiro(canteiroId: string) {
+    return prisma.formulario.count({ where: { list: { canteiro_id: canteiroId } } });
+  }
+
+  // Atualiza o canteiro e propaga para as listas, tudo ou nada.
+  //
+  // `name` e `plant_id` só chegam aqui quando mudaram de verdade — o service
+  // já comparou com o valor atual.
+  async atualizarCanteiro(params: {
+    canteiroId: string;
+    nomeAntigo: string;
+    name?: string;
+    plant_id?: string;
+  }) {
+    const { canteiroId, nomeAntigo, name, plant_id } = params;
+
+    return prisma.$transaction(async (tx) => {
+      await tx.canteiro.update({
+        where: { id: canteiroId },
+        data: {
+          ...(name !== undefined ? { name } : {}),
+          ...(plant_id !== undefined ? { plant_id } : {}),
+        },
+      });
+
+      // A lista guarda a planta também: sem isso ela continuaria apontando
+      // para a espécie antiga.
+      if (plant_id !== undefined) {
+        await tx.listaDeFormularios.updateMany({
+          where: { canteiro_id: canteiroId },
+          data: { plant_id },
+        });
+      }
+
+      // Só renomeia a lista que seguia o nome do canteiro (o padrão da
+      // criação). Lista com nome próprio, escolhido pelo aluno, fica intacta.
+      if (name !== undefined) {
+        await tx.listaDeFormularios.updateMany({
+          where: { canteiro_id: canteiroId, name: nomeAntigo },
+          data: { name },
+        });
+      }
+
+      return tx.canteiro.findUniqueOrThrow({
+        where: { id: canteiroId },
+        include: {
+          plant: { select: { id: true, name: true, category: true } },
+          listaDeFormularios: { select: { id: true, name: true } },
+        },
+      });
+    });
+  }
+
   // Organizado por lista: cada lista já vem com todos os seus formulários
   // (campos fixos + fotos) — sem precisar de uma segunda chamada por lista.
   findFormulariosByCanteiro(canteiroId: string) {
