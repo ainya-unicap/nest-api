@@ -1,5 +1,6 @@
 import 'dotenv/config';
 import { prisma } from '../src/prisma'
+import { INSTITUICOES_PE } from './instituicoes'
 import fs from 'fs'
 import path from 'path'
 
@@ -31,22 +32,18 @@ async function main() {
   const file = fs.readFileSync(filePath, 'utf-8')
   const data = JSON.parse(file)
 
-  const institution = data.institution
+  // As instituições vêm de prisma/instituicoes.ts, não mais do JSON: o JSON
+  // trazia uma única entrada sem sigla, que hoje violaria o NOT NULL da
+  // coluna abbreviation.
+  for (const inst of INSTITUICOES_PE) {
+    await prisma.institution.upsert({
+      where: { id: inst.id },
+      update: { name: inst.name, abbreviation: inst.abbreviation },
+      create: { id: inst.id, name: inst.name, abbreviation: inst.abbreviation },
+    })
+  }
 
-  await prisma.institution.upsert({
-    where: {
-      id: institution.id,
-    },
-    update: {
-      name: institution.name,
-    },
-    create: {
-      id: institution.id,
-      name: institution.name,
-    },
-  })
-
-  console.log('Instituição criada/atualizada')
+  console.log(`Instituições criadas/atualizadas: ${INSTITUICOES_PE.length}`)
 
   if (Array.isArray(data.academic_periods)) {
     for (const periodo of data.academic_periods) {

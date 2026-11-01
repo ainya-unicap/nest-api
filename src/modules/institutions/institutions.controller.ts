@@ -12,13 +12,14 @@ import {
 
 import { InstitutionService } from '../../services/institution.service';
 import { Public } from '../../core/auth/public.decorator';
-import { ApiAuth, errorSchema } from '../../swagger/decorators';
+import { ApiAuth, erroDeValidacaoSchema, errorSchema } from '../../swagger/decorators';
 
 const institutionSchema = {
   type: 'object' as const,
   properties: {
     id: { type: 'string', format: 'uuid' },
-    name: { type: 'string', example: 'Universidade Catolica de Pernambuco' },
+    name: { type: 'string', example: 'Universidade Federal Rural de Pernambuco' },
+    abbreviation: { type: 'string', example: 'UFRPE', description: 'sigla da instituição' },
     createdAt: { type: 'string', format: 'date-time' },
     updatedAt: { type: 'string', format: 'date-time' },
   },
@@ -34,7 +35,9 @@ export class InstitutionsController {
   @Get()
   @ApiOperation({
     summary: 'Lista as instituições',
-    description: 'Rota pública — a tela de cadastro consome antes de existir token.',
+    description:
+      'Rota pública — a tela de cadastro consome antes de existir token. Ordenada por nome, ' +
+      'cada item com name e abbreviation (sigla).',
   })
   @ApiOkResponse({ schema: { type: 'array', items: institutionSchema } })
   async findAll() {
@@ -47,12 +50,20 @@ export class InstitutionsController {
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['name'],
-      properties: { name: { type: 'string', example: 'Universidade Catolica de Pernambuco' } },
+      required: ['name', 'abbreviation'],
+      properties: {
+        name: { type: 'string', example: 'Universidade Federal Rural de Pernambuco', minLength: 2 },
+        abbreviation: { type: 'string', example: 'UFRPE', description: 'sigla; não pode repetir' },
+      },
     },
   })
   @ApiCreatedResponse({ schema: institutionSchema })
-  @ApiBadRequestResponse({ schema: errorSchema('Name is required') })
+  @ApiBadRequestResponse({
+    schema: erroDeValidacaoSchema(
+      { name: 'obrigatório, mínimo 2 caracteres', abbreviation: 'obrigatório (sigla, ex.: UFRPE)' },
+      'INSTITUICAO_INVALIDA',
+    ),
+  })
   async create(@Body() body: any) {
     return this.institutionService.create(body);
   }

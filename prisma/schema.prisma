@@ -88,12 +88,13 @@ model Formulario {
 
     
 model Institution {
-    id        String   @id @default(uuid())
-    name      String
-    users     User[]
-    turmas    Turma[]
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
+    id           String   @id @default(uuid())
+    name         String
+    abbreviation String   @unique // sigla: UFRPE, IPA, IFPE...
+    users        User[]
+    turmas       Turma[]
+    createdAt    DateTime @default(now())
+    updatedAt    DateTime @updatedAt
 }
 
     
