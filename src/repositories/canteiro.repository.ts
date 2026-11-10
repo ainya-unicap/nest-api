@@ -19,10 +19,11 @@ export class CanteiroRepository {
     plant_id: string;
     userId: string;
     listName: string;
+    turma_id?: string;
   }) {
     return prisma.$transaction(async (tx) => {
       const canteiro = await tx.canteiro.create({
-        data: { name: data.name, plant_id: data.plant_id },
+        data: { name: data.name, plant_id: data.plant_id, turma_id: data.turma_id },
       });
 
       await tx.userCanteiro.create({
@@ -83,8 +84,10 @@ export class CanteiroRepository {
     nomeAntigo: string;
     name?: string;
     plant_id?: string;
+    // undefined: não toca no campo. null: limpa a etiqueta de turma.
+    turma_id?: string | null;
   }) {
-    const { canteiroId, nomeAntigo, name, plant_id } = params;
+    const { canteiroId, nomeAntigo, name, plant_id, turma_id } = params;
 
     return prisma.$transaction(async (tx) => {
       await tx.canteiro.update({
@@ -92,6 +95,7 @@ export class CanteiroRepository {
         data: {
           ...(name !== undefined ? { name } : {}),
           ...(plant_id !== undefined ? { plant_id } : {}),
+          ...(turma_id !== undefined ? { turma_id } : {}),
         },
       });
 

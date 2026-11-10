@@ -48,3 +48,20 @@ export const uploadOptions: MulterOptions = {
     cb(null, true);
   },
 };
+
+// Entrega de relatório (PDF do aluno pra professora): até 10 páginas, mas o
+// limite de bytes é checado aqui (rápido); a contagem de página real é
+// feita depois, no service (precisa abrir o arquivo com pdf-lib).
+export const uploadPdfOptions: MulterOptions = {
+  storage: isVercel ? multer.memoryStorage() : diskStorage,
+  limits: {
+    fileSize: 15 * 1024 * 1024,
+  },
+  fileFilter: (_req, file, cb) => {
+    if (file.mimetype !== 'application/pdf') {
+      return cb(new BadRequestException('Apenas arquivos PDF são aceitos.'), false);
+    }
+
+    cb(null, true);
+  },
+};

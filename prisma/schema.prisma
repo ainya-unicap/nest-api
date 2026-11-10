@@ -41,11 +41,17 @@ model Canteiro {
     createdAt DateTime         @default(now())
     updatedAt DateTime         @updatedAt
 
+    // Lembrete opcional ("esse canteiro é da turma X"), sem nenhuma regra de
+    // acesso atrelada. Some sozinho (SetNull) se a turma for apagada.
+    turma_id  String?
+    turma     Turma?           @relation(fields: [turma_id], references: [id], onDelete: SetNull)
+
     listaDeFormularios ListaDeFormularios[]
     relatorios         Relatorio[]
     users              UserCanteiro[]
 
     @@index([plant_id])
+    @@index([turma_id])
 }
 
 
@@ -64,8 +70,8 @@ model Formulario {
     date          DateTime           // data do registro (substitui started_at/ended_at)
     week          Int?               // semana do acompanhamento (1 a 12), escolhida pelo aluno
     weather       String             //Enum SOL NUBLADO CHUVA
-    estimated_height_cm Float        // altura estimada da planta, em cm
-    phenological_stage  String       //Enum VEGETATIVO ELONGACAO FLORESCIMENTO
+    estimated_height_cm Float?       // altura estimada da planta, em cm (opcional)
+    phenological_stage  String?      //Enum VEGETATIVO ELONGACAO FLORESCIMENTO (opcional)
 
     // Checklist fixo (5 itens, iguais para qualquer planta)
     checklist_irrigacao Boolean @default(false) // irrigação verificada
@@ -196,13 +202,48 @@ model Turma {
     updatedAt   DateTime @updatedAt
 
     alunoTurmas AlunoTurma[]
+    codigos     TurmaCodigo[]
+    entregas    EntregaRelatorio[]
+    canteiros   Canteiro[]
 
     @@index([institution_id])
     @@index([period_id])
     @@index([created_by])
 }
 
-    
+// Código pra aluno entrar na turma (tipo um código de sala de aula virtual).
+// Vários podem coexistir pra mesma turma: gerar um novo não invalida os
+// outros — apagar um específico é uma ação explícita da professora.
+model TurmaCodigo {
+    id        String   @id @default(uuid())
+    turma_id  String
+    turma     Turma    @relation(fields: [turma_id], references: [id], onDelete: Cascade)
+    code      String   @unique
+    createdAt DateTime @default(now())
+
+    @@index([turma_id])
+}
+
+// O "relatório" que o aluno manda pra professora: um PDF de origem qualquer,
+// sem nenhuma relação com os dados de canteiro/formulário do app. Um por
+// (aluno, turma) — reenviar pra mesma turma substitui o anterior.
+model EntregaRelatorio {
+    id          String   @id @default(uuid())
+    turma_id    String
+    turma       Turma    @relation(fields: [turma_id], references: [id], onDelete: Cascade)
+    user_id     String
+    user        User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+    fileUrl     String
+    fileName    String
+    submittedAt DateTime @default(now())
+    updatedAt   DateTime @updatedAt
+
+    @@unique([user_id, turma_id])
+    @@index([turma_id])
+    @@index([user_id])
+}
+
+
 model User {
     id             String   @id @default(uuid())
     name           String
@@ -225,6 +266,7 @@ model User {
     turmasCriadas      Turma[]
     resumosIA          ResumoIA[]
     passwordResetCodes PasswordResetCode[]
+    entregasRelatorio  EntregaRelatorio[]
 
     @@index([institution_id])
     // NULL não colide com NULL no Postgres: o índice só "trava" quando os

@@ -136,6 +136,12 @@ Campos fixos, iguais para qualquer planta: `title`, `date`, `week` (1-12),
 (`checklist_irrigacao`, `checklist_capina`, `checklist_adubacao`,
 `checklist_plantio`, `checklist_pragas`) e `observations`.
 
+Obrigatórios na criação: `list_id`, `user_id`, `type`, `title` e `weather`.
+`estimated_height_cm` e `phenological_stage` são **opcionais** (como no app):
+ausentes, `null` ou `""` gravam em branco; preenchidos, seguem validados. No
+`PUT`/`PATCH`, enviar `null` ou `""` nesses dois campos limpa o valor gravado —
+omitir não altera.
+
 | método | rota | |
 |---|---|---|
 | `GET` | `/formularios` · `/formularios/user/:userId` | id do usuário por path, query ou token |

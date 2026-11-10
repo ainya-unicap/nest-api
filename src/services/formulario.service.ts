@@ -83,9 +83,21 @@ export class FormularioService {
     return normalizado;
   }
 
-  /** Normaliza o estádio fenológico (Vegetativo/Elongação/Florescimento). */
-  private lerEstadio(valor: unknown, campos: Record<string, string>): string | undefined {
-    if (valor === undefined || valor === null || valor === '') return undefined;
+  /**
+   * Normaliza o estádio fenológico (Vegetativo/Elongação/Florescimento).
+   *
+   * O campo é opcional, então a resposta tem três estados: `undefined` = a
+   * chave não veio no corpo (não mexe no que está gravado), `null` = veio
+   * vazia (limpa a coluna), string = valor validado. Sem essa distinção o
+   * update não teria como APAGAR a fase já salva — `undefined` o Prisma
+   * entende como "não alterar".
+   */
+  private lerEstadio(body: any, campos: Record<string, string>): string | null | undefined {
+    if (!body || !('phenological_stage' in body)) return undefined;
+
+    const valor = body.phenological_stage;
+    if (valor === undefined) return undefined;
+    if (valor === null || String(valor).trim() === '') return null;
 
     const normalizado = String(valor)
       .trim()
@@ -95,20 +107,33 @@ export class FormularioService {
 
     if (!ESTADIOS_VALIDOS.includes(normalizado)) {
       campos.phenological_stage =
-        `deve ser ${ESTADIOS_VALIDOS.join(', ')} (recebido: ${JSON.stringify(valor)})`;
+        `deve ser ${ESTADIOS_VALIDOS.join(', ')}, ou vir vazio ` +
+        `(recebido: ${JSON.stringify(valor)})`;
       return undefined;
     }
 
     return normalizado;
   }
 
-  /** Altura estimada em cm — número finito e não negativo. */
-  private lerAltura(valor: unknown, campos: Record<string, string>): number | undefined {
-    if (valor === undefined || valor === null || valor === '') return undefined;
+  /**
+   * Altura estimada em cm — número finito e não negativo.
+   *
+   * Opcional, com os mesmos três estados de `lerEstadio`: `undefined` =
+   * chave ausente, `null` = enviada vazia (limpa a coluna), número = valor
+   * validado.
+   */
+  private lerAltura(body: any, campos: Record<string, string>): number | null | undefined {
+    if (!body || !('estimated_height_cm' in body)) return undefined;
+
+    const valor = body.estimated_height_cm;
+    if (valor === undefined) return undefined;
+    if (valor === null || String(valor).trim() === '') return null;
 
     const numero = Number(valor);
     if (!Number.isFinite(numero) || numero < 0) {
-      campos.estimated_height_cm = `deve ser um número maior ou igual a 0 (recebido: ${JSON.stringify(valor)})`;
+      campos.estimated_height_cm =
+        `deve ser um número maior ou igual a 0, ou vir vazio ` +
+        `(recebido: ${JSON.stringify(valor)})`;
       return undefined;
     }
 
@@ -163,18 +188,15 @@ export class FormularioService {
     if (!body?.type) campos.type = `obrigatório (${TIPOS_VALIDOS.join(' ou ')})`;
     if (!body?.title) campos.title = 'obrigatório';
     if (!body?.weather) campos.weather = `obrigatório (${CLIMAS_VALIDOS.join(', ')})`;
-    if (body?.estimated_height_cm === undefined || body?.estimated_height_cm === null) {
-      campos.estimated_height_cm = 'obrigatório';
-    }
-    if (!body?.phenological_stage) {
-      campos.phenological_stage = `obrigatório (${ESTADIOS_VALIDOS.join(', ')})`;
-    }
+    // estimated_height_cm e phenological_stage são opcionais no app: se vierem
+    // preenchidos a validação abaixo continua valendo; vazios ou ausentes
+    // gravam null.
 
     const tipo = this.lerTipo(body?.type, campos);
     const semana = this.lerSemana(week, campos);
     const clima = this.lerClima(body?.weather, campos);
-    const estadio = this.lerEstadio(body?.phenological_stage, campos);
-    const altura = this.lerAltura(body?.estimated_height_cm, campos);
+    const estadio = this.lerEstadio(body, campos);
+    const altura = this.lerAltura(body, campos);
     const data = this.lerData(body?.date, 'date', campos);
     const checklist = this.lerChecklist(body, campos, true);
 
@@ -190,8 +212,10 @@ export class FormularioService {
       date: data ?? new Date(),
       week: semana ?? null,
       weather: clima,
-      estimated_height_cm: altura,
-      phenological_stage: estadio,
+      // `?? null` cobre os dois caminhos de "em branco": chave ausente
+      // (undefined) e chave enviada vazia (null).
+      estimated_height_cm: altura ?? null,
+      phenological_stage: estadio ?? null,
       ...checklist,
       observations: observations ?? '',
       synced: false,
@@ -221,8 +245,10 @@ export class FormularioService {
     const tipo = this.lerTipo(body?.type, campos);
     const semana = this.lerSemana(week, campos);
     const clima = this.lerClima(body?.weather, campos);
-    const estadio = this.lerEstadio(body?.phenological_stage, campos);
-    const altura = this.lerAltura(body?.estimated_height_cm, campos);
+    // Aqui o valor vai cru pro Prisma de propósito: undefined não altera a
+    // coluna, null a limpa — é o que permite apagar a altura/fase já salva.
+    const estadio = this.lerEstadio(body, campos);
+    const altura = this.lerAltura(body, campos);
     const data = this.lerData(body?.date, 'date', campos);
 
     const checklistEnviado = Object.values(CHECKLIST_CAMPOS).some((c) => body?.[c] !== undefined);
@@ -292,6 +318,26 @@ export class FormularioService {
       }
     }
 
-    return this.repo.sync(id, body);
+    return this.repo.sync(id, {
+      ...body,
+      formulario: this.normalizarOpcionaisDoSync(body?.formulario),
+    });
+  }
+
+  /**
+   * No sync o app manda o formulário inteiro como preencheu offline. Para os
+   * dois campos opcionais, "" significa "deixei em branco" — sem traduzir
+   * para null o Prisma recusaria a string vazia num Float e o sync voltaria
+   * 400. Chave ausente continua significando "não alterar".
+   */
+  private normalizarOpcionaisDoSync(formulario: any) {
+    if (!formulario || typeof formulario !== 'object') return formulario;
+
+    const copia = { ...formulario };
+    for (const campo of ['estimated_height_cm', 'phenological_stage'] as const) {
+      if (copia[campo] === '') copia[campo] = null;
+    }
+
+    return copia;
   }
 }

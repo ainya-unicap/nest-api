@@ -17,6 +17,7 @@ import { AlunosModule } from './modules/alunos/alunos.module';
 import { RelatorioIaModule } from './modules/relatorio-ia/relatorio-ia.module';
 import { PlantasForrageirasModule } from './modules/plantas-forrageiras/plantas-forrageiras.module';
 import { PasswordRecoveryModule } from './modules/password-recovery/password-recovery.module';
+import { ProfessoresModule } from './modules/professores/professores.module';
 
 import { JwtAuthGuard } from './core/auth/jwt-auth.guard';
 import { RecaptchaModule } from './core/recaptcha';
@@ -42,6 +43,7 @@ import { loginLimiter, passwordRecoveryIpLimiter, passwordRecoveryEmailLimiter }
     RelatorioIaModule,
     PlantasForrageirasModule,
     PasswordRecoveryModule,
+    ProfessoresModule,
   ],
   providers: [
     // Tudo protegido por padrão; rotas abertas usam @Public().

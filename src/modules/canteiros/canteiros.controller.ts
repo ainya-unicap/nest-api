@@ -103,6 +103,13 @@ export class CanteirosController {
           example: 'Acompanhamento semanal 2026.1',
           description: 'Nome da lista de formulários criada junto. Padrão: o mesmo valor de name.',
         },
+        turma_id: {
+          type: 'string',
+          format: 'uuid',
+          description:
+            'Lembrete opcional ("esse canteiro é da turma X"), sem nenhuma regra de acesso ' +
+            'atrelada. Só aceita uma turma em que o aluno esteja vinculado.',
+        },
       },
     },
   })
@@ -113,6 +120,7 @@ export class CanteirosController {
       'CANTEIRO_INVALIDO',
     ),
   })
+  @ApiForbiddenResponse({ schema: errorSchema('Você não está vinculado a esta turma', 'TURMA_NAO_VINCULADA') })
   @ApiNotFoundResponse({ schema: errorSchema('Planta não encontrada') })
   async create(@Body() body: any, @Req() req: Request): Promise<any> {
     return this.canteiroService.create(body, req.user?.id ?? '');
@@ -121,26 +129,32 @@ export class CanteirosController {
   // PUT /canteiros/:id
   @Put(':id')
   @ApiOperation({
-    summary: 'Edita o nome e/ou a planta do canteiro',
+    summary: 'Edita o nome, a planta e/ou a etiqueta de turma do canteiro',
     description:
-      'Pelo menos um dos dois campos é obrigatório. O canteiro é compartilhado: qualquer ' +
-      'pessoa vinculada pode editar e a alteração vale para todas. Renomear é sempre ' +
-      'permitido — e as listas que seguiam o nome antigo do canteiro são renomeadas junto ' +
-      '(lista com nome próprio fica intacta). Trocar a planta só é permitido enquanto o ' +
-      'canteiro não tiver nenhum formulário; quando permitido, o plant_id das listas é ' +
-      'atualizado na mesma transação. Se nada mudar, responde 200 sem gravar.',
+      'Pelo menos um campo é obrigatório. O canteiro é compartilhado: qualquer pessoa ' +
+      'vinculada pode editar e a alteração vale para todas. Renomear é sempre permitido — e ' +
+      'as listas que seguiam o nome antigo do canteiro são renomeadas junto (lista com nome ' +
+      'próprio fica intacta). Trocar a planta só é permitido enquanto o canteiro não tiver ' +
+      'nenhum formulário. turma_id aceita null para remover a etiqueta. Se nada mudar, ' +
+      'responde 200 sem gravar.',
   })
   @ApiParam({ name: 'id', description: 'id do canteiro', format: 'uuid' })
   @ApiBody({
     schema: {
       type: 'object',
-      description: 'Informe name, plant_id, ou os dois.',
+      description: 'Informe name, plant_id e/ou turma_id.',
       properties: {
         name: { type: 'string', example: 'Canteiro A1', minLength: 2 },
         plant_id: {
           type: 'string',
           format: 'uuid',
           description: 'id da nova planta forrageira',
+        },
+        turma_id: {
+          type: 'string',
+          format: 'uuid',
+          nullable: true,
+          description: 'Lembrete opcional. null remove a etiqueta atual.',
         },
       },
     },
@@ -153,7 +167,10 @@ export class CanteirosController {
       'CANTEIRO_INVALIDO',
     ),
   })
-  @ApiForbiddenResponse({ schema: errorSchema('Usuário não está vinculado a este canteiro') })
+  @ApiForbiddenResponse({
+    description: 'Usuário não vinculado ao canteiro, ou turma_id de uma turma em que o aluno não está.',
+    schema: errorSchema('Você não está vinculado a esta turma', 'TURMA_NAO_VINCULADA'),
+  })
   @ApiNotFoundResponse({
     description: 'Canteiro inexistente, ou plant_id que não corresponde a nenhuma planta.',
     schema: errorSchema('Planta não encontrada'),

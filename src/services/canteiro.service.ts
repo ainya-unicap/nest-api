@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { CanteiroRepository } from '../repositories/canteiro.repository';
 import { UserCanteiroRepository } from '../repositories/usercanteiro.repository';
 import { PlantaForrageiraRepository } from '../repositories/plantaforrageira.repository';
+import { TurmaRepository } from '../repositories/turma.repository';
 import { HttpError, erroDeCampos } from '../core/httpError';
 import { removeStoredFile } from '../core/storage';
 
@@ -10,6 +11,19 @@ export class CanteiroService {
   private readonly repo = new CanteiroRepository();
   private readonly userCanteiroRepo = new UserCanteiroRepository();
   private readonly plantaRepo = new PlantaForrageiraRepository();
+  private readonly turmaRepo = new TurmaRepository();
+
+  // Lembrete opcional: o aluno só pode apontar o canteiro pra uma turma em
+  // que ele realmente está (senão daria pra "marcar presença" numa turma de
+  // qualquer professor só adivinhando o id).
+  private async validarTurmaDoAluno(turmaId: string, userId: string) {
+    const vinculado = await this.turmaRepo.temVinculo(userId, turmaId);
+    if (!vinculado) {
+      throw new HttpError('Você não está vinculado a esta turma', 403, {
+        codigo: 'TURMA_NAO_VINCULADA',
+      });
+    }
+  }
 
   // O front espera uma lista de canteiros, não os registros de vínculo:
   // por isso o map extraindo v.canteiro.
@@ -44,7 +58,16 @@ export class CanteiroService {
     const planta = await this.plantaRepo.findById(plantId);
     if (!planta) throw new HttpError('Planta não encontrada', 404);
 
-    return this.repo.createComListaETransacao({ name: nome, plant_id: plantId, userId, listName });
+    const turmaId = typeof body?.turma_id === 'string' && body.turma_id ? body.turma_id : undefined;
+    if (turmaId) await this.validarTurmaDoAluno(turmaId, userId);
+
+    return this.repo.createComListaETransacao({
+      name: nome,
+      plant_id: plantId,
+      userId,
+      listName,
+      turma_id: turmaId,
+    });
   }
 
   findListasByCanteiro(id: string) {
@@ -107,9 +130,12 @@ export class CanteiroService {
 
     const temNome = body?.name !== undefined && body?.name !== null;
     const temPlanta = body?.plant_id !== undefined && body?.plant_id !== null;
+    // turma_id aceita null explícito (remover a etiqueta) — por isso é
+    // tratado separado do "undefined = não foi enviado".
+    const temTurma = body?.turma_id !== undefined;
 
-    if (!temNome && !temPlanta) {
-      throw new HttpError('Informe name ou plant_id para atualizar', 400, {
+    if (!temNome && !temPlanta && !temTurma) {
+      throw new HttpError('Informe name, plant_id ou turma_id para atualizar', 400, {
         codigo: 'CANTEIRO_INVALIDO',
       });
     }
@@ -132,12 +158,32 @@ export class CanteiroService {
       throw erroDeCampos(campos, 'CANTEIRO_INVALIDO');
     }
 
+    // turma_id: null limpa, string troca (validando vínculo), undefined não toca.
+    let novaTurma: string | null | undefined;
+    if (temTurma) {
+      const bruto = body.turma_id;
+      if (bruto === null) {
+        novaTurma = canteiro.turma_id !== null ? null : undefined;
+      } else {
+        const turmaId = typeof bruto === 'string' ? bruto.trim() : '';
+        if (!turmaId) campos.turma_id = 'inválido';
+        else {
+          await this.validarTurmaDoAluno(turmaId, userId);
+          novaTurma = turmaId !== canteiro.turma_id ? turmaId : undefined;
+        }
+      }
+    }
+
+    if (Object.keys(campos).length > 0) {
+      throw erroDeCampos(campos, 'CANTEIRO_INVALIDO');
+    }
+
     // Só o que mudou de fato é enviado ao repositório.
     const novoNome = nome !== undefined && nome !== canteiro.name ? nome : undefined;
     const novaPlanta =
       plantId !== undefined && plantId !== canteiro.plant_id ? plantId : undefined;
 
-    if (novoNome === undefined && novaPlanta === undefined) {
+    if (novoNome === undefined && novaPlanta === undefined && novaTurma === undefined) {
       const atual = await this.repo.findByIdComDetalhes(canteiroId);
       if (!atual) throw new HttpError('Canteiro não encontrado', 404);
       return atual;
@@ -163,6 +209,7 @@ export class CanteiroService {
       nomeAntigo: canteiro.name,
       name: novoNome,
       plant_id: novaPlanta,
+      turma_id: novaTurma,
     });
   }
 

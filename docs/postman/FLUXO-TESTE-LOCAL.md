@@ -75,6 +75,8 @@ O canteiro e a lista precisam usar a mesma planta informada em `plantId`.
 
 1. `Criar formulario` — já manda os campos fixos: `title`, `week`, `weather`,
    `estimated_height_cm`, `phenological_stage` e os 5 booleans de checklist.
+   `estimated_height_cm` e `phenological_stage` são opcionais: dá pra remover os
+   dois do corpo e o formulário é criado com eles em branco.
 2. `Atualizar formulario (checklist parcial)` — mostra que um `PATCH` com só
    um item do checklist não mexe nos outros 4.
 3. `Consultar formulario`

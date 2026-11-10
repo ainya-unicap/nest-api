@@ -63,7 +63,9 @@ transação. Vale a mesma ordem para qualquer limpeza manual: filhos antes do pa
 `role` são `text` livre, sem `CHECK`. O banco aceita `status = 'banana'`. A
 restrição existe só como comentário no schema e como validação no service
 (`formulario.service.ts` valida `weather`/`phenological_stage` contra uma
-lista fixa, por exemplo).
+lista fixa, por exemplo). `phenological_stage` e `estimated_height_cm` aceitam
+`NULL` — são opcionais no formulário do app, então todo código que os lê tem
+que tratar a ausência.
 
 ### 3. `references` é palavra reservada do SQL
 
@@ -94,6 +96,8 @@ hoje — fica no banco até alguém decidir dropar numa migration própria.
 | `20261025003615_redesign_formulario` | apaga formulários antigos e troca `started_at`/`ended_at` pelos campos fixos (`title`, `date`, `weather`, `estimated_height_cm`, `phenological_stage`, checklist de 5 itens) |
 | `20261025005409_remove_plant_template_checklist_measurement` | remove as tabelas `Checklist`, `Measurement` e `PlantTemplate` |
 | `20261025013800_reduzir_catalogo_plantas_para_15` | reduz o catálogo de 60 para 15 espécies, apagando em cascata canteiros que usavam uma planta removida |
+| `20261101120000_instituicoes_pernambuco` | troca o conteúdo de `Institution` pelas instituições de PE e adiciona `abbreviation` (sigla, única) |
+| `20261102120000_formulario_altura_fase_opcionais` | `Formulario.estimated_height_cm` e `phenological_stage` passam a aceitar `NULL` (campos opcionais no app) |
 
 > ⚠️ **Nunca rode `prisma migrate dev` apontando para o Neon.** Se ele detectar
 > drift, oferece resetar o banco. Contra o Neon use sempre `npm run prisma:deploy`.

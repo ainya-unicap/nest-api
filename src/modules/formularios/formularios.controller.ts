@@ -39,8 +39,14 @@ const formularioSchema = {
     date: { type: 'string', format: 'date-time' },
     week: { type: 'integer', nullable: true, minimum: 1, maximum: 12, example: 3 },
     weather: { type: 'string', enum: ['SOL', 'NUBLADO', 'CHUVA'] },
-    estimated_height_cm: { type: 'number', example: 38 },
-    phenological_stage: { type: 'string', enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO'] },
+    estimated_height_cm: { type: 'number', nullable: true, example: 38 },
+    phenological_stage: {
+      type: 'string',
+      nullable: true,
+      // o null entra no enum porque em OpenAPI 3.0 `nullable` sozinho não
+      // libera null num campo enumerado.
+      enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO', null],
+    },
     checklist_irrigacao: { type: 'boolean', description: 'Irrigação verificada' },
     checklist_capina: { type: 'boolean', description: 'Capina realizada' },
     checklist_adubacao: { type: 'boolean', description: 'Adubação de cobertura' },
@@ -62,10 +68,17 @@ const updateBody = {
       date: { type: 'string' as const, format: 'date-time' },
       week: { type: 'integer' as const, minimum: 1, maximum: 12, example: 3 },
       weather: { type: 'string' as const, enum: ['SOL', 'NUBLADO', 'CHUVA'] },
-      estimated_height_cm: { type: 'number' as const, example: 38 },
+      estimated_height_cm: {
+        type: 'number' as const,
+        nullable: true,
+        example: 38,
+        description: 'Opcional. Envie null (ou "") para limpar; omita para não alterar.',
+      },
       phenological_stage: {
         type: 'string' as const,
-        enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO'],
+        nullable: true,
+        enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO', null],
+        description: 'Opcional. Envie null (ou "") para limpar; omita para não alterar.',
       },
       checklist_irrigacao: { type: 'boolean' as const, description: 'Irrigação verificada' },
       checklist_capina: { type: 'boolean' as const, description: 'Capina realizada' },
@@ -135,21 +148,14 @@ export class FormulariosController {
     description:
       'Formulário de manejo semanal, com campos fixos (iguais para qualquer planta). ' +
       'date é preenchida com a hora atual quando omitida. week é a semana do ' +
-      'acompanhamento (1 a 12). As fotos são anexadas depois, em POST /photos/upload ' +
-      '(limite de 5 por formulário).',
+      'acompanhamento (1 a 12). estimated_height_cm e phenological_stage são opcionais: ' +
+      'ausentes, null ou "" gravam em branco; preenchidos, continuam validados. ' +
+      'As fotos são anexadas depois, em POST /photos/upload (limite de 5 por formulário).',
   })
   @ApiBody({
     schema: {
       type: 'object',
-      required: [
-        'list_id',
-        'user_id',
-        'type',
-        'title',
-        'weather',
-        'estimated_height_cm',
-        'phenological_stage',
-      ],
+      required: ['list_id', 'user_id', 'type', 'title', 'weather'],
       properties: {
         list_id: { type: 'string', format: 'uuid' },
         user_id: { type: 'string', format: 'uuid' },
@@ -158,10 +164,17 @@ export class FormulariosController {
         date: { type: 'string', format: 'date-time', description: 'padrão: agora' },
         week: { type: 'integer', minimum: 1, maximum: 12, example: 3 },
         weather: { type: 'string', enum: ['SOL', 'NUBLADO', 'CHUVA'] },
-        estimated_height_cm: { type: 'number', example: 38 },
+        estimated_height_cm: {
+          type: 'number',
+          nullable: true,
+          example: 38,
+          description: 'Opcional. Ausente, null ou "" grava em branco.',
+        },
         phenological_stage: {
           type: 'string',
-          enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO'],
+          nullable: true,
+          enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO', null],
+          description: 'Opcional. Ausente, null ou "" grava em branco.',
         },
         checklist_irrigacao: {
           type: 'boolean',
@@ -237,10 +250,11 @@ export class FormulariosController {
             date: { type: 'string', format: 'date-time' },
             week: { type: 'integer', minimum: 1, maximum: 12 },
             weather: { type: 'string', enum: ['SOL', 'NUBLADO', 'CHUVA'] },
-            estimated_height_cm: { type: 'number' },
+            estimated_height_cm: { type: 'number', nullable: true },
             phenological_stage: {
               type: 'string',
-              enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO'],
+              nullable: true,
+              enum: ['VEGETATIVO', 'ELONGACAO', 'FLORESCIMENTO', null],
             },
             checklist_irrigacao: { type: 'boolean' },
             checklist_capina: { type: 'boolean' },
@@ -263,7 +277,12 @@ export class FormulariosController {
   }
 
   @Put(':id')
-  @ApiOperation({ summary: 'Atualiza o formulário' })
+  @ApiOperation({
+    summary: 'Atualiza o formulário',
+    description:
+      'Atualização parcial: campo omitido não é alterado. Em estimated_height_cm e ' +
+      'phenological_stage, enviar null ou "" limpa o valor gravado.',
+  })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiBody(updateBody)
   @ApiOkResponse({ schema: formularioSchema })
@@ -279,7 +298,12 @@ export class FormulariosController {
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Atualiza o formulário (alias PATCH)' })
+  @ApiOperation({
+    summary: 'Atualiza o formulário (alias PATCH)',
+    description:
+      'Idêntico ao PUT /formularios/:id — campo omitido não muda, null ou "" em ' +
+      'estimated_height_cm e phenological_stage limpa o valor.',
+  })
   @ApiParam({ name: 'id', format: 'uuid' })
   @ApiBody(updateBody)
   @ApiOkResponse({ schema: formularioSchema })
