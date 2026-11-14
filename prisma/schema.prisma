@@ -24,7 +24,10 @@ model AlunoTurma {
     user_id   String
     user      User     @relation(fields: [user_id], references: [id])
     turma_id  String
-    turma     Turma    @relation(fields: [turma_id], references: [id])
+    // Apagar a turma apaga os vínculos de aluno junto (cascata combinada com
+    // TurmaCodigo/EntregaRelatorio) — sem isso, DELETE /professores/turmas/:id
+    // falhava com FK violation sempre que havia pelo menos um aluno vinculado.
+    turma     Turma    @relation(fields: [turma_id], references: [id], onDelete: Cascade)
     createdAt DateTime @default(now())
     updatedAt DateTime @updatedAt
 
