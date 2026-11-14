@@ -166,28 +166,6 @@ export class UsersController {
     return await this.userService.updateProfile(id, body ?? {});
   }
 
-  @Put(':id/turma')
-  @ApiAuth()
-  @ApiOperation({
-    summary: 'Define a turma do aluno',
-    description: 'Substitui a matrícula atual pela turma informada; turma_id null desvincula. O período vem da turma.',
-  })
-  @ApiParam({ name: 'id', format: 'uuid' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: ['turma_id'],
-      properties: { turma_id: { type: 'string', format: 'uuid', nullable: true } },
-    },
-  })
-  @ApiOkResponse({ schema: userSchema })
-  @ApiNotFoundResponse({ schema: errorSchema('Turma não encontrada') })
-  async updateTurma(@Param('id') id: string, @Body() body: any, @Req() req: Request) {
-    this.assertSelf(id, req);
-    if (body?.turma_id === undefined) throw new BadRequestException('turma_id é obrigatório (ou null)');
-    return await this.userService.updateTurma(id, body.turma_id);
-  }
-
   @Post(':id/avatar')
   @ApiAuth()
   @UseInterceptors(FileInterceptor('avatar', uploadOptions))

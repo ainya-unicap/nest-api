@@ -17,12 +17,33 @@ export class TurmaService {
   private readonly codigoRepo = new TurmaCodigoRepository();
   private readonly entregaRepo = new EntregaRelatorioRepository();
 
-  // Tela de perfil: turmas em que o aluno está vinculado.
+  // Tela de perfil: turmas em que o aluno está vinculado, cada uma já com a
+  // entrega (se houver) daquele aluno nela.
   async minhasTurmas(userId: string) {
     if (!userId) throw new HttpError('userId é obrigatório', 400);
 
-    const vinculos = await this.repo.findByAluno(userId);
-    return vinculos.map((v) => v.turma);
+    const [vinculos, entregas] = await Promise.all([
+      this.repo.findByAluno(userId),
+      this.entregaRepo.findByUser(userId),
+    ]);
+
+    const entregaPorTurma = new Map(entregas.map((e) => [e.turma_id, e]));
+
+    return vinculos.map((v) => {
+      const entrega = entregaPorTurma.get(v.turma.id);
+      return {
+        ...v.turma,
+        entrega: entrega
+          ? {
+              id: entrega.id,
+              fileName: entrega.fileName,
+              fileUrl: entrega.fileUrl,
+              submittedAt: entrega.submittedAt,
+              podeCancelar: Date.now() - entrega.submittedAt.getTime() <= PRAZO_CANCELAMENTO_MS,
+            }
+          : null,
+      };
+    });
   }
 
   // Igual a entrar numa chamada por código: o aluno nunca vê/escolhe o id

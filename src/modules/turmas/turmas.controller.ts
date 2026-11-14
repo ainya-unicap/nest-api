@@ -44,6 +44,25 @@ const turmaSchema = {
   },
 };
 
+// GET /turmas/minhas: a turma já vem com a entrega (se houver) daquele aluno.
+const minhaTurmaSchema = {
+  type: 'object' as const,
+  properties: {
+    ...turmaSchema.properties,
+    entrega: {
+      type: 'object',
+      nullable: true,
+      properties: {
+        id: { type: 'string', format: 'uuid' },
+        fileName: { type: 'string' },
+        fileUrl: { type: 'string' },
+        submittedAt: { type: 'string', format: 'date-time' },
+        podeCancelar: { type: 'boolean', description: 'true dentro de 24h do envio' },
+      },
+    },
+  },
+};
+
 // Lado do aluno. Criação de turma e gestão de código viraram exclusivas da
 // professora — ver módulo "professores".
 @ApiTags('Turmas')
@@ -54,8 +73,11 @@ export class TurmasController {
 
   // GET /turmas/minhas
   @Get('minhas')
-  @ApiOperation({ summary: 'Lista as turmas em que o aluno logado está vinculado' })
-  @ApiOkResponse({ schema: { type: 'array', items: turmaSchema } })
+  @ApiOperation({
+    summary: 'Lista as turmas em que o aluno logado está vinculado',
+    description: 'Cada turma já vem com a entrega (PDF) daquele aluno nela, se houver.',
+  })
+  @ApiOkResponse({ schema: { type: 'array', items: minhaTurmaSchema } })
   async minhasTurmas(@Req() req: Request) {
     return await this.turmaService.minhasTurmas(req.user?.id ?? '');
   }

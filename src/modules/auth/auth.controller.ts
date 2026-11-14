@@ -26,6 +26,11 @@ const tokensSchema = {
   type: 'object' as const,
   properties: {
     id: { type: 'string', format: 'uuid' },
+    role: {
+      type: 'string',
+      enum: ['aluno', 'professor', 'admin'],
+      description: 'Usado pelo app pra bloquear o acesso de uma professora no app do aluno.',
+    },
     accessToken: { type: 'string', description: 'JWT válido por 15 minutos' },
     refreshToken: { type: 'string', description: 'Token opaco válido por 7 dias' },
   },

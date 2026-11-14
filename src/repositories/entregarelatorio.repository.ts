@@ -7,6 +7,12 @@ export class EntregaRelatorioRepository {
     });
   }
 
+  // Todas as entregas do aluno, pra juntar com a lista de turmas dele de uma vez
+  // (uma linha por turma — nunca mais de uma entrega por user+turma).
+  findByUser(userId: string) {
+    return prisma.entregaRelatorio.findMany({ where: { user_id: userId } });
+  }
+
   findByTurma(turmaId: string) {
     return prisma.entregaRelatorio.findMany({
       where: { turma_id: turmaId },

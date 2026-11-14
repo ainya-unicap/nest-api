@@ -168,23 +168,6 @@ export class UserService {
     });
   }
 
-  // Troca a turma do aluno: remove os vínculos atuais e cria o novo (ou só remove, se turmaId for null).
-  async updateTurma(id: string, turmaId: string | null) {
-    if (!id) throw new HttpError('id é obrigatório', 400);
-
-    if (turmaId) {
-      const turma = await prisma.turma.findUnique({ where: { id: turmaId } });
-      if (!turma) throw new HttpError('Turma não encontrada', 404);
-    }
-
-    await prisma.$transaction([
-      prisma.alunoTurma.deleteMany({ where: { user_id: id } }),
-      ...(turmaId ? [prisma.alunoTurma.create({ data: { user_id: id, turma_id: turmaId } })] : []),
-    ]);
-
-    return await this.findById(id);
-  }
-
   async updateAvatar(id: string, newUrl: string) {
     if (!id) throw new HttpError('id é obrigatório', 400);
     if (!newUrl) throw new HttpError('avatarUrl é obrigatório', 400);

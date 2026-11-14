@@ -16,7 +16,11 @@ POST /api/users/login      login
 POST /api/users/refresh    renova o par de tokens
 POST /api/users/logout     revoga o refresh token
 GET  /api/institutions     listagem (a tela de cadastro precisa antes do login)
+POST /api/professores      cadastro de professora (portal separado)
 ```
+
+`login` e `refresh` devolvem `role` (`aluno`/`professor`/`admin`) junto com os
+tokens — o app do aluno deve bloquear o acesso se `role !== 'aluno'`.
 
 | token | validade | onde fica |
 |---|---|---|
@@ -178,15 +182,37 @@ omitir não altera.
 **Regras:** só o dono altera; `SUBMETIDO`/`CORRIGIDO` não pode ser editado nem
 apagado. O dono vem sempre do token.
 
-### Plant Templates · Turmas · Períodos · AlunoTurma
+### Turmas (lado do aluno)
 
-| método | rota |
-|---|---|
-| `GET` `POST` | `/plant-templates` · `/turmas` · `/academic-periods` |
-| `GET` `PUT` `PATCH` `DELETE` | `/plant-templates/:id` |
-| `GET` `PUT` `DELETE` | `/turmas/:id` · `/academic-periods/:id` |
-| `POST` `DELETE` | `/aluno-turma` — `DELETE` usa `aluno_id` (não `user_id`) no corpo |
-| `GET` | `/aluno-turma/turma/:turmaId` |
+O aluno nunca cria turma nem escolhe o id diretamente — só entra com o
+**código** que a professora repassou (fluxo tipo "entrar numa chamada").
+
+| método | rota | |
+|---|---|---|
+| `GET` | `/turmas/minhas` | turmas do aluno; cada uma já vem com `entrega` (ver abaixo) se houver |
+| `POST` | `/turmas/entrar` | `{ code }` → vincula à turma. `404 CODIGO_INVALIDO` / `409 JA_VINCULADO` |
+| `POST` | `/turmas/:id/relatorios` | multipart, campo `file` — PDF de qualquer origem, até 10 páginas. Reenviar substitui a entrega anterior |
+| `DELETE` | `/turmas/:id/relatorios` | cancela a entrega, só até 24h do envio (`400 PRAZO_CANCELAMENTO_EXPIRADO`) |
+
+`entrega` em `/turmas/minhas`: `{ id, fileName, fileUrl, submittedAt, podeCancelar } | null`.
+
+Removidos: `PUT /users/:id/turma` e `POST`/`DELETE /aluno-turma` — vincular
+aluno a turma sem o código não existe mais. `GET /academic-periods` segue
+igual, sem mudanças.
+
+### Portal Professor (`/professores`, tag Swagger "Portal Professor")
+
+Pensado pra um site separado do app do aluno, mesma API. Exige
+`role: professor` (`403` senão) em tudo que não for o cadastro.
+
+| método | rota | |
+|---|---|---|
+| `POST` | `/professores` | público — cadastro (nome, e-mail, senha, confirmar) |
+| `POST` `GET` | `/professores/turmas` | criar / listar as próprias turmas |
+| `DELETE` | `/professores/turmas/:id` | cascata: vínculos, códigos e entregas somem; canteiros só perdem a etiqueta |
+| `POST` `GET` | `/professores/turmas/:id/codigos` | gerar / listar códigos (vários podem coexistir) |
+| `DELETE` | `/professores/turmas/:id/codigos/:codigoId` | apaga um código específico |
+| `GET` | `/professores/turmas/:id/entregas` | PDFs entregues pelos alunos — sem nota/feedback por enquanto |
 
 ### Dossiê
 

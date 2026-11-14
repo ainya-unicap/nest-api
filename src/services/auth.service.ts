@@ -40,7 +40,7 @@ export class AuthService {
     }
 
     const tokens = await this.generateTokens(user.id);
-    return { id: user.id, ...tokens };
+    return { id: user.id, role: user.role, ...tokens };
   }
 
   private async generateTokens(userId: string) {
@@ -69,7 +69,8 @@ export class AuthService {
     }
 
     await prisma.refreshToken.delete({ where: { id: storedToken.id } });
-    return this.generateTokens(storedToken.userId);
+    const tokens = await this.generateTokens(storedToken.userId);
+    return { role: storedToken.user.role, ...tokens };
   }
 
   async logout(token: string) {
