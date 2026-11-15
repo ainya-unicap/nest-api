@@ -6,7 +6,7 @@ import { HttpError } from '../core/httpError';
 
 // Aceita o nome em português (com ou sem acento) e em inglês, pra não quebrar
 // se o Eliza mudar de grafia de um jeito ou de outro.
-const CHAVES: Record<'introduction' | 'objective' | 'development' | 'final_thoughts', string[]> = {
+const CHAVES: Record<'introduction' | 'objective' | 'development' | 'final_thoughts' | 'references', string[]> = {
   introduction: ['introdução', 'introducao', 'introduction'],
   objective: ['objetivo', 'objective'],
   development: ['desenvolvimento', 'development'],
@@ -17,6 +17,7 @@ const CHAVES: Record<'introduction' | 'objective' | 'development' | 'final_thoug
     'consideracoes_finais',
     'final_thoughts',
   ],
+  references: ['referências', 'referencias', 'referências bibliográficas', 'referencias_bibliograficas', 'references'],
 };
 
 @Injectable()
@@ -62,12 +63,13 @@ export class RelatorioIaService {
       objective: pick(CHAVES.objective),
       development: pick(CHAVES.development),
       final_thoughts: pick(CHAVES.final_thoughts),
+      references: pick(CHAVES.references),
     };
 
     const vazio = Object.values(secoes).every((v) => v === '');
     if (vazio) {
       throw new HttpError(
-        'O Eliza não devolveu as seções esperadas (introdução, objetivo, desenvolvimento, considerações finais)',
+        'O Eliza não devolveu as seções esperadas (introdução, objetivo, desenvolvimento, considerações finais, referências)',
         502,
         { codigo: 'ELIZA_FORMATO_INESPERADO' },
       );

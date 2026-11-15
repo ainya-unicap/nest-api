@@ -13,4 +13,8 @@ export class InstitutionRepository {
   findById(id: string) {
     return prisma.institution.findUnique({ where: { id } });
   }
+
+  findByName(name: string) {
+    return prisma.institution.findFirst({ where: { name: { equals: name, mode: 'insensitive' } } });
+  }
 }

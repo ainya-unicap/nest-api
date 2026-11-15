@@ -91,21 +91,49 @@ export class ProfessoresController {
   @Roles('professor')
   @UseGuards(RolesGuard)
   @Post('turmas')
-  @ApiOperation({ summary: 'Cria uma turma' })
+  @ApiOperation({
+    summary: 'Cria uma turma',
+    description:
+      'Período: mande period_id (já existente) OU period { name, semester, start_date, end_date } — ' +
+      'busca por name e, se não achar, cria na hora. Instituição (opcional): mande institution_id OU ' +
+      'institution { name, abbreviation } — busca por name e cria se não achar (abbreviation só é ' +
+      'exigido nesse caso, por ser único no banco).',
+  })
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['name', 'period_id'],
+      required: ['name'],
       properties: {
         name: { type: 'string', example: 'Agronomia 2026.1 - Turma A' },
-        period_id: { type: 'string', format: 'uuid' },
-        institution_id: { type: 'string', format: 'uuid' },
+        period_id: { type: 'string', format: 'uuid', description: 'Usa um período já existente' },
+        period: {
+          type: 'object',
+          description: 'Alternativa a period_id: busca por name, cria se não existir',
+          properties: {
+            name: { type: 'string', example: '2026.1' },
+            semester: { type: 'string', example: 'PRIMEIRO' },
+            start_date: { type: 'string', format: 'date' },
+            end_date: { type: 'string', format: 'date' },
+          },
+        },
+        institution_id: { type: 'string', format: 'uuid', description: 'Usa uma instituição já existente' },
+        institution: {
+          type: 'object',
+          description: 'Alternativa a institution_id: busca por name, cria se não existir',
+          properties: {
+            name: { type: 'string', example: 'Universidade Católica de Pernambuco' },
+            abbreviation: { type: 'string', example: 'UNICAP' },
+          },
+        },
       },
     },
   })
   @ApiCreatedResponse({ schema: turmaSchema })
   @ApiBadRequestResponse({
-    schema: erroDeValidacaoSchema({ name: 'obrigatório, mínimo 2 caracteres', period_id: 'obrigatório' }, 'TURMA_INVALIDA'),
+    schema: erroDeValidacaoSchema(
+      { name: 'obrigatório, mínimo 2 caracteres', period_id: 'obrigatório (period_id ou period.name)' },
+      'TURMA_INVALIDA',
+    ),
   })
   @ApiForbiddenResponse({ schema: errorSchema('Você não tem permissão para esta ação') })
   async criarTurma(@Body() body: any, @Req() req: Request) {

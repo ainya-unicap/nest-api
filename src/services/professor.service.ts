@@ -65,27 +65,84 @@ export class ProfessorService {
     }
   }
 
-  async criarTurma(userId: string, body: any) {
-    const name = typeof body?.name === 'string' ? body.name.trim() : '';
-    const periodId = typeof body?.period_id === 'string' ? body.period_id : '';
-    const institutionId = typeof body?.institution_id === 'string' ? body.institution_id : undefined;
+  // Período: por id (já existente) ou por objeto { name, semester, start_date,
+  // end_date } — busca por nome e, se não achar, cria na hora.
+  private async resolverPeriodo(periodId: unknown, periodBody: any) {
+    if (typeof periodId === 'string' && periodId) {
+      const period = await this.periodRepo.findById(periodId);
+      if (!period) throw new HttpError('Período letivo não encontrado', 400, { codigo: 'PERIODO_INVALIDO' });
+      return period;
+    }
+
+    const name = typeof periodBody?.name === 'string' ? periodBody.name.trim() : '';
+    if (!name) throw erroDeCampos({ period_id: 'obrigatório (period_id ou period.name)' }, 'TURMA_INVALIDA');
+
+    const existente = await this.periodRepo.findByName(name);
+    if (existente) return existente;
+
+    const semester = typeof periodBody?.semester === 'string' ? periodBody.semester.trim() : '';
+    const startDate = periodBody?.start_date ? new Date(periodBody.start_date) : null;
+    const endDate = periodBody?.end_date ? new Date(periodBody.end_date) : null;
 
     const campos: Record<string, string> = {};
-    if (!name || name.length < 2) campos.name = 'obrigatório, mínimo 2 caracteres';
-    if (!periodId) campos.period_id = 'obrigatório';
-    if (Object.keys(campos).length > 0) throw erroDeCampos(campos, 'TURMA_INVALIDA');
+    if (!semester) campos['period.semester'] = 'obrigatório ao criar um período novo';
+    if (!startDate || Number.isNaN(startDate.getTime())) campos['period.start_date'] = 'obrigatório, data válida';
+    if (!endDate || Number.isNaN(endDate.getTime())) campos['period.end_date'] = 'obrigatório, data válida';
+    if (Object.keys(campos).length > 0) throw erroDeCampos(campos, 'PERIODO_INVALIDO');
 
-    const period = await this.periodRepo.findById(periodId);
-    if (!period) throw new HttpError('Período letivo não encontrado', 400, { codigo: 'PERIODO_INVALIDO' });
+    return this.periodRepo.create({ name, semester, start_date: startDate, end_date: endDate });
+  }
 
-    if (institutionId) {
+  // Instituição: por id, por objeto { name, abbreviation } (busca por nome,
+  // cria se não achar), ou nenhuma (campo opcional na turma).
+  private async resolverInstituicao(institutionId: unknown, institutionBody: any) {
+    if (typeof institutionId === 'string' && institutionId) {
       const institution = await this.institutionRepo.findById(institutionId);
       if (!institution) {
         throw new HttpError('Instituição não encontrada', 400, { codigo: 'INSTITUICAO_INVALIDA' });
       }
+      return institution;
     }
 
-    return this.turmaRepo.create({ name, period_id: periodId, institution_id: institutionId, created_by: userId });
+    const name = typeof institutionBody?.name === 'string' ? institutionBody.name.trim() : '';
+    if (!name) return undefined;
+
+    const existente = await this.institutionRepo.findByName(name);
+    if (existente) return existente;
+
+    const abbreviation = typeof institutionBody?.abbreviation === 'string' ? institutionBody.abbreviation.trim() : '';
+    if (!abbreviation) {
+      throw erroDeCampos(
+        { 'institution.abbreviation': 'obrigatório ao criar uma instituição nova' },
+        'INSTITUICAO_INVALIDA',
+      );
+    }
+
+    try {
+      return await this.institutionRepo.create({ name, abbreviation });
+    } catch (e: any) {
+      if (e?.code === 'P2002') {
+        throw new HttpError('Já existe uma instituição com esta sigla', 409, { codigo: 'SIGLA_JA_CADASTRADA' });
+      }
+      throw e;
+    }
+  }
+
+  async criarTurma(userId: string, body: any) {
+    const name = typeof body?.name === 'string' ? body.name.trim() : '';
+    if (!name || name.length < 2) {
+      throw erroDeCampos({ name: 'obrigatório, mínimo 2 caracteres' }, 'TURMA_INVALIDA');
+    }
+
+    const period = await this.resolverPeriodo(body?.period_id, body?.period);
+    const institution = await this.resolverInstituicao(body?.institution_id, body?.institution);
+
+    return this.turmaRepo.create({
+      name,
+      period_id: period.id,
+      institution_id: institution?.id,
+      created_by: userId,
+    });
   }
 
   minhasTurmas(userId: string) {

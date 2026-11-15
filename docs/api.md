@@ -209,6 +209,15 @@ Pensado pra um site separado do app do aluno, mesma API. Exige
 |---|---|---|
 | `POST` | `/professores` | público — cadastro (nome, e-mail, senha, confirmar) |
 | `POST` `GET` | `/professores/turmas` | criar / listar as próprias turmas |
+
+`POST /professores/turmas` aceita período e instituição por id (já existentes)
+**ou** por nome — busca por nome e cria na hora se não achar:
+```
+period_id: uuid                                    OU  period: { name, semester, start_date, end_date }
+institution_id: uuid (opcional)                     OU  institution: { name, abbreviation }
+```
+`abbreviation` só é exigido quando a instituição é nova (é `@unique` no banco).
+
 | `DELETE` | `/professores/turmas/:id` | cascata: vínculos, códigos e entregas somem; canteiros só perdem a etiqueta |
 | `POST` `GET` | `/professores/turmas/:id/codigos` | gerar / listar códigos (vários podem coexistir) |
 | `DELETE` | `/professores/turmas/:id/codigos/:codigoId` | apaga um código específico |

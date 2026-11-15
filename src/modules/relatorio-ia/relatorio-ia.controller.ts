@@ -46,8 +46,10 @@ export class RelatorioIaController {
     summary: 'Gera o relatório do canteiro com IA (Eliza)',
     description:
       'Chama o serviço de IA (Eliza, em outro deploy), repassando o token da sessão, e ' +
-      'grava as 4 seções (introdução, objetivo, desenvolvimento, considerações finais) ' +
-      'num Relatorio novo, em RASCUNHO. Exclusivo de quem está vinculado ao canteiro.',
+      'grava as seções (introdução, objetivo, desenvolvimento, considerações finais e ' +
+      'referências) num Relatorio novo, em RASCUNHO. Referências só é gravada se o Eliza ' +
+      'devolver essa seção — senão fica em branco, editável depois via PUT /relatorios/:id. ' +
+      'Exclusivo de quem está vinculado ao canteiro.',
   })
   @ApiParam({ name: 'id', description: 'id do canteiro', format: 'uuid' })
   @ApiBody({
