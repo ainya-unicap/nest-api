@@ -2,7 +2,7 @@
 
 Base: `http://localhost:3000/api` · Swagger: `/api/docs` · spec: `/api/docs.json`
 
-**70 rotas.** O Swagger é a fonte viva — este documento é o mapa geral.
+**71 rotas.** O Swagger é a fonte viva — este documento é o mapa geral.
 
 ## Autenticação
 
@@ -118,6 +118,18 @@ todas passam e o dossiê considera os formulários de todo mundo.
 |---|---|---|
 | `GET` | `/alunos/:id/resumo` | `{total_formularios, total_semanas, total_relatorios}` |
 | `GET` | `/alunos/:userId/home` | recentes + canteiros + totais |
+
+### Plantas Forrageiras
+
+| método | rota | |
+|---|---|---|
+| `GET` | `/plantas-forrageiras` · `/plantas-forrageiras/:id` | catálogo, com filtro opcional por `category`/`semester_focus` |
+| `POST` | `/plantas-forrageiras` | cadastra uma planta nova (`name`, `category`, `description`, `semester_focus`) |
+
+`category`: `GRAMINEA_PORTE_BAIXO` · `GRAMINEA_PORTE_MEDIO` · `GRAMINEA_PORTE_ALTO` ·
+`LEGUMINOSA_ARBUSTIVA` · `LEGUMINOSA_HERBACEA` · `CACTACEA` · `CULTURA_ANUAL` ·
+`OLEAGINOSA_FORRAGEIRA`. `semester_focus`: `PRIMEIRO` · `SEGUNDO` · `AMBOS` (entra nos
+dois filtros de semestre).
 
 ### Canteiros · UserCanteiros · Listas
 
@@ -237,7 +249,6 @@ Comparado ao back-end em Express que originou este projeto:
 
 ```
 GET    /health
-GET    /plantas-forrageiras          (grupo inteiro: 5 rotas)
 POST   /formularios/:id/photos       (upload de foto do formulário — hoje é POST /photos/upload)
 GET    /academic-periods/active
 GET    /aluno-turma/user/:userId

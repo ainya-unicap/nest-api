@@ -204,4 +204,35 @@ export class ProfessorService {
     await this.validarDonaDaTurma(turmaId, userId);
     return this.entregaRepo.findByTurma(turmaId);
   }
+
+  // Todo aluno vinculado à turma, com a entrega dele (se houver) — diferente de
+  // listarEntregas, que só traz quem já entregou.
+  async listarAlunos(turmaId: string, userId: string) {
+    await this.validarDonaDaTurma(turmaId, userId);
+
+    const [vinculos, entregas] = await Promise.all([
+      this.turmaRepo.findAlunosByTurma(turmaId),
+      this.entregaRepo.findByTurma(turmaId),
+    ]);
+
+    const entregaPorAluno = new Map(entregas.map((e) => [e.user_id, e]));
+
+    return vinculos.map((v) => {
+      const entrega = entregaPorAluno.get(v.user_id);
+      return {
+        id: v.user.id,
+        name: v.user.name,
+        email: v.user.email,
+        matricula: v.user.matricula,
+        entrega: entrega
+          ? {
+              id: entrega.id,
+              fileUrl: entrega.fileUrl,
+              fileName: entrega.fileName,
+              submittedAt: entrega.submittedAt,
+            }
+          : null,
+      };
+    });
+  }
 }

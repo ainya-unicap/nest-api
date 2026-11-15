@@ -254,4 +254,44 @@ export class ProfessoresController {
   async listarEntregas(@Param('id') id: string, @Req() req: Request) {
     return await this.professorService.listarEntregas(id, req.user?.id ?? '');
   }
+
+  @ApiAuth()
+  @Roles('professor')
+  @UseGuards(RolesGuard)
+  @Get('turmas/:id/alunos')
+  @ApiOperation({
+    summary: 'Lista os alunos vinculados à turma, com a entrega (se houver) de cada um',
+    description:
+      'Todo aluno vinculado aparece, mesmo sem ter entregado ainda — nesse caso entrega vem null.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOkResponse({
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          name: { type: 'string' },
+          email: { type: 'string' },
+          matricula: { type: 'string', nullable: true },
+          entrega: {
+            type: 'object',
+            nullable: true,
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              fileUrl: { type: 'string' },
+              fileName: { type: 'string' },
+              submittedAt: { type: 'string', format: 'date-time' },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiForbiddenResponse({ schema: errorSchema('Você só pode gerenciar as próprias turmas') })
+  @ApiNotFoundResponse({ schema: errorSchema('Turma não encontrada') })
+  async listarAlunos(@Param('id') id: string, @Req() req: Request) {
+    return await this.professorService.listarAlunos(id, req.user?.id ?? '');
+  }
 }

@@ -101,7 +101,6 @@ export class RelatoriosController {
       required: ['list_id'],
       properties: {
         list_id: { type: 'string', format: 'uuid' },
-        listId: { type: 'string', format: 'uuid', description: 'Alias de list_id' },
         tipo: {
           type: 'string',
           enum: ['simples'],
@@ -116,13 +115,13 @@ export class RelatoriosController {
     },
   })
   @ApiCreatedResponse({ schema: relatorioSchema })
-  @ApiBadRequestResponse({ schema: errorSchema('listId/list_id é obrigatório') })
+  @ApiBadRequestResponse({ schema: errorSchema('list_id é obrigatório') })
   async generate(@Body() body: any, @Req() req?: Request) {
     const userId = this.resolveUserId(body, req);
-    const listId = body?.listId ?? body?.list_id;
+    const listId = body?.list_id;
 
     if (!listId) {
-      throw new BadRequestException('listId/list_id é obrigatório');
+      throw new BadRequestException('list_id é obrigatório');
     }
 
     if (body?.tipo === 'simples') {

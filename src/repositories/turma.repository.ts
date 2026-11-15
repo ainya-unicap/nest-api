@@ -38,6 +38,15 @@ export class TurmaRepository {
     });
   }
 
+  // Roster da turma (área da professora): todo aluno vinculado, entregue ou não.
+  findAlunosByTurma(turmaId: string) {
+    return prisma.alunoTurma.findMany({
+      where: { turma_id: turmaId },
+      include: { user: { select: { id: true, name: true, email: true, matricula: true } } },
+      orderBy: { createdAt: 'asc' },
+    });
+  }
+
   temVinculo(userId: string, turmaId: string) {
     return prisma.alunoTurma
       .findUnique({ where: { user_id_turma_id: { user_id: userId, turma_id: turmaId } } })

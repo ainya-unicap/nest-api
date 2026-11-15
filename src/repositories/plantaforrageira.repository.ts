@@ -17,4 +17,8 @@ export class PlantaForrageiraRepository {
   findById(id: string) {
     return prisma.plantaForrageira.findUnique({ where: { id } });
   }
+
+  create(data: { name: string; category: string; description: string; semester_focus: string }) {
+    return prisma.plantaForrageira.create({ data });
+  }
 }
