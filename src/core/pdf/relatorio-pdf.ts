@@ -1,3 +1,7 @@
+import { ICONE_PNG_BASE64 } from './icone';
+
+const ICONE_PNG = Buffer.from(ICONE_PNG_BASE64, 'base64');
+
 // Paleta oficial do app (front-end/tailwind.config.js) — mesmas cores da
 // splash screen e dos botões, pra o PDF não parecer de outro produto.
 const COR = {
@@ -30,43 +34,18 @@ const SECOES: Array<{ titulo: string; campo: string }> = [
   { titulo: 'Referências', campo: 'references' },
 ];
 
-/** Um broto estilizado (duas folhas + caule), desenhado em vetor — sem depender de imagem. */
-function desenharBroto(doc: PDFKit.PDFDocument, x: number, y: number, cor: string) {
-  doc.save();
-  doc.fillColor(cor);
-
-  // Caule
-  doc.moveTo(x, y + 22).lineTo(x, y + 6).lineWidth(2).strokeColor(cor).stroke();
-
-  // Folha esquerda
-  doc
-    .moveTo(x, y + 14)
-    .bezierCurveTo(x - 14, y + 10, x - 16, y - 4, x - 2, y - 6)
-    .bezierCurveTo(x - 8, y + 4, x - 4, y + 12, x, y + 14)
-    .fill();
-
-  // Folha direita (um pouco maior, assimétrica fica mais natural)
-  doc
-    .moveTo(x, y + 8)
-    .bezierCurveTo(x + 16, y + 2, x + 20, y - 14, x + 4, y - 16)
-    .bezierCurveTo(x + 12, y - 4, x + 6, y + 4, x, y + 8)
-    .fill();
-
-  doc.restore();
-}
-
 function cabecalho(doc: PDFKit.PDFDocument) {
   const largura = doc.page.width;
   const alturaFaixa = 100;
 
   doc.rect(0, 0, largura, alturaFaixa).fill(COR.primaria);
-  desenharBroto(doc, 70, 48, COR.destaque);
+  doc.image(ICONE_PNG, 55, 30, { width: 40, height: 40 });
 
   doc
     .fillColor(COR.branco)
     .font('Helvetica-Bold')
     .fontSize(11)
-    .text('DONKEYCODE', 95, 30, { characterSpacing: 1.5 });
+    .text('DONKEYCODE PRO FORRAGIA APP', 95, 30, { characterSpacing: 1.5 });
 
   doc
     .fillColor(COR.branco)
@@ -104,7 +83,10 @@ function caixaInfo(doc: PDFKit.PDFDocument, relatorio: any) {
   const largura = doc.page.width - margem * 2;
   const x = margem;
   const y = doc.y;
-  const altura = 72;
+  // Alto o bastante pra caber o selo de status (badge) por completo: ele
+  // começa em linhaY+10 (y+60) e tem 18px de altura, terminando em y+78 — sem
+  // essa folga o "Rascunho" ficava cortado pra fora do quadro.
+  const altura = 88;
 
   doc.roundedRect(x, y, largura, altura, 6).fill(COR.secundaria);
 
@@ -229,7 +211,7 @@ function rodape(doc: PDFKit.PDFDocument) {
       .fillColor(COR.textoMuted)
       .font('Helvetica')
       .fontSize(8)
-      .text('DonkeyCode · Acompanhamento de plantas forrageiras', margem, y + 6, {
+      .text('DonkeyCode Pro Forragia App · Acompanhamento de plantas forrageiras', margem, y + 6, {
         width: doc.page.width - margem * 2 - 60,
       });
 
