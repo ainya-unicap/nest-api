@@ -17,6 +17,13 @@ type Secao = (typeof SECOES_VALIDAS)[number];
 
 const STATUS_FECHADOS = ['SUBMETIDO', 'CORRIGIDO'];
 
+function objetivoPadrao(plantName: string): string {
+  return (
+    `Acompanhar e registrar o desenvolvimento de ${plantName} ao longo do semestre, ` +
+    'documentando medições semanais de altura, cobertura do solo e estádio fenológico.'
+  );
+}
+
 @Injectable()
 export class RelatorioService {
   private readonly repo = new RelatorioRepository();
@@ -49,16 +56,12 @@ export class RelatorioService {
     const rascunhoExistente = await this.repo.findRascunhoPorListaEUsuario(listId, userId);
     if (rascunhoExistente) return rascunhoExistente;
 
-    const objetivoGerado =
-      `Acompanhar e registrar o desenvolvimento de ${lista.plant.name} ao longo do semestre, ` +
-      'documentando medições semanais de altura, cobertura do solo e estádio fenológico.';
-
     return this.repo.createRelatorio({
       user_id: userId,
       list_id: listId,
       canteiro_id: lista.canteiro_id,
       status: 'RASCUNHO',
-      objective: objetivoGerado,
+      objective: objetivoPadrao(lista.plant.name),
       introduction: '',
       development: '',
       final_thoughts: '',
@@ -92,7 +95,16 @@ export class RelatorioService {
     const textos = montarTextosSimples(lista, formularios);
     const rascunho = await this.createRelatorio(userId, listId);
 
-    return this.repo.update(rascunho.id, textos);
+    // "Simples" só gera introdução e desenvolvimento. Se o rascunho já existia
+    // (ex.: gerado antes pela IA, que também preenche objetivo/considerações
+    // finais/referências), essas sobras de outra origem são zeradas — senão
+    // ficam lá mesmo depois de "refazer" como simples.
+    return this.repo.update(rascunho.id, {
+      ...textos,
+      objective: objetivoPadrao(lista.plant.name),
+      final_thoughts: '',
+      references: '',
+    });
   }
 
   async getRelatorioById(id: string) {

@@ -93,7 +93,10 @@ export class RelatoriosController {
       'O relatório nasce com status RASCUNHO. Com tipo = "simples", a introdução e o ' +
       'desenvolvimento já saem preenchidos com todos os formulários da lista, em ordem ' +
       'cronológica e organizados por semana (sem IA); exige ao menos um formulário (422). ' +
-      'Sem tipo, cria só o rascunho com o objetivo.',
+      'Sem tipo, cria só o rascunho com o objetivo. Reaproveita o rascunho existente do ' +
+      'canteiro em vez de duplicar; se esse rascunho já tinha objetivo/considerações ' +
+      'finais/referências de uma geração por IA, o tipo "simples" zera esses campos (só ' +
+      'introdução e desenvolvimento são dele) — assim nada de outra origem fica sobrando.',
   })
   @ApiBody({
     schema: {
