@@ -45,7 +45,7 @@ function cabecalho(doc: PDFKit.PDFDocument) {
     .fillColor(COR.branco)
     .font('Helvetica-Bold')
     .fontSize(11)
-    .text('DONKEYCODE PRO FORRAGIA APP', 95, 30, { characterSpacing: 1.5 });
+    .text('FORRAGIA APP', 95, 30, { characterSpacing: 1.5 });
 
   doc
     .fillColor(COR.branco)
@@ -211,7 +211,7 @@ function rodape(doc: PDFKit.PDFDocument) {
       .fillColor(COR.textoMuted)
       .font('Helvetica')
       .fontSize(8)
-      .text('DonkeyCode Pro Forragia App · Acompanhamento de plantas forrageiras', margem, y + 6, {
+      .text('Forragia App · Acompanhamento de plantas forrageiras', margem, y + 6, {
         width: doc.page.width - margem * 2 - 60,
       });
 
