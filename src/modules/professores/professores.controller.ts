@@ -294,4 +294,52 @@ export class ProfessoresController {
   async listarAlunos(@Param('id') id: string, @Req() req: Request) {
     return await this.professorService.listarAlunos(id, req.user?.id ?? '');
   }
+
+  @ApiAuth()
+  @Roles('professor')
+  @UseGuards(RolesGuard)
+  @Get('turmas/:id/canteiros')
+  @ApiOperation({
+    summary: 'Lista os canteiros que os alunos etiquetaram com esta turma',
+    description:
+      'Etiqueta opcional que o aluno escolhe ao criar o canteiro (turma_id) — sem relação com ' +
+      'o vínculo formal de matrícula. Cada canteiro já vem com a planta e quem está vinculado a ele.',
+  })
+  @ApiParam({ name: 'id', format: 'uuid' })
+  @ApiOkResponse({
+    schema: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' },
+          name: { type: 'string', example: 'Canteiro 1' },
+          plant: {
+            type: 'object',
+            properties: {
+              id: { type: 'string', format: 'uuid' },
+              name: { type: 'string' },
+              category: { type: 'string' },
+            },
+          },
+          users: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                id: { type: 'string', format: 'uuid' },
+                name: { type: 'string' },
+                email: { type: 'string' },
+              },
+            },
+          },
+        },
+      },
+    },
+  })
+  @ApiForbiddenResponse({ schema: errorSchema('Você só pode gerenciar as próprias turmas') })
+  @ApiNotFoundResponse({ schema: errorSchema('Turma não encontrada') })
+  async listarCanteiros(@Param('id') id: string, @Req() req: Request) {
+    return await this.professorService.listarCanteiros(id, req.user?.id ?? '');
+  }
 }

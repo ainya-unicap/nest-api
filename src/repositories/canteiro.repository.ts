@@ -143,6 +143,20 @@ export class CanteiroRepository {
     });
   }
 
+  // Canteiros etiquetados com esta turma (lembrete do aluno), pra professora
+  // ver a planta que cada um registrou. Sem relação com AlunoTurma/vínculo
+  // formal — é só a etiqueta turma_id do canteiro.
+  findByTurma(turmaId: string) {
+    return prisma.canteiro.findMany({
+      where: { turma_id: turmaId },
+      include: {
+        plant: { select: { id: true, name: true, category: true } },
+        users: { include: { user: { select: { id: true, name: true, email: true } } } },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+  }
+
   temOutroVinculo(canteiroId: string, userId: string) {
     return prisma.userCanteiro
       .count({ where: { canteiro_id: canteiroId, user_id: { not: userId } } })

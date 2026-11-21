@@ -8,6 +8,7 @@ import { TurmaCodigoRepository } from '../repositories/turmacodigo.repository';
 import { EntregaRelatorioRepository } from '../repositories/entregarelatorio.repository';
 import { AcademicPeriodRepository } from '../repositories/academicperiod.repository';
 import { InstitutionRepository } from '../repositories/institution.repository';
+import { CanteiroRepository } from '../repositories/canteiro.repository';
 import { HttpError, erroDeCampos } from '../core/httpError';
 import { removeStoredFile } from '../core/storage';
 
@@ -30,6 +31,7 @@ export class ProfessorService {
   private readonly entregaRepo = new EntregaRelatorioRepository();
   private readonly periodRepo = new AcademicPeriodRepository();
   private readonly institutionRepo = new InstitutionRepository();
+  private readonly canteiroRepo = new CanteiroRepository();
 
   // Cadastro simples: nome, e-mail, senha, confirmar senha. Sem trava por
   // enquanto (sem domínio institucional, sem aprovação). role é sempre
@@ -234,5 +236,19 @@ export class ProfessorService {
           : null,
       };
     });
+  }
+
+  // Canteiros que os alunos etiquetaram com esta turma, com a planta de cada
+  // um — pra professora ver o que cada aluno registrou.
+  async listarCanteiros(turmaId: string, userId: string) {
+    await this.validarDonaDaTurma(turmaId, userId);
+
+    const canteiros = await this.canteiroRepo.findByTurma(turmaId);
+    return canteiros.map((c) => ({
+      id: c.id,
+      name: c.name,
+      plant: c.plant,
+      users: c.users.map((u) => u.user),
+    }));
   }
 }
